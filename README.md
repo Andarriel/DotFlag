@@ -4,48 +4,48 @@ DotFlag este o platformă de tip Capture The Flag (CTF) robustă și performant�
 
 🚀 Funcționalități
 
-    Pagina de Quest-uri: Un hub centralizat unde utilizatorii pot naviga, filtra și accesa provocările din diverse categorii.
+    • Pagina de Quest-uri: Un hub centralizat unde utilizatorii pot naviga, filtra și accesa provocările din diverse categorii.
 
-    Pagina de Administrare: Control total asupra creării de provocări, gestionării utilizatorilor și configurării platformei.
+    • Pagina de Administrare: Control total asupra creării de provocări, gestionării utilizatorilor și configurării platformei.
 
-    Leaderboard: Clasament în timp real bazat pe punctajele obținute și timpul de rezolvare.
+    • Leaderboard: Clasament în timp real bazat pe punctajele obținute și timpul de rezolvare.
 
-    Containere Virtuale: Suport integrat pentru analiza problemelor folosind medii izolate.
+    • Containere Virtuale: Suport integrat pentru analiza problemelor folosind medii izolate.
 
-    Profil Utilizator: Istoric detaliat al problemelor rezolvate, realizări și statistici de performanță.
+    • Profil Utilizator: Istoric detaliat al problemelor rezolvate, realizări și statistici de performanță.
 
-    Chat de Echipă (în lucru): Instrumente de colaborare pentru strategii în cadrul echipei.
+    • Chat de Echipă (în lucru): Instrumente de colaborare pentru strategii în cadrul echipei.
 
-    Backend API: Un API extensibil cu minimum 12 endpoint-uri (incluzând 4 seturi complete de operațiuni CRUD).
+    • Backend API: Un API extensibil cu minimum 12 endpoint-uri (incluzând 4 seturi complete de operațiuni CRUD).
 
 🏗️ Arhitectură Tehnică
 
 Proiectul respectă normele Clean Architecture pentru a asigura un cod decuplat, testabil și ușor de întreținut.
 Tehnologii Utilizate
 
-    Framework: .NET 8 / Core
+   • Framework: .NET 8 / Core
 
-    Bază de date: Suport pentru PostgreSQL sau MySQL
+   • Bază de date: Suport pentru PostgreSQL sau MySQL
 
-    Autentificare: Session-based authentication (Sesiuni securizate, fără token-uri JWT)
+   • Autentificare: Session-based authentication (Sesiuni securizate, fără token-uri JWT)
 
-    Acces Date: Entity Framework Core
+   • Acces Date: Entity Framework Core
 
 Modelul de Date
 
 Sistemul este construit în jurul a 6 entități principale:
 
-    User: Gestionarea identității și a profilului.
+    1. User: Gestionarea identității și a profilului.
 
-    Challenge (Quest): Task-ul principal, conținând flag-ul și punctajul.
+    2. Challenge (Quest): Task-ul principal, conținând flag-ul și punctajul.
 
-    Submission: Înregistrarea tentativelor și a succeselor utilizatorilor.
+    3. Submission: Înregistrarea tentativelor și a succeselor utilizatorilor.
 
-    Category: Gruparea provocărilor (ex: Pwn, Web, Crypto, Reverse Engineering).
+    4. Category: Gruparea provocărilor (ex: Pwn, Web, Crypto, Reverse Engineering).
 
-    Team: Gruparea utilizatorilor pentru competiția pe echipe.
+    5. Team: Gruparea utilizatorilor pentru competiția pe echipe.
 
-    ContainerConfig: Metadate pentru lansarea mediilor de analiză virtualizate.
+    6. ContainerConfig: Metadate pentru lansarea mediilor de analiză virtualizate.
 
 🛠️ Instalare și Configurare
 
