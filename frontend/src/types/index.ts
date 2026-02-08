@@ -2,14 +2,14 @@ export type UserRole = 'Admin' | 'User' | 'Guest';
 export type ChallengeCategory = 'Web' | 'Crypto' | 'Pwn' | 'Reverse' | 'Misc' | 'Forensics';
 export type ChallengeDifficulty = 'Easy' | 'Medium' | 'Hard';
 
-
 export interface User {
-  id: number; // number for now
+  id: number;
   username: string;
   email: string;
   role: UserRole;
   currentPoints: number;
   teamId?: number;
+  teamName?: string;
 }
 
 export interface Challenge {
@@ -29,5 +29,11 @@ export interface Submission {
   challengeId: number;
   submittedFlag: string;
   isCorrect: boolean;
-  timestamp: string; // ISO Date string
+  timestamp: string;
+}
+
+export interface LeaderboardEntry extends User {
+  rank: number;
+  solvedChallenges: number;
+  lastSolveTime?: string;
 }
