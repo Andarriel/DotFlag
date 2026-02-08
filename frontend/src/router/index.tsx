@@ -2,11 +2,11 @@ import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
+import NotFoundPage from '../pages/NotFoundPage';
 
 // Mock placeholders for future pages
 const ChallengesPagePlaceholder = () => <div className="text-white text-center py-20 text-2xl">Challenges Module (In Progress)</div>;
 const LeaderboardPagePlaceholder = () => <div className="text-white text-center py-20 text-2xl">Leaderboard Module (In Progress)</div>;
-
 
 export const router = createBrowserRouter([
   {
@@ -21,5 +21,9 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />
   }
 ]);
