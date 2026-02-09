@@ -1,4 +1,4 @@
-import { Trophy, Zap, Target, Clock, Medal } from 'lucide-react';
+import { Trophy, Zap, Target, Clock } from 'lucide-react';
 import { MOCK_LEADERBOARD, MOCK_USER, MOCK_TEAM_PROGRESS } from '../data/mockData';
 import { formatTimeAgo, getRankBadgeColor, getRankIcon } from '../utils/leaderboardUtils';
 
@@ -280,28 +280,6 @@ export default function LeaderboardPage() {
           </div>
         </div>
 
-        {/* Stats Footer */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center">
-            <Medal className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white mb-1">{MOCK_LEADERBOARD.length}</p>
-            <p className="text-sm text-slate-400">Total Players</p>
-          </div>
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center">
-            <Zap className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white mb-1">
-              {MOCK_LEADERBOARD.reduce((sum, e) => sum + e.currentPoints, 0)}
-            </p>
-            <p className="text-sm text-slate-400">Total Points Earned</p>
-          </div>
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center">
-            <Target className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white mb-1">
-              {MOCK_LEADERBOARD.reduce((sum, e) => sum + e.solvedChallenges, 0)}
-            </p>
-            <p className="text-sm text-slate-400">Challenges Solved</p>
-          </div>
-        </div>
       </div>
     </div>
   );
