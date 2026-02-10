@@ -3,6 +3,7 @@ export const ROUTES = {
   CHALLENGES: '/challenges',
   LEADERBOARD: '/leaderboard',
   LOGIN: '/login',
+  REGISTER: '/register',
   NOT_FOUND: '*'
 } as const;
 

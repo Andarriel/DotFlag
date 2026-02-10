@@ -1,7 +1,10 @@
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
+import AuthLayout from '../layouts/AuthLayout';
+import PrivateRoute from '../components/common/PrivateRoute';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ChallengePage from '../pages/ChallengePage';
 import LeaderboardPage from '../pages/LeaderboardPage';
@@ -13,13 +16,21 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
+      {
+        element: <PrivateRoute />,
+        children: [
+          { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
+        ]
+      },
       { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
     ]
   },
   {
-    path: ROUTES.LOGIN,
-    element: <LoginPage />
+    element: <AuthLayout />,
+    children: [
+      { path: ROUTES.LOGIN, element: <LoginPage /> },
+      { path: ROUTES.REGISTER, element: <RegisterPage /> },
+    ]
   },
   {
     path: ROUTES.NOT_FOUND,
