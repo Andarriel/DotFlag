@@ -1,6 +1,6 @@
 import { Shield, CheckCircle, Clock, Zap } from 'lucide-react';
 import { CHALLENGE_CATEGORIES, CHALLENGE_DIFFICULTIES } from '../../constants';
-import { getDifficultyColor } from '../../utils/challengeUtils';
+import { getDifficultyColor, getCategoryIcon } from '../../utils/challengeUtils';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../../types';
 
 /* Reusable blocks */
@@ -103,6 +103,8 @@ export function ChallengeStats({ solvedCount, availableCount, totalPoints }: Cha
 }
 
 export function ChallengeCard({ challenge }: { challenge: Challenge }) {
+  const CategoryIcon = getCategoryIcon(challenge.category);
+
   return (
     <div
       className={`bg-slate-900/50 border rounded-xl p-6 transition-all hover:border-indigo-500/50 cursor-pointer group ${
@@ -116,7 +118,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center">
-          <img src="/challenges.png" alt="Challenges icon" className="w-6 h-6" />
+          <CategoryIcon className="w-6 h-6 text-white" />
         </div>
         {challenge.isSolved && (
           <CheckCircle className="w-5 h-5 text-green-400" />
