@@ -158,10 +158,11 @@ export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
   }
 ];
 
-// Mock data for team progress over time
 export interface TeamProgressPoint {
   timestamp: string;
   points: number;
+  challengeName?: string;
+  challengePoints?: number;
 }
 
 export interface TeamProgress {
@@ -175,43 +176,54 @@ export const MOCK_TEAM_PROGRESS: TeamProgress[] = [
   {
     teamId: 1,
     teamName: "Cyber Elite",
-    color: "#6366f1", // indigo
+    color: "#6366f1",
     progress: [
       { timestamp: "2026-02-09T01:00:00Z", points: 0 },
-      { timestamp: "2026-02-09T02:00:00Z", points: 300 },
-      { timestamp: "2026-02-09T03:00:00Z", points: 800 },
-      { timestamp: "2026-02-09T04:00:00Z", points: 1200 },
-      { timestamp: "2026-02-09T05:00:00Z", points: 1800 },
-      { timestamp: "2026-02-09T06:00:00Z", points: 2200 },
-      { timestamp: "2026-02-09T07:00:00Z", points: 2537 }
+      { timestamp: "2026-02-09T01:25:00Z", points: 100, challengeName: "Hello World", challengePoints: 100 },
+      { timestamp: "2026-02-09T01:55:00Z", points: 300, challengeName: "Base64 Madness", challengePoints: 200 },
+      { timestamp: "2026-02-09T02:20:00Z", points: 500, challengeName: "SQL Injection 101", challengePoints: 200 },
+      { timestamp: "2026-02-09T02:50:00Z", points: 700, challengeName: "XSS Hunter", challengePoints: 200 },
+      { timestamp: "2026-02-09T03:25:00Z", points: 1000, challengeName: "Buffer Overflow 101", challengePoints: 300 },
+      { timestamp: "2026-02-09T04:00:00Z", points: 1300, challengeName: "RSA Basics", challengePoints: 300 },
+      { timestamp: "2026-02-09T04:40:00Z", points: 1500, challengeName: "Packet Sniff", challengePoints: 200 },
+      { timestamp: "2026-02-09T05:15:00Z", points: 1800, challengeName: "Kernel Panic", challengePoints: 300 },
+      { timestamp: "2026-02-09T05:50:00Z", points: 2100, challengeName: "Memory Forensics", challengePoints: 300 },
+      { timestamp: "2026-02-09T06:30:00Z", points: 2337, challengeName: "Hidden Service", challengePoints: 237 },
+      { timestamp: "2026-02-09T07:00:00Z", points: 2537, challengeName: "Final Boss", challengePoints: 200 },
     ]
   },
   {
     teamId: 2,
     teamName: "Script Kiddies",
-    color: "#ec4899", // pink
+    color: "#ec4899",
     progress: [
       { timestamp: "2026-02-09T01:00:00Z", points: 0 },
-      { timestamp: "2026-02-09T02:00:00Z", points: 200 },
-      { timestamp: "2026-02-09T03:00:00Z", points: 650 },
-      { timestamp: "2026-02-09T04:00:00Z", points: 900 },
-      { timestamp: "2026-02-09T05:00:00Z", points: 1300 },
-      { timestamp: "2026-02-09T06:00:00Z", points: 1650 },
-      { timestamp: "2026-02-09T07:00:00Z", points: 1925 }
+      { timestamp: "2026-02-09T01:45:00Z", points: 100, challengeName: "Hello World", challengePoints: 100 },
+      { timestamp: "2026-02-09T02:25:00Z", points: 250, challengeName: "Robots.txt", challengePoints: 150 },
+      { timestamp: "2026-02-09T03:05:00Z", points: 500, challengeName: "Base64 Madness", challengePoints: 250 },
+      { timestamp: "2026-02-09T03:35:00Z", points: 700, challengeName: "Directory Traversal", challengePoints: 200 },
+      { timestamp: "2026-02-09T04:20:00Z", points: 950, challengeName: "XSS Hunter", challengePoints: 250 },
+      { timestamp: "2026-02-09T05:00:00Z", points: 1200, challengeName: "SQL Injection 101", challengePoints: 250 },
+      { timestamp: "2026-02-09T05:35:00Z", points: 1450, challengeName: "Packet Sniff", challengePoints: 250 },
+      { timestamp: "2026-02-09T06:10:00Z", points: 1650, challengeName: "Cookie Monster", challengePoints: 200 },
+      { timestamp: "2026-02-09T06:40:00Z", points: 1800, challengeName: "JWT Cracker", challengePoints: 150 },
+      { timestamp: "2026-02-09T07:00:00Z", points: 1925, challengeName: "Log Analysis", challengePoints: 125 },
     ]
   },
   {
     teamId: 3,
     teamName: "Code Breakers",
-    color: "#10b981", // green
+    color: "#10b981",
     progress: [
       { timestamp: "2026-02-09T01:00:00Z", points: 0 },
-      { timestamp: "2026-02-09T02:00:00Z", points: 150 },
-      { timestamp: "2026-02-09T03:00:00Z", points: 500 },
-      { timestamp: "2026-02-09T04:00:00Z", points: 750 },
-      { timestamp: "2026-02-09T05:00:00Z", points: 900 },
-      { timestamp: "2026-02-09T06:00:00Z", points: 1150 },
-      { timestamp: "2026-02-09T07:00:00Z", points: 1330 }
+      { timestamp: "2026-02-09T02:10:00Z", points: 100, challengeName: "Hello World", challengePoints: 100 },
+      { timestamp: "2026-02-09T02:40:00Z", points: 200, challengeName: "Robots.txt", challengePoints: 100 },
+      { timestamp: "2026-02-09T03:20:00Z", points: 400, challengeName: "Base64 Madness", challengePoints: 200 },
+      { timestamp: "2026-02-09T04:05:00Z", points: 600, challengeName: "Caesar Cipher", challengePoints: 200 },
+      { timestamp: "2026-02-09T04:50:00Z", points: 800, challengeName: "Simple Overflow", challengePoints: 200 },
+      { timestamp: "2026-02-09T05:35:00Z", points: 1000, challengeName: "Log Analysis", challengePoints: 200 },
+      { timestamp: "2026-02-09T06:20:00Z", points: 1150, challengeName: "Steganography", challengePoints: 150 },
+      { timestamp: "2026-02-09T07:00:00Z", points: 1330, challengeName: "Network Recon", challengePoints: 180 },
     ]
   }
 ];
