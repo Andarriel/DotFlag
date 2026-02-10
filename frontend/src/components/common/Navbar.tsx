@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Terminal, Shield } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Terminal, Shield, LogOut } from 'lucide-react';
 import { ROUTES } from '../../router/paths';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -15,11 +18,16 @@ export default function Navbar() {
     { name: 'Leaderboard', path: ROUTES.LEADERBOARD },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTES.HOME);
+  };
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
+
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
             <Link to="/" className="flex items-center gap-2">
@@ -51,15 +59,28 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Auth Button */}
-          <div className="hidden md:block">
-            <Link
-              to={ROUTES.LOGIN}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
-            >
-              <Terminal className="h-4 w-4" />
-              <span>Login</span>
-            </Link>
+          {/* Auth */}
+          <div className="hidden md:flex items-center gap-3">
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-slate-300">{user?.username}</span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                to={ROUTES.LOGIN}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
+              >
+                <Terminal className="h-4 w-4" />
+                <span>Login</span>
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -74,7 +95,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu (Dropdown) */}
+      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-slate-900 border-b border-slate-800">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -88,13 +109,22 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link
-              to={ROUTES.LOGIN}
-              onClick={() => setIsOpen(false)}
-              className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-indigo-400 hover:text-indigo-300 hover:bg-slate-800"
-            >
-              Access Terminal (Login)
-            </Link>
+            {isAuthenticated ? (
+              <button
+                onClick={() => { handleLogout(); setIsOpen(false); }}
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-400 hover:text-red-300 hover:bg-slate-800"
+              >
+                Logout ({user?.username})
+              </button>
+            ) : (
+              <Link
+                to={ROUTES.LOGIN}
+                onClick={() => setIsOpen(false)}
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-indigo-400 hover:text-indigo-300 hover:bg-slate-800"
+              >
+                Access Terminal (Login)
+              </Link>
+            )}
           </div>
         </div>
       )}
