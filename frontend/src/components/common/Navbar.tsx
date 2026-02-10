@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Terminal, Shield } from 'lucide-react';
+import { ROUTES } from '../../router/paths';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,9 +10,9 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path;
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Challenges', path: '/challenges' },
-    { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Home', path: ROUTES.HOME },
+    { name: 'Challenges', path: ROUTES.CHALLENGES },
+    { name: 'Leaderboard', path: ROUTES.LEADERBOARD },
   ];
 
   return (
@@ -53,7 +54,7 @@ export default function Navbar() {
           {/* Auth Button */}
           <div className="hidden md:block">
             <Link
-              to="/login"
+              to={ROUTES.LOGIN}
               className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
             >
               <Terminal className="h-4 w-4" />
@@ -88,7 +89,7 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              to="/login"
+              to={ROUTES.LOGIN}
               onClick={() => setIsOpen(false)}
               className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-indigo-400 hover:text-indigo-300 hover:bg-slate-800"
             >

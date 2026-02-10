@@ -5,23 +5,24 @@ import LoginPage from '../pages/LoginPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ChallengePage from '../pages/ChallengePage';
 import LeaderboardPage from '../pages/LeaderboardPage';
+import { ROUTES, ROUTE_SEGMENTS } from './paths';
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: ROUTES.HOME,
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "challenges", element: <ChallengePage /> },
-      { path: "leaderboard", element: <LeaderboardPage /> },
+      { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
+      { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
     ]
   },
   {
-    path: "/login",
+    path: ROUTES.LOGIN,
     element: <LoginPage />
   },
   {
-    path: "*",
+    path: ROUTES.NOT_FOUND,
     element: <NotFoundPage />
   }
 ]);

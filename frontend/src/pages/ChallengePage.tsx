@@ -25,7 +25,7 @@ export default function ChallengePage() {
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
+              <img src="/challenges.png" alt="Challenges icon" className="w-6 h-6" />
             </div>
             <h1 className="text-4xl font-bold text-white">Challenges</h1>
           </div>
@@ -148,8 +148,8 @@ export default function ChallengePage() {
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-indigo-600/20 rounded-lg flex items-center justify-center group-hover:bg-indigo-600/30 transition-colors">
-                    <Icon className="w-6 h-6 text-indigo-400" />
+                  <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center">
+                    <img src="/challenges.png" alt="Challenges icon" className="w-6 h-6" />
                   </div>
                   {challenge.isSolved && (
                     <CheckCircle className="w-5 h-5 text-green-400" />
