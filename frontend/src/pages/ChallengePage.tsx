@@ -8,10 +8,11 @@ import {
   calculateChallengeStats,
   filterChallenges 
 } from '../utils/challengeUtils';
+import type { ChallengeCategory, ChallengeDifficulty } from '../types';
 
 export default function ChallengePage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<"All" | ChallengeCategory>("All");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<"All" | ChallengeDifficulty>("All");
 
   const filteredChallenges = filterChallenges(MOCK_CHALLENGES, selectedCategory, selectedDifficulty);
   const { solvedCount, availableCount, totalPoints } = calculateChallengeStats(MOCK_CHALLENGES);

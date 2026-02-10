@@ -29,7 +29,7 @@ export default function HomePage() {
             </h1>
             <p className="mt-6 text-lg leading-8 text-slate-300 max-w-2xl mx-auto">
               DotFlag is a modern platform designed to test your skills in Web Exploitation, 
-              Cryptography, and Reverse Engineering. Don't just read theory—hack real systems.
+              Cryptography, and Reverse Engineering. Don't just read theory - hack real systems.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
