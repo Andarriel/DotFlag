@@ -14,11 +14,13 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
     element: <MainLayout />,
-    children: [
+    children: 
+    [
       { index: true, element: <HomePage /> },
       {
         element: <PrivateRoute />,
-        children: [
+        children: 
+        [
           { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
         ]
       },
@@ -27,7 +29,8 @@ export const router = createBrowserRouter([
   },
   {
     element: <AuthLayout />,
-    children: [
+    children: 
+    [
       { path: ROUTES.LOGIN, element: <LoginPage /> },
       { path: ROUTES.REGISTER, element: <RegisterPage /> },
     ]
