@@ -1,4 +1,6 @@
 import { Github } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../../router/paths';
 
 export default function Footer() {
   return (
@@ -21,9 +23,9 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">Platform</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">Challenges</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">Scoreboard</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">Rules</a></li>
+              <li><Link to={ROUTES.CHALLENGES} className="text-slate-400 hover:text-indigo-400 text-sm transition">Challenges</Link></li>
+              <li><Link to={ROUTES.LEADERBOARD} className="text-slate-400 hover:text-indigo-400 text-sm transition">Leaderboard</Link></li>
+              <li><Link to={ROUTES.ABOUT} className="text-slate-400 hover:text-indigo-400 text-sm transition">About & Status</Link></li>
             </ul>
           </div>
 
@@ -31,18 +33,25 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">Resources</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">Documentation</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">API Status</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">Community</a></li>
+              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">API Documentation</a></li>
+              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">Write-ups</a></li>
+              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition">Learning Resources</a></li>
             </ul>
           </div>
 
            {/* Socials */}
            <div>
             <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">Connect</h3>
-            <div className="flex space-x-4">
-              <a href="#" className="text-slate-400 hover:text-white transition"><Github className="h-5 w-5"/></a>
-              {/* <a href="#" className="text-slate-400 hover:text-white transition"><Disc className="h-5 w-5"/></a> */}
+            <div className="flex items-center gap-2">
+              <a 
+                href="https://github.com/IvanGazul/DotFlag" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-white transition flex items-center gap-2"
+              >
+                <Github className="h-5 w-5"/>
+                <span className="text-sm">GitHub</span>
+              </a>
             </div>
           </div>
         </div>

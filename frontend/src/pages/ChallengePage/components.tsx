@@ -1,6 +1,6 @@
 import { Shield, CheckCircle, Clock, Zap, Globe, Lock, Terminal, Code, HelpCircle, Search, type LucideIcon } from 'lucide-react';
 import { CHALLENGE_CATEGORIES, CHALLENGE_DIFFICULTIES } from '../../constants';
-import { getDifficultyColor, getCategoryIcon } from '../../utils/challengeUtils';
+import { getDifficultyColor } from '../../utils/challengeUtils';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../../types';
 
 const CATEGORY_ICON: Record<ChallengeCategory, LucideIcon> = {
@@ -112,7 +112,6 @@ export function ChallengeStats({ solvedCount, availableCount, totalPoints }: Cha
 }
 
 export function ChallengeCard({ challenge }: { challenge: Challenge }) {
-  const CategoryIcon = getCategoryIcon(challenge.category);
 
   return (
     <div
