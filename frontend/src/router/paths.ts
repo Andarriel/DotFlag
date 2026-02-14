@@ -1,5 +1,6 @@
 export const ROUTES = {
   HOME: '/',
+  DASHBOARD: '/dashboard',
   CHALLENGES: '/challenges',
   LEADERBOARD: '/leaderboard',
   ABOUT: '/about',
@@ -9,6 +10,7 @@ export const ROUTES = {
 } as const;
 
 export const ROUTE_SEGMENTS = {
+  DASHBOARD: 'dashboard',
   CHALLENGES: 'challenges',
   LEADERBOARD: 'leaderboard',
   ABOUT: 'about'
