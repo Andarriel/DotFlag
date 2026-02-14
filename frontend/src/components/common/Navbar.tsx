@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Terminal, Shield, LogOut } from 'lucide-react';
+import { Menu, X, Terminal, Shield, LogOut, LayoutDashboard } from 'lucide-react';
 import { ROUTES } from '../../router/paths';
 import { useAuth } from '../../context/AuthContext';
 
@@ -14,6 +14,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', path: ROUTES.HOME },
+    ...(isAuthenticated ? [{ name: 'Dashboard', path: ROUTES.DASHBOARD }] : []),
     { name: 'Challenges', path: ROUTES.CHALLENGES },
     { name: 'Leaderboard', path: ROUTES.LEADERBOARD },
     { name: 'About', path: ROUTES.ABOUT },
@@ -31,7 +32,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={isAuthenticated ? ROUTES.DASHBOARD : ROUTES.HOME} className="flex items-center gap-2">
               <div className="bg-indigo-600 p-1.5 rounded-lg">
                 <Shield className="h-6 w-6 text-white" />
               </div>
@@ -64,8 +65,8 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-slate-300">{user?.username}</span>
-                <button
+                                  <span className="text-sm text-slate-300">{user?.username}</span>
+                                <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-all"
                 >

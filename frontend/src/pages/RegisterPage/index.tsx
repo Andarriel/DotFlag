@@ -13,25 +13,22 @@ export default function RegisterPage() {
   const { register, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
-    return <Navigate to={ROUTES.HOME} replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     register(username, email, password);
-    navigate(ROUTES.HOME);
+    navigate(ROUTES.DASHBOARD);
   };
 
   return (
     <>
-      {/* Logo */}
       <div className="mb-10 text-center">
         <BrandLogo />
       </div>
 
-      {/* Card */}
       <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-8">
-
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
           <p className="text-slate-400 text-sm">Join DotFlag and start hacking</p>

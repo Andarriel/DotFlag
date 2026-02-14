@@ -3,6 +3,7 @@ import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import PrivateRoute from '../components/common/PrivateRoute';
 import HomePage from '../pages/HomePage';
+import DashboardPage from '../pages/DashboardPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import NotFoundPage from '../pages/NotFoundPage';
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
         element: <PrivateRoute />,
         children: 
         [
+          { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
           { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
         ]
       },
