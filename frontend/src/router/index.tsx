@@ -8,6 +8,7 @@ import RegisterPage from '../pages/RegisterPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ChallengePage from '../pages/ChallengePage';
 import LeaderboardPage from '../pages/LeaderboardPage';
+import AboutPage from '../pages/AboutPage';
 import { ROUTES, ROUTE_SEGMENTS } from './paths';
 
 export const router = createBrowserRouter([
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
         ]
       },
       { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
+      { path: ROUTE_SEGMENTS.ABOUT, element: <AboutPage /> },
     ]
   },
   {

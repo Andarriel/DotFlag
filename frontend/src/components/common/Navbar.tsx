@@ -16,6 +16,7 @@ export default function Navbar() {
     { name: 'Home', path: ROUTES.HOME },
     { name: 'Challenges', path: ROUTES.CHALLENGES },
     { name: 'Leaderboard', path: ROUTES.LEADERBOARD },
+    { name: 'About', path: ROUTES.ABOUT },
   ];
 
   const handleLogout = () => {

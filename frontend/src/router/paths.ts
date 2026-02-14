@@ -2,6 +2,7 @@ export const ROUTES = {
   HOME: '/',
   CHALLENGES: '/challenges',
   LEADERBOARD: '/leaderboard',
+  ABOUT: '/about',
   LOGIN: '/login',
   REGISTER: '/register',
   NOT_FOUND: '*'
@@ -9,5 +10,6 @@ export const ROUTES = {
 
 export const ROUTE_SEGMENTS = {
   CHALLENGES: 'challenges',
-  LEADERBOARD: 'leaderboard'
+  LEADERBOARD: 'leaderboard',
+  ABOUT: 'about'
 } as const;
