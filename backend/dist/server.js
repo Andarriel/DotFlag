@@ -8,6 +8,7 @@ const express_session_1 = __importDefault(require("express-session"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const auth_1 = __importDefault(require("./routes/auth"));
+const authMiddleware_1 = require("./middleware/authMiddleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +28,9 @@ app.use((0, express_session_1.default)({
     },
 }));
 app.use('/api/auth', auth_1.default);
+app.get('/api/admin-dashboard', (0, authMiddleware_1.hasRole)('Admin'), (req, res) => {
+    res.json({ message: `Welcome to the admin area, ${req.session.role}!` });
+});
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
