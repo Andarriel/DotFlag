@@ -11,16 +11,15 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
 
-  if (isAuthenticated) {
-    return <Navigate to={ROUTES.DASHBOARD} replace />;
-  }
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, password);
-    navigate(ROUTES.DASHBOARD);
+    try {
+      await login(email, password);
+      navigate(ROUTES.DASHBOARD);
+    } catch (error: any) {
+      alert(error.message);
+    }
   };
-
   return (
     <>
       <div className="mb-10 text-center">

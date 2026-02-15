@@ -1,50 +1,56 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { User } from '../types';
+import { authApi } from '../utils/authApi'; // We will use a dedicated API utility
+
+interface User {
+  id: number;
+  email: string;
+  username: string;
+}
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => void;
-  register: (username: string, email: string, password: string) => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const login = (email: string, _password: string) => {
-    setUser({
-      id: 1,
-      username: email.split('@')[0],
-      email,
-      role: 'User',
-      currentPoints: 0,
-    });
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await authApi.post('/auth/login', { email, password });
+      if (response.status === 200) {
+        setUser(response.data);
+      } else {
+        // The error message will be caught by the calling function
+        throw new Error(response.data.message || 'Login failed');
+      }
+    } catch (error: any) {
+      // Re-throw the error so the LoginPage can display it
+      const errorMessage = error.response?.data?.message || 'Invalid credentials or server error.';
+      throw new Error(errorMessage);
+    }
   };
 
-  const register = (username: string, email: string, _password: string) => {
-    setUser({
-      id: 1,
-      username,
-      email,
-      role: 'User',
-      currentPoints: 0,
-    });
+  const logout = () => {
+    authApi.post('/auth/logout');
+    setUser(null);
   };
-
-  const logout = () => setUser(null);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
-}
+};
