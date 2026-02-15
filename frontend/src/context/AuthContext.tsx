@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode, useRef } from 'react';
 import { authApi } from '../utils/authApi';
 
 interface User {
@@ -21,12 +21,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasCheckedSession = useRef(false); // Prevent multiple checks
 
-  // Check for existing session on mount
+  // Check for existing session on mount (ONLY ONCE)
   useEffect(() => {
     const checkSession = async () => {
+      // If already checked, skip
+      if (hasCheckedSession.current) {
+        console.log('⏭️ Session already checked, skipping...');
+        return;
+      }
+
+      hasCheckedSession.current = true;
+      console.log('🔄 Checking for existing session...');
+
       try {
-        console.log('🔄 Checking for existing session...');
         const response = await authApi.get('/auth/session');
         console.log('✅ Session response:', response.data);
         
@@ -43,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkSession();
-  }, []);
+  }, []); // Empty dependency array - run ONLY on mount
 
   const login = async (email: string, password: string) => {
     try {
@@ -67,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
+      hasCheckedSession.current = false; // Reset for next login
     }
   };
 
