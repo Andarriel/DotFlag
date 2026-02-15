@@ -59,6 +59,11 @@ router.get('/session', (req, res) => {
     }
     return res.status(401).json({ message: 'No active session' });
 });
+router.get('/heartbeat', (req, res) => {
+    if (req.session.userId) {
+        return res.status(200).json({ status: 'OK', message: 'Session active' });
+    }
+});
 router.post('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {

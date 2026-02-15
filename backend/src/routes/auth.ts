@@ -80,7 +80,34 @@ router.post('/login', async (req, res) => {
   });
   
 
+  router.get('/heartbeat', (req, res) => {
+    if (req.session.userId) {
+      return res.status(200).json({ status: 'OK', message: 'Session active' });
+    }
+  });
+
+  router.get('/heartbeat-db', async (req, res) => {
+    const start = Date.now();
   
+    try {
+      await pool.query('SELECT 1');
+  
+      const duration = Date.now() - start;
+  
+      return res.status(200).json({ 
+        status: 'OK', 
+        latency: duration,
+        message: 'Database is responsive' 
+      });
+  
+    } catch (error) {
+      console.error('DB Heartbeat failed:', error);
+      return res.status(500).json({ 
+        status: 'Error', 
+        message: 'Database is offline or unreachable' 
+      });
+    }
+  });
 
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {

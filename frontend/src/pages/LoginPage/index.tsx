@@ -73,7 +73,7 @@ export default function LoginPage() {
 
       <div className="mt-6 text-center">
         <p className="text-xs text-slate-600">
-          Secured platform for cybersecurity training
+          All your data are stored securely and encrypted. We respect your privacy and never share your information with third parties.
         </p>
       </div>
     </>

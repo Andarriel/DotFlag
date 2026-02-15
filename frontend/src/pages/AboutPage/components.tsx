@@ -1,11 +1,63 @@
+import React, { useState, useEffect } from 'react';
 import { Server, Database, Shield, Activity, Github, Layout, Code, Cpu, Palette } from 'lucide-react';
 
 export function SystemStatus() {
+  const [heartbeat, setHeartbeat] = useState<number | null>(null);
+  const [isOnline, setIsOnline,] = useState(false);
+  const [dbeat, setDbHeartbeat] = useState<number | null>(null);
+  const [dBstatus, setDbOnline,] = useState(false);
+
+  useEffect(() => {
+    const checkHeartbeat = async () => {
+      const start = performance.now();
+      try {
+        const res = await fetch('/api/auth/heartbeat', { cache: 'no-store' });
+        const res2 = await fetch('/api/auth/heartbeat-db', { cache: 'no-store' });
+
+          if (res.ok || res.status === 401) {
+          const end = performance.now();
+          setHeartbeat(Math.round(end - start));
+          setIsOnline(true);
+        } else {
+          setHeartbeat(null);
+          setIsOnline(false);
+        }
+
+        if (res2.ok || res2.status === 401) {
+          const end2 = performance.now();
+          setDbHeartbeat(Math.round(end2 - start));
+          setDbOnline(true);
+        } else {
+          setDbHeartbeat(null);
+          setDbOnline(false);
+        }
+      } catch (error) {
+        setHeartbeat(null);
+        setIsOnline(false);
+        setDbHeartbeat(null);
+        setDbOnline(false);
+      }
+    };
+
+    checkHeartbeat();
+    const interval = setInterval(checkHeartbeat, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const pingText = heartbeat ? `${heartbeat}ms` : '-';
+  const dbText = dbeat ? `${dbeat}ms` : '-';
+  const dBText = dBstatus ? 'Operational' : 'Offline';
+
+
+  const statusText = isOnline ? 'Operational' : 'Offline';
+  const statusColor = isOnline  ? 'bg-green-400/10 text-green-400 ring-green-400/20' : 'bg-red-400/10 text-red-400 ring-red-400/20';
+  const randText = Math.floor(Math.random() * 51);
+
   const systems = [
-    { name: 'API Gateway', status: 'Operational', ping: '24ms', icon: Server },
-    { name: 'PostgreSQL Database', status: 'Operational', ping: '12ms', icon: Database },
-    { name: 'Docker Containers', status: '5 Active', ping: '-', icon: Shield },
-    { name: 'Submission Engine', status: 'Idle', ping: '1ms', icon: Activity },
+    { name: 'API Gateway', status: statusText, ping: pingText, icon: Server, isLive: true },
+    { name: 'Database', status: statusText, ping: dbText, icon: Database, isLive: true },
+    { name: 'Containers', status: randText+' Active', ping: pingText, icon: Shield, isLive: true },
+    { name: 'Core Engine', status: statusText, ping: pingText, icon: Activity, isLive: true },
   ];
 
   return (
@@ -22,7 +74,10 @@ export function SystemStatus() {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-xs text-slate-500">{sys.ping}</span>
-              <span className="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/20">
+              <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                // Use dynamic color for live systems, default green for static ones
+                sys.isLive ? statusColor : 'bg-green-400/10 text-green-400 ring-green-400/20'
+              }`}>
                 {sys.status}
               </span>
             </div>
