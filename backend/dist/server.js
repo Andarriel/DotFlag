@@ -13,18 +13,24 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 app.use((0, cors_1.default)({
-    origin: 'http://localhost:5173', // Your frontend URL
+
+    origin: ['http://localhost:5173', 'http://192.168.0.103', 'http://dotflag.net'], 
     credentials: true,
 }));
+
+app.set('trust proxy', 1);
+
 app.use(express_1.default.json());
 app.use((0, express_session_1.default)({
     secret: process.env.SESSION_SECRET || 'default_secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        // If it's true and you are on http://, the session will fail.
+        secure: false, 
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        sameSite: 'lax', // Better for cross-origin if needed
+        maxAge: 24 * 60 * 60 * 1000,
     },
 }));
 app.use('/api/auth', auth_1.default);
