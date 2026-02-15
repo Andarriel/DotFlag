@@ -20,17 +20,24 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: 
     [
+      // Public routes
       { index: true, element: <HomePage /> },
-      {
-        element: <PrivateRoute />,
-        children: 
-        [
-          { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
-          { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
-        ]
-      },
       { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
       { path: ROUTE_SEGMENTS.ABOUT, element: <AboutPage /> },
+      
+      // Protected routes nested INSIDE MainLayout
+      {
+        element: <ProtectedRoute requiredRole="Admin" />,
+        children: [
+          { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> }
+        ]
+      },
+      {
+        element: <ProtectedRoute requiredRole="User" />,
+        children: [
+          { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> }
+        ]
+      },
     ]
   },
   {
@@ -44,11 +51,5 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.NOT_FOUND,
     element: <NotFoundPage />
-  },
-  {
-    element: <ProtectedRoute requiredRole="Admin" />,
-    children: [
-      { path: ROUTES.DASHBOARD, element: <DashboardPage /> }
-    ]
   }
 ]);
