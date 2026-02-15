@@ -32,8 +32,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         const response = await authApi.get('/auth/session');
-        if (response.status === 200 && response.data.user) {
-          setUser(response.data.user);
+        const data = response.data as { user: User }; // Tell TS what to expect
+        if (response.status === 200 && data.user) {
+          setUser(data.user);
         }
       } catch (error) {
         console.log('No active session');
@@ -49,9 +50,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await authApi.post('/auth/login', { email, password });
       if (response.status === 200) {
-        setUser(response.data);
+        setUser(response.data as User);
       } else {
-        throw new Error(response.data.message || 'Login failed');
+        const errorData = response.data as { message?: string };
+        throw new Error(errorData.message || 'Login failed');
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Invalid credentials';
