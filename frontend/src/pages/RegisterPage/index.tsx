@@ -18,7 +18,7 @@ export default function RegisterPage() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    register(username, email, password);
+    register({ username, email, password });
     navigate(ROUTES.DASHBOARD);
   };
 

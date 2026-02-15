@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, useEffect, type ReactNode, useRef } from 'react';
-import { authApi } from '../utils/authApi';
+import { authApi } from '../utils/authApi'; // Make sure this path is correct
 
 interface User {
   id: number;
   email: string;
   username: string;
   role: 'Owner' | 'Admin' | 'Moderator' | 'Coach' | 'User' | 'Guest';
+  currentPoints?: number;
 }
 
 interface AuthContextType {
@@ -13,6 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (data: any) => Promise<void>; // <--- This was missing in the Provider
   logout: () => void;
 }
 
@@ -21,50 +23,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const hasCheckedSession = useRef(false); // Prevent multiple checks
+  const hasCheckedSession = useRef(false);
 
-  // Check for existing session on mount (ONLY ONCE)
   useEffect(() => {
     const checkSession = async () => {
-      // If already checked, skip
-      if (hasCheckedSession.current) {
-        console.log('⏭️ Session already checked, skipping...');
-        return;
-      }
-
+      if (hasCheckedSession.current) return;
       hasCheckedSession.current = true;
-      console.log('🔄 Checking for existing session...');
 
       try {
         const response = await authApi.get('/auth/session');
-        console.log('✅ Session response:', response.data);
-        
         if (response.status === 200 && response.data.user) {
           setUser(response.data.user);
-          console.log('✅ User loaded from session:', response.data.user);
         }
       } catch (error) {
-        console.log('❌ No active session');
+        console.log('No active session');
       } finally {
         setIsLoading(false);
-        console.log('✅ Loading complete');
       }
     };
 
     checkSession();
-  }, []); // Empty dependency array - run ONLY on mount
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
       const response = await authApi.post('/auth/login', { email, password });
       if (response.status === 200) {
-        console.log('✅ Login successful, user data:', response.data);
         setUser(response.data);
       } else {
         throw new Error(response.data.message || 'Login failed');
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Invalid credentials or server error.';
+      const errorMessage = error.response?.data?.message || 'Invalid credentials';
+      throw new Error(errorMessage);
+    }
+  };
+
+  // --- ADDED THIS FUNCTION ---
+  const register = async (data: any) => {
+    try {
+      const response = await authApi.post('/auth/register', data);
+      // If your backend auto-logs in after register, you can setUser here too:
+      // if (response.data.user) setUser(response.data.user);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Registration failed';
       throw new Error(errorMessage);
     }
   };
@@ -76,12 +78,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
-      hasCheckedSession.current = false; // Reset for next login
+      hasCheckedSession.current = false;
     }
   };
 
+  // --- ADDED register TO THE VALUE OBJECT ---
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
