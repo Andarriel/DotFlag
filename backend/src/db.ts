@@ -12,5 +12,5 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
-
+// This pool can be imported and used in the route handlers to execute queries against the MySQL database.
 export default pool;
