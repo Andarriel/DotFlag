@@ -3,6 +3,7 @@ import session from 'express-session';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
+import { hasRole } from './middleware/authMiddleware';
 
 dotenv.config();
 
@@ -28,6 +29,9 @@ app.use(session({
 }));
 
 app.use('/api/auth', authRoutes);
+app.get('/api/admin-dashboard', hasRole('Admin'), (req, res) => {
+    res.json({ message: `Welcome to the admin area, ${req.session.role}!` });
+  });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

@@ -7,6 +7,7 @@ const router = Router();
 declare module 'express-session' {
   interface SessionData {
     userId?: number;
+    role?: 'Owner' | 'Admin' | 'Moderator' | 'Coach' | 'User' | 'Guest';  
   }
 }
 
@@ -38,7 +39,8 @@ router.post('/login', async (req, res) => {
       return res.status(200).json({
         id: user.user_id, // sent as 'id' to frontend for consistency
         email: user.email,
-        username: user.username
+        username: user.username,
+        role: user.account_type
       });
   
     } catch (error) {

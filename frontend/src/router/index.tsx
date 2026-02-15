@@ -10,7 +10,9 @@ import NotFoundPage from '../pages/NotFoundPage';
 import ChallengePage from '../pages/ChallengePage';
 import LeaderboardPage from '../pages/LeaderboardPage';
 import AboutPage from '../pages/AboutPage';
+import { ProtectedRoute } from './ProtectedRoute';
 import { ROUTES, ROUTE_SEGMENTS } from './paths';
+
 
 export const router = createBrowserRouter([
   {
@@ -42,5 +44,11 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.NOT_FOUND,
     element: <NotFoundPage />
+  },
+  {
+    element: <ProtectedRoute requiredRole="Admin" />,
+    children: [
+      { path: ROUTES.DASHBOARD, element: <DashboardPage /> }
+    ]
   }
 ]);
