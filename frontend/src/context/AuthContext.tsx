@@ -1,5 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode, useRef } from 'react';
-import { authApi } from '../utils/authApi'; // Make sure this path is correct
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 interface User {
   id: number;
@@ -14,7 +13,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: any) => Promise<void>; // <--- This was missing in the Provider
+  register: (data: any) => Promise<void>;
   logout: () => void;
 }
 
@@ -23,68 +22,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const hasCheckedSession = useRef(false);
 
   useEffect(() => {
-    const checkSession = async () => {
-      if (hasCheckedSession.current) return;
-      hasCheckedSession.current = true;
-
-      try {
-        const response = await authApi.get('/auth/session');
-        const data = response.data as { user: User }; // Tell TS what to expect
-        if (response.status === 200 && data.user) {
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.log('No active session');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
+    const storedUser = localStorage.getItem('mock_user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await authApi.post('/auth/login', { email, password });
-      if (response.status === 200) {
-        setUser(response.data as User);
-      } else {
-        const errorData = response.data as { message?: string };
-        throw new Error(errorData.message || 'Login failed');
-      }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Invalid credentials';
-      throw new Error(errorMessage);
-    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const mockUser: User = {
+      id: 1,
+      email,
+      username: email.split('@')[0],
+      role: 'Owner',
+      currentPoints: 1000
+    };
+
+    setUser(mockUser);
+    localStorage.setItem('mock_user', JSON.stringify(mockUser));
   };
 
-  // --- ADDED THIS FUNCTION ---
   const register = async (data: any) => {
-    try {
-      const response = await authApi.post('/auth/register', data);
-      // If your backend auto-logs in after register, you can setUser here too:
-      // if (response.data.user) setUser(response.data.user);
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Registration failed';
-      throw new Error(errorMessage);
-    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const mockUser: User = {
+      id: Date.now(),
+      email: data.email,
+      username: data.username || data.email.split('@')[0],
+      role: 'User',
+      currentPoints: 0
+    };
+
+    setUser(mockUser);
+    localStorage.setItem('mock_user', JSON.stringify(mockUser));
   };
 
-  const logout = async () => {
-    try {
-      await authApi.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setUser(null);
-      hasCheckedSession.current = false;
-    }
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('mock_user');
   };
 
-  // --- ADDED register TO THE VALUE OBJECT ---
   return (
     <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}>
       {children}
