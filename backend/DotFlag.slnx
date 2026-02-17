@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DotFlag.Api/DotFlag.Api.csproj" />
+  <Project Path="DotFlag.Application/DotFlag.Application.csproj" />
+  <Project Path="DotFlag.Domain/DotFlag.Domain.csproj" />
+  <Project Path="DotFlag.Infrastructure/DotFlag.Infrastructure.csproj" />
+</Solution>

@@ -1,0 +1,6 @@
+@DotFlag.Api_HostAddress = http://localhost:5049
+
+GET {{DotFlag.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
