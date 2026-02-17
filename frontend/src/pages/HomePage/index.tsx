@@ -1,5 +1,8 @@
 import { useHomeStats } from '../../hooks/useHomeStats';
-import { HeroSection, StatsSection, FeaturesSection, CtaSection } from './components';
+import HeroSection from './HeroSection';
+import StatsSection from './StatsSection';
+import FeaturesSection from './FeaturesSection';
+import CtaSection from './CtaSection';
 
 export default function HomePage() {
   const { totalPlayers, totalPoints, totalSolved } = useHomeStats();
