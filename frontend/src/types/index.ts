@@ -1,6 +1,7 @@
-export type UserRole = 'Admin' | 'User' | 'Guest';
+export type UserRole = 'Owner' | 'Admin' | 'Moderator' | 'Coach' | 'User' | 'Guest';
 export type ChallengeCategory = 'Web' | 'Crypto' | 'Pwn' | 'Reverse' | 'Misc' | 'Forensics';
 export type ChallengeDifficulty = 'Easy' | 'Medium' | 'Hard';
+export type DockerStatus = 'running' | 'stopped' | 'error';
 
 export interface User {
   id: number;
@@ -23,6 +24,31 @@ export interface Challenge {
   isSolved?: boolean;
 }
 
+export interface ChallengeFile {
+  id: number;
+  name: string;
+  size: string;
+}
+
+export interface DockerImage {
+  id: number;
+  challengeId: number;
+  name: string;
+  status: DockerStatus;
+  ip: string;
+  port: number;
+  uptime: string;
+  expiresAt: string;
+}
+
+export interface ChallengeDetail extends Challenge {
+  files: ChallengeFile[];
+  dockerImage?: DockerImage;
+  hint?: string;
+  solveCount: number;
+  author: string;
+}
+
 export interface Submission {
   id: number;
   userId: number;
@@ -36,4 +62,55 @@ export interface LeaderboardEntry extends User {
   rank: number;
   solvedChallenges: number;
   lastSolveTime?: string;
+}
+
+export interface TeamMember {
+  id: number;
+  username: string;
+  role: UserRole;
+  points: number;
+  joinedAt: string;
+}
+
+export interface Team {
+  id: number;
+  name: string;
+  inviteCode: string;
+  members: TeamMember[];
+  totalPoints: number;
+  createdAt: string;
+}
+
+export interface FlagEntry {
+  challengeId: number;
+  challengeTitle: string;
+  points: number;
+  solvedAt: string;
+  category: ChallengeCategory;
+}
+
+export interface Profile extends User {
+  bio: string;
+  joinedAt: string;
+  flagHistory: FlagEntry[];
+}
+
+export interface AdminUser extends User {
+  isBanned: boolean;
+  lastLogin: string;
+  sessionActive: boolean;
+}
+
+export interface TeamProgressPoint {
+  timestamp: string;
+  points: number;
+  challengeName?: string;
+  challengePoints?: number;
+}
+
+export interface TeamProgress {
+  teamId: number;
+  teamName: string;
+  color: string;
+  progress: TeamProgressPoint[];
 }

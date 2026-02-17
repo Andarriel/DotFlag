@@ -1,16 +1,13 @@
+import { Shield } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
+import EmptyState from '../../components/common/EmptyState';
+import FilterBar from '../../components/challenges/FilterBar';
+import ChallengeStats from '../../components/challenges/ChallengeStats';
+import ChallengeCard from '../../components/challenges/ChallengeCard';
 import { useChallenges } from '../../hooks/useChallenges';
-import { FilterBar, ChallengeStats, ChallengeCard, EmptyState } from './components';
 
 export default function ChallengePage() {
-  const {
-    selectedCategory,
-    setSelectedCategory,
-    selectedDifficulty,
-    setSelectedDifficulty,
-    filteredChallenges,
-    stats,
-  } = useChallenges();
+  const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats } = useChallenges();
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -28,11 +25,7 @@ export default function ChallengePage() {
           onDifficultyChange={setSelectedDifficulty}
         />
 
-        <ChallengeStats
-          solvedCount={stats.solvedCount}
-          availableCount={stats.availableCount}
-          totalPoints={stats.totalPoints}
-        />
+        <ChallengeStats solvedCount={stats.solvedCount} availableCount={stats.availableCount} totalPoints={stats.totalPoints} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredChallenges.map(challenge => (
@@ -40,7 +33,9 @@ export default function ChallengePage() {
           ))}
         </div>
 
-        {filteredChallenges.length === 0 && <EmptyState />}
+        {filteredChallenges.length === 0 && (
+          <EmptyState icon={Shield} title="No challenges found" description="Try adjusting your filters" />
+        )}
       </div>
     </div>
   );
