@@ -79,16 +79,16 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
   };
 
   return (
-    <div className="mb-8 bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h2 className="text-xl font-bold text-white">Team Progress</h2>
-        <div className="flex gap-2 flex-wrap">
+    <div className="mb-8 glass rounded-2xl p-5 sm:p-6 gradient-border noise">
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <h2 className="text-lg font-bold text-white">Team Progress</h2>
+        <div className="flex gap-1.5 flex-wrap">
           {teamProgress.map(team => {
             const hidden = hiddenTeams.has(team.teamId);
             return (
               <button key={team.teamId} onClick={() => toggleTeam(team.teamId)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 border ${hidden ? 'bg-slate-900 border-slate-800 text-slate-600' : 'bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-700/80'}`}>
-                <div className="w-2.5 h-2.5 rounded-full transition-opacity duration-200" style={{ backgroundColor: team.color, opacity: hidden ? 0.25 : 1 }} />
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${hidden ? 'bg-slate-900/50 border-white/[0.04] text-slate-600' : 'glass text-slate-200 hover:bg-slate-800/50'}`}>
+                <div className="w-2 h-2 rounded-full transition-opacity duration-200" style={{ backgroundColor: team.color, opacity: hidden ? 0.25 : 1 }} />
                 {team.teamName}
               </button>
             );
@@ -102,15 +102,15 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
             <filter id="dot-glow"><feGaussianBlur stdDeviation="4" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
             {teamProgress.map(t => (
               <linearGradient key={t.teamId} id={`area-${t.teamId}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor={t.color} stopOpacity="0.2" /><stop offset="100%" stopColor={t.color} stopOpacity="0.01" />
+                <stop offset="0%" stopColor={t.color} stopOpacity="0.15" /><stop offset="100%" stopColor={t.color} stopOpacity="0.01" />
               </linearGradient>
             ))}
           </defs>
 
-          {yTickValues.map((val, i) => { const y = yScale(val); return (<g key={`y-${i}`}><line x1={PAD.left} y1={y} x2={chartW - PAD.right} y2={y} stroke="#1e293b" strokeWidth="1" /><text x={PAD.left - 10} y={y + 4} textAnchor="end" fill="#64748b" fontSize="11">{val}</text></g>); })}
-          {timeTicks.map((tick, i) => { const x = PAD.left + (i / (TICK_COUNT - 1)) * innerW; return (<g key={`x-${i}`}><line x1={x} y1={PAD.top} x2={x} y2={HEIGHT - PAD.bottom} stroke="#1e293b" strokeWidth="1" strokeDasharray="4 4" /><text x={x} y={HEIGHT - PAD.bottom + 20} textAnchor="middle" fill="#64748b" fontSize="11">{formatChartTime(tick)}</text></g>); })}
+          {yTickValues.map((val, i) => { const y = yScale(val); return (<g key={`y-${i}`}><line x1={PAD.left} y1={y} x2={chartW - PAD.right} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1" /><text x={PAD.left - 10} y={y + 4} textAnchor="end" fill="#475569" fontSize="11">{val}</text></g>); })}
+          {timeTicks.map((tick, i) => { const x = PAD.left + (i / (TICK_COUNT - 1)) * innerW; return (<g key={`x-${i}`}><line x1={x} y1={PAD.top} x2={x} y2={HEIGHT - PAD.bottom} stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="4 4" /><text x={x} y={HEIGHT - PAD.bottom + 20} textAnchor="middle" fill="#475569" fontSize="11">{formatChartTime(tick)}</text></g>); })}
 
-          {hoveredPoint && (() => { const team = teamProgress.find(t => t.teamId === hoveredPoint.teamId); if (!team) return null; const cx = xScale(team.progress[hoveredPoint.index].timestamp); return <line x1={cx} y1={PAD.top} x2={cx} y2={HEIGHT - PAD.bottom} stroke={team.color} strokeWidth="1" strokeDasharray="6 3" opacity="0.35" />; })()}
+          {hoveredPoint && (() => { const team = teamProgress.find(t => t.teamId === hoveredPoint.teamId); if (!team) return null; const cx = xScale(team.progress[hoveredPoint.index].timestamp); return <line x1={cx} y1={PAD.top} x2={cx} y2={HEIGHT - PAD.bottom} stroke={team.color} strokeWidth="1" strokeDasharray="6 3" opacity="0.3" />; })()}
 
           {visibleTeams.map(team => {
             const coords = team.progress.map(p => ({ x: xScale(p.timestamp), y: yScale(p.points) }));
@@ -142,11 +142,11 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
 
         {tooltip && (
           <div className="absolute pointer-events-none z-20" style={getTooltipStyle()}>
-            <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-600/50 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
+            <div className="glass-strong rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
               <div className="h-1" style={{ backgroundColor: tooltip.teamColor }} />
               <div className="px-4 py-3 min-w-[200px]">
                 <div className="flex items-center gap-2 mb-2.5">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tooltip.teamColor }} />
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tooltip.teamColor }} />
                   <span className="text-sm font-semibold text-white">{tooltip.teamName}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -154,7 +154,7 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
                   <span className="text-white font-bold">{tooltip.points}</span>
                 </div>
                 {tooltip.challengeName && (
-                  <div className="border-t border-slate-700/50 mt-2.5 pt-2.5">
+                  <div className="border-t border-white/[0.06] mt-2.5 pt-2.5">
                     <div className="text-xs text-slate-500 mb-1.5">Challenge Solved</div>
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-sm text-white font-medium">{tooltip.challengeName}</span>
@@ -162,7 +162,7 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
                     </div>
                   </div>
                 )}
-                <div className="border-t border-slate-700/50 mt-2.5 pt-2 text-xs text-slate-500 flex items-center gap-1.5">
+                <div className="border-t border-white/[0.06] mt-2.5 pt-2 text-xs text-slate-500 flex items-center gap-1.5">
                   <Clock className="w-3 h-3" />{formatChartTime(new Date(tooltip.timestamp))}
                 </div>
               </div>

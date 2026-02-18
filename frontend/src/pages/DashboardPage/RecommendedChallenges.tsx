@@ -7,20 +7,19 @@ function ChallengeItem({ challenge }: { challenge: Challenge }) {
   return (
     <Link
       to={`/challenges/${challenge.id}`}
-      className="block bg-slate-950 border border-slate-800 rounded-xl p-4 hover:border-indigo-500/50 transition group"
+      className="block glass rounded-xl p-4 hover:bg-slate-800/40 transition-all group"
     >
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-white font-semibold mb-1 group-hover:text-indigo-400 transition">{challenge.title}</h3>
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300">{challenge.category}</span>
-            <span>-</span>
-            <span>{challenge.difficulty}</span>
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-indigo-400 transition truncate">{challenge.title}</h3>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800/50 border border-white/[0.04] text-slate-400">{challenge.category}</span>
+            <span className="text-xs text-slate-600">{challenge.difficulty}</span>
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-right shrink-0 ml-3">
           <p className="text-lg font-bold text-indigo-400">{challenge.points}</p>
-          <p className="text-xs text-slate-500">points</p>
+          <p className="text-[11px] text-slate-600">pts</p>
         </div>
       </div>
     </Link>
@@ -29,17 +28,17 @@ function ChallengeItem({ challenge }: { challenge: Challenge }) {
 
 export default function RecommendedChallenges({ challenges }: { challenges: Challenge[] }) {
   return (
-    <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Award className="w-5 h-5 text-indigo-400" />
+    <div className="lg:col-span-2 glass rounded-2xl p-5 sm:p-6 gradient-border">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <Award className="w-4.5 h-4.5 text-indigo-400" />
           Recommended for You
         </h2>
-        <Link to={ROUTES.CHALLENGES} className="text-sm text-indigo-400 hover:text-indigo-300 transition">
+        <Link to={ROUTES.CHALLENGES} className="text-xs text-indigo-400/70 hover:text-indigo-400 transition">
           View All
         </Link>
       </div>
-      <div className="space-y-4">
+      <div className="space-y-2.5">
         {challenges.map(challenge => <ChallengeItem key={challenge.id} challenge={challenge} />)}
       </div>
     </div>

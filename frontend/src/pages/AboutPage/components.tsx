@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Server, Database, Shield, Activity, Github, Layout, Code, Cpu, Palette } from 'lucide-react';
 
 export function SystemStatus() {
   const [heartbeat, setHeartbeat] = useState<number | null>(null);
-  const [isOnline, setIsOnline,] = useState(false);
+  const [isOnline, setIsOnline] = useState(false);
   const [dbeat, setDbHeartbeat] = useState<number | null>(null);
-  const [dBstatus, setDbOnline,] = useState(false);
+  const [dBstatus, setDbOnline] = useState(false);
 
   useEffect(() => {
     const checkHeartbeat = async () => {
@@ -14,7 +14,7 @@ export function SystemStatus() {
         const res = await fetch('/api/auth/heartbeat', { cache: 'no-store' });
         const res2 = await fetch('/api/auth/heartbeat-db', { cache: 'no-store' });
 
-          if (res.ok || res.status === 401) {
+        if (res.ok || res.status === 401) {
           const end = performance.now();
           setHeartbeat(Math.round(end - start));
           setIsOnline(true);
@@ -31,7 +31,7 @@ export function SystemStatus() {
           setDbHeartbeat(null);
           setDbOnline(false);
         }
-      } catch (error) {
+      } catch {
         setHeartbeat(null);
         setIsOnline(false);
         setDbHeartbeat(null);
@@ -46,39 +46,35 @@ export function SystemStatus() {
 
   const pingText = heartbeat ? `${heartbeat}ms` : '-';
   const dbText = dbeat ? `${dbeat}ms` : '-';
-  const dBText = dBstatus ? 'Operational' : 'Offline';
-
-
   const statusText = isOnline ? 'Operational' : 'Offline';
-  const statusColor = isOnline  ? 'bg-green-400/10 text-green-400 ring-green-400/20' : 'bg-red-400/10 text-red-400 ring-red-400/20';
+  const statusColor = isOnline
+    ? 'bg-green-400/10 text-green-400 border-green-500/15'
+    : 'bg-red-400/10 text-red-400 border-red-500/15';
   const randText = Math.floor(Math.random() * 51);
 
   const systems = [
-    { name: 'API Gateway', status: statusText, ping: pingText, icon: Server, isLive: true },
-    { name: 'Database', status: statusText, ping: dbText, icon: Database, isLive: true },
-    { name: 'Containers', status: randText+' Active', ping: pingText, icon: Shield, isLive: true },
-    { name: 'Core Engine', status: statusText, ping: pingText, icon: Activity, isLive: true },
+    { name: 'API Gateway', ping: pingText, icon: Server },
+    { name: 'Database', ping: dbText, icon: Database },
+    { name: 'Containers', ping: `${randText} Active`, icon: Shield },
+    { name: 'Core Engine', ping: pingText, icon: Activity },
   ];
 
   return (
-    <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-8 mb-12">
-      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-        <Activity className="text-green-500" /> System Operational Status
+    <div className="glass rounded-2xl p-6 sm:p-8 mb-8 gradient-border noise animate-fade-in-up">
+      <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+        <Activity className="w-5 h-5 text-green-400" /> System Status
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {systems.map((sys) => (
-          <div key={sys.name} className="flex items-center justify-between p-4 bg-slate-950 rounded-lg border border-slate-800">
+          <div key={sys.name} className="flex items-center justify-between p-3.5 glass rounded-xl">
             <div className="flex items-center gap-3">
-              <sys.icon className="h-5 w-5 text-indigo-400" />
-              <span className="text-slate-300 font-medium">{sys.name}</span>
+              <sys.icon className="h-4 w-4 text-indigo-400" />
+              <span className="text-sm text-slate-300 font-medium">{sys.name}</span>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-slate-500">{sys.ping}</span>
-              <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                // Use dynamic color for live systems, default green for static ones
-                sys.isLive ? statusColor : 'bg-green-400/10 text-green-400 ring-green-400/20'
-              }`}>
-                {sys.status}
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] text-slate-600">{sys.ping}</span>
+              <span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md border ${statusColor}`}>
+                {statusText}
               </span>
             </div>
           </div>
@@ -99,16 +95,14 @@ export function TechStack() {
   ];
 
   return (
-    <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-8 mb-12">
-      <h2 className="text-2xl font-bold text-white mb-6 text-center">Tech Stack</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="glass rounded-2xl p-6 sm:p-8 mb-8 gradient-border">
+      <h2 className="text-lg font-bold text-white mb-5 text-center">Tech Stack</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {stack.map((tech) => (
-          <div 
-            key={tech.name} 
-            className="flex items-center gap-3 p-4 bg-slate-950 rounded-lg border border-slate-800 hover:border-indigo-500/50 transition"
-          >
-            <tech.icon className={`h-6 w-6 ${tech.color}`} />
-            <span className={`font-medium ${tech.color}`}>{tech.name}</span>
+          <div key={tech.name}
+            className="flex items-center gap-3 p-3.5 glass rounded-xl hover:bg-slate-800/30 transition-all group">
+            <tech.icon className={`h-5 w-5 ${tech.color}`} />
+            <span className={`text-sm font-medium ${tech.color}`}>{tech.name}</span>
           </div>
         ))}
       </div>
@@ -125,26 +119,24 @@ export function TeamSection() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-white mb-6 text-center">Core Team</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {team.map((member) => (
-          <div key={member.name} className="bg-slate-900/40 p-6 rounded-xl border border-slate-800 text-center hover:border-indigo-500/50 transition">
-            <div className="mx-auto h-20 w-20 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-2xl font-bold text-indigo-400">
+      <h2 className="text-lg font-bold text-white mb-5 text-center">Core Team</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {team.map((member, i) => (
+          <div key={member.name} className={`glass rounded-2xl p-6 text-center gradient-border hover:bg-slate-800/30 transition-all animate-fade-in-up opacity-0 stagger-${i + 1}`}>
+            <div className="mx-auto h-16 w-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mb-4 text-xl font-bold text-white">
               {member.name[0]}
             </div>
-            <h3 className="text-lg font-bold text-white">{member.name}</h3>
-            <p className="text-sm text-slate-400 mb-4">{member.role}</p>
-            <div className="flex justify-center">
-              <a 
-                href={member.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-500 hover:text-white transition"
-                aria-label={`${member.name}'s GitHub profile`}
-              >
-                <Github className="w-5 h-5"/>
-              </a>
-            </div>
+            <h3 className="text-base font-bold text-white">{member.name}</h3>
+            <p className="text-xs text-slate-500 mb-4">{member.role}</p>
+            <a
+              href={member.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-white transition"
+              aria-label={`${member.name}'s GitHub profile`}
+            >
+              <Github className="w-4 h-4" /> GitHub
+            </a>
           </div>
         ))}
       </div>

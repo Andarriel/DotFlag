@@ -13,10 +13,10 @@ export default function LeaderboardPage() {
       <PageHeader
         icon={<Trophy className="w-6 h-6 text-white" />}
         title="Leaderboard"
-        description="Compete with the best hackers and climb your way to the top. Rankings update in real-time."
+        description="Compete with the best hackers and climb your way to the top."
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {currentUserRank && (
           <UserStatsCard rank={currentUserRank.rank} points={currentUserRank.currentPoints} solved={currentUserRank.solvedChallenges} />
         )}

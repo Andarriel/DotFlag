@@ -11,12 +11,12 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Welcome back, <span className="text-indigo-400">{user?.username}</span>!
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="mb-8 animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1.5">
+            Welcome back, <span className="text-gradient">{user?.username}</span>
           </h1>
-          <p className="text-slate-400">Here's your hacking dashboard. Keep solving challenges to climb the leaderboard!</p>
+          <p className="text-sm text-slate-500">Keep solving challenges to climb the leaderboard.</p>
         </div>
 
         <StatsCards
@@ -26,7 +26,7 @@ export default function DashboardPage() {
           weeklyProgress={3}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <RecommendedChallenges challenges={recommendedChallenges} />
           <RecentActivity activities={MOCK_RECENT_ACTIVITY} />
         </div>
