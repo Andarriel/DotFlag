@@ -13,7 +13,7 @@ export default function ChallengeDetailPage() {
   if (!challenge) {
     return (
       <div className="min-h-screen bg-slate-950 pt-24">
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <EmptyState title="Challenge not found" description="The challenge you're looking for doesn't exist." />
         </div>
       </div>
@@ -22,12 +22,12 @@ export default function ChallengeDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 pt-24 pb-12">
-      <div className="max-w-4xl mx-auto px-6">
-        <Link to="/challenges" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition mb-6">
-          <ArrowLeft className="w-4 h-4" /> Back to Challenges
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <Link to="/challenges" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-white transition mb-6 group">
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" /> Back to Challenges
         </Link>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <ChallengeInfo challenge={challenge} />
           <FileAttachments files={challenge.files} />
           {challenge.dockerImage && <DockerInstance docker={challenge.dockerImage} />}

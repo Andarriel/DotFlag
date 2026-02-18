@@ -6,15 +6,15 @@ interface Feature {
   description: string;
 }
 
-function FeatureCard({ feature }: { feature: Feature }) {
+function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
   const Icon = feature.icon;
   return (
-    <div className="flex flex-col items-start bg-slate-900/40 p-8 rounded-2xl border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900/80 transition-all duration-300 group">
-      <div className="rounded-lg bg-slate-800 p-3 ring-1 ring-white/10 group-hover:bg-indigo-600 transition-colors">
-        <Icon className="h-6 w-6 text-indigo-400 group-hover:text-white" />
+    <div className={`flex flex-col items-start glass rounded-2xl p-6 sm:p-8 gradient-border hover:bg-slate-800/30 transition-all duration-300 group animate-fade-in-up opacity-0 stagger-${Math.min(index + 1, 5)}`}>
+      <div className="w-11 h-11 rounded-xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-600/20 group-hover:border-indigo-500/30 transition-all">
+        <Icon className="h-5 w-5 text-indigo-400" />
       </div>
       <dt className="mt-4 font-semibold text-white">{feature.title}</dt>
-      <dd className="mt-2 leading-7 text-slate-400">{feature.description}</dd>
+      <dd className="mt-2 text-sm leading-relaxed text-slate-500">{feature.description}</dd>
     </div>
   );
 }
@@ -27,19 +27,17 @@ const FEATURES: Feature[] = [
 
 export default function FeaturesSection() {
   return (
-    <div id="features" className="py-24 sm:py-32 bg-slate-950">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-base font-semibold leading-7 text-indigo-400">Why DotFlag?</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+    <div id="features" className="py-20 sm:py-28 bg-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center mb-12 sm:mb-16">
+          <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3">Why DotFlag?</p>
+          <p className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             Everything you need to become an expert
           </p>
         </div>
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-            {FEATURES.map(f => <FeatureCard key={f.title} feature={f} />)}
-          </dl>
-        </div>
+        <dl className="grid max-w-xl grid-cols-1 gap-5 lg:max-w-none lg:grid-cols-3 mx-auto">
+          {FEATURES.map((f, i) => <FeatureCard key={f.title} feature={f} index={i} />)}
+        </dl>
       </div>
     </div>
   );

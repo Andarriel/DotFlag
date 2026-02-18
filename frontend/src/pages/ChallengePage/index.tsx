@@ -14,10 +14,10 @@ export default function ChallengePage() {
       <PageHeader
         icon={<img src="/challenges.png" alt="Challenges" className="w-6 h-6" />}
         title="Challenges"
-        description="Test your skills with real-world cybersecurity challenges. Solve them to earn points and climb the leaderboard."
+        description="Test your skills with real-world cybersecurity challenges."
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <FilterBar
           selectedCategory={selectedCategory}
           selectedDifficulty={selectedDifficulty}
@@ -27,7 +27,7 @@ export default function ChallengePage() {
 
         <ChallengeStats solvedCount={stats.solvedCount} availableCount={stats.availableCount} totalPoints={stats.totalPoints} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredChallenges.map(challenge => (
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
