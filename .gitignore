@@ -20,10 +20,15 @@ yarn-debug.log*
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
+*.slnx
 *.swp
 
 .DS_Store
 Thumbs.db
+
+.claude/
+
+**/bin/
+**/obj/
 
 **/appsettings.Development.json

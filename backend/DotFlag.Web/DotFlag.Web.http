@@ -1,6 +1,6 @@
-@DotFlag.Api_HostAddress = http://localhost:5049
+@DotFlag.Web_HostAddress = http://localhost:5049
 
-GET {{DotFlag.Api_HostAddress}}/weatherforecast/
+GET {{DotFlag.Web_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
