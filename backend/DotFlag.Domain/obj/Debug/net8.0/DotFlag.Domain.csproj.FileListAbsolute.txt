@@ -1,0 +1,12 @@
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\bin\Debug\net8.0\DotFlag.Domain.deps.json
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\bin\Debug\net8.0\DotFlag.Domain.dll
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\bin\Debug\net8.0\DotFlag.Domain.pdb
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\DotFlag.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\DotFlag.Domain.AssemblyInfoInputs.cache
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\DotFlag.Domain.AssemblyInfo.cs
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\DotFlag.Domain.csproj.CoreCompileInputs.cache
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\DotFlag.Domain.sourcelink.json
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\DotFlag.Domain.dll
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\refint\DotFlag.Domain.dll
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\DotFlag.Domain.pdb
+C:\Users\User\Documents\GitHub\DotFlag\backend\DotFlag.Domain\obj\Debug\net8.0\ref\DotFlag.Domain.dll
