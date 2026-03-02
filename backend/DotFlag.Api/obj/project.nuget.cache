@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "+xnge9z/URQ=",
+  "dgSpecHash": "qah4mbNxH2c=",
   "success": true,
-  "projectFilePath": "/home/andarriel/Documents/DotFlag/backend/DotFlag.Api/DotFlag.Api.csproj",
+  "projectFilePath": "C:\\Users\\Ivan\\source\\repos\\DotFlag\\backend\\DotFlag.Api\\DotFlag.Api.csproj",
   "expectedPackageFiles": [
-    "/home/andarriel/.nuget/packages/microsoft.aspnetcore.openapi/10.0.3/microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
-    "/home/andarriel/.nuget/packages/microsoft.openapi/2.0.0/microsoft.openapi.2.0.0.nupkg.sha512"
+    "C:\\Users\\Ivan\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.3\\microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
+    "C:\\Users\\Ivan\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
   ],
   "logs": []
 }

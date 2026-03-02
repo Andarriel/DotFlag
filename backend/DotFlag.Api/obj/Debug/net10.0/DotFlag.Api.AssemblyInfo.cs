@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DotFlag.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6de7a580490e84a9947a44d7c86b672a8c59dc09")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ad775dcbe978eda942cbd93e3e1f2daf05e6ec2")]
 [assembly: System.Reflection.AssemblyProductAttribute("DotFlag.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DotFlag.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
