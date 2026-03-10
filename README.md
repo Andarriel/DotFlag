@@ -1,93 +1,188 @@
-# **DotFlag**
+# DotFlag
 
-#### **DotFlag** este o platformă de tip Capture The Flag (CTF) robustă și performantă, dezvoltată în .NET și structurată pe principiile Clean Architecture. Aceasta oferă un mediu complet pentru găzduirea competițiilor de securitate cibernetică, incluzând medii virtualizate pentru analiza problemelor și monitorizare în timp real.
+**DotFlag** is an open-source Capture The Flag (CTF) platform built with React + TypeScript on the frontend and .NET 10 + PostgreSQL on the backend. It provides a complete environment for hosting cybersecurity competitions, including real-time scoreboards, virtual container support, and a full admin panel.
 
+---
 
-### 🚀 Funcționalități
+## Table of Contents
 
- * **Pagina de Quest-uri**: Un hub centralizat unde utilizatorii pot naviga, filtra și accesa provocările din diverse categorii.
+- [About](#about)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture & Data Model](#architecture--data-model)
+- [Use Case Diagram](#use-case-diagram)
+- [UML Diagrams](#uml-diagrams)
+- [Platform Screenshots](#platform-screenshots)
+- [Getting Started](#getting-started)
+- [License](#license)
 
- * **Pagina de Administrare**: Control total asupra creării de provocări, gestionării utilizatorilor și configurării platformei.
+---
 
- * **Leaderboard**: Clasament în timp real bazat pe punctajele obținute și timpul de rezolvare.
+## About
 
- * **Containere Virtuale**: Suport integrat pentru analiza problemelor folosind medii izolate.
+DotFlag is designed to be a self-hosted, extensible CTF platform suitable for university-level competitions and cybersecurity training. It follows Clean Architecture principles to keep the codebase decoupled, testable, and maintainable.
 
- * **Profil Utilizator**: Istoric detaliat al problemelor rezolvate, realizări și statistici de performanță.
+---
 
- * **Chat de Echipă *(în lucru)***: Instrumente de colaborare pentru strategii în cadrul echipei.
+## Features
 
- * **Backend API**: Un API extensibil cu minimum 12 endpoint-uri (incluzând 4 seturi complete de operațiuni CRUD).
+| Feature | Description |
+|---|---|
+| Challenges List | Browse, filter, and access challenges across multiple categories (Web, Pwn, Crypto, Reverse Engineering, etc.) |
+| Challenge Detail | Dedicated page per challenge with a flag submission field and instant feedback |
+| Admin Panel | Full control over challenge creation, user management, and activity logs |
+| Leaderboard | Real-time scoreboard ranked by points and submission time |
+| Virtual Containers | Integrated support for spawning isolated environments per challenge |
+| User Profile | Detailed history of solved challenges, points earned, and performance statistics |
+| Team Chat *(in progress)* | Collaboration tools for team-based competition strategy |
 
+---
 
-### 🏗️ Arhitectură Tehnică
+## Tech Stack
 
-Proiectul respectă normele Clean Architecture pentru a asigura un cod decuplat, testabil și ușor de întreținut.
-Tehnologii Utilizate
+### Frontend
 
-* *Framework:* .NET 8 / Core
+| Technology | Role |
+|---|---|
+| React 18 | UI framework |
+| TypeScript | Type-safe development |
+| SWC | Fast compilation |
+| Vite | Build tool and dev server |
 
-* *Bază de date:* Suport pentru PostgreSQL sau MySQL
+### Backend
 
-* *Autentificare:* Session-based authentication (Sesiuni securizate, fără token-uri JWT)
+| Technology | Role |
+|---|---|
+| .NET 10 | Web API framework (ASP.NET Core) |
+| Entity Framework Core | Data access and migrations |
+| PostgreSQL | Primary database |
+| Session-based Auth | Stateful authentication without JWT tokens |
 
-* *Acces Date:* Entity Framework Core
+---
 
+## Architecture & Data Model
 
-## Modelul de Date
+The project follows **Clean Architecture** to ensure separation of concerns across layers: API, Application, Domain, and Infrastructure.
 
-Sistemul este construit în jurul a 6 entități principale:
+The system is built around three core entities:
 
-1. *User:* Gestionarea identității și a profilului.
+### User
 
-2. *Challenge (Quest):* Task-ul principal, conținând flag-ul și punctajul.
+| Field | Type | Description |
+|---|---|---|
+| Id | int / guid | Primary key |
+| Username | string | Display name |
+| Email | string | Login email |
+| PasswordHash | string | Hashed password |
+| Role | enum | `Admin` or `User` |
+| CurrentPoints | int | Accumulated score |
 
-3. *Submission:* Înregistrarea tentativelor și a succeselor utilizatorilor.
+### Challenge
 
-4. *Category:* Gruparea provocărilor (ex: Pwn, Web, Crypto, Reverse Engineering).
+| Field | Type | Description |
+|---|---|---|
+| Id | int | Primary key |
+| Title | string | Challenge name |
+| Description | string | Problem statement |
+| Points | int | Score value |
+| Category | string / enum | e.g. Web, Crypto, Pwn |
+| Flag | string | Correct answer (hidden from users) |
+| IsActive | bool | Whether the challenge is visible |
 
-5. *Team:* Gruparea utilizatorilor pentru competiția pe echipe.
+### Submission
 
-6. *ContainerConfig:* Metadate pentru lansarea mediilor de analiză virtualizate.
+| Field | Type | Description |
+|---|---|---|
+| Id | int | Primary key |
+| UserId | int | Reference to User |
+| ChallengeId | int | Reference to Challenge |
+| SubmittedFlag | string | The flag the user submitted |
+| IsCorrect | bool | Whether the submission was correct |
+| Timestamp | datetime | Time of submission (used for tiebreaking) |
 
+The core relationship: one **User** can have many **Submissions**, and one **Challenge** can have many **Submissions** (1 — *(N)* — 1).
 
-### 🛠️ Instalare și Configurare
+---
 
-1. Clonarea depozitului
+## Use Case Diagram
 
->
-    git clone https://github.com/IvanGazul/DotFlag.git 
-    
-    cd DotFlag
->
-2. Configurarea Bazei de Date Actualizează connection string-ul în appsettings.json pentru a pointa către instanța ta de PostgreSQL sau MySQL.
-    
->
-    dotnet ef database update
->
-3. Lansarea Aplicației
+> The diagram below illustrates the three actor types and their allowed interactions with the platform.
 
->
-    dotnet run
->
+<!-- Replace with your use case diagram image -->
+![Use Case Diagram](https://example.com/assets/use-case-diagram.png)
 
+| Actor | Capabilities |
+|---|---|
+| Guest | View the landing page, public scoreboard; register or log in |
+| User | Browse and filter challenges; submit flags with instant verification; view own profile and statistics |
+| Admin | Create, edit, and delete challenges; manage users (ban, change roles); view activity logs (who submitted what flag, when, and from where) |
 
-### 🔒 Securitate și Autentificare
+---
 
-Spre deosebire de multe aplicații web moderne, DotFlag utilizează autentificarea bazată pe sesiune. Această abordare a fost aleasă pentru:
+## UML Diagrams
 
- * Simplificarea procesului de logout și invalidare a sesiunilor.
+<!-- Replace with your UML / class diagrams -->
+![UML Diagram](https://example.com/assets/uml-diagram.png)
 
- * Atenuarea riscurilor asociate cu stocarea token-urilor pe partea de client (XSS).
+---
 
- * Menținerea unei conexiuni sigure și stateful între competitor și platformă.
+## Platform Screenshots
 
+<!-- Replace each URL below with the actual screenshot hosted on example.com -->
 
+| Page | Preview |
+|---|---|
+| Landing Page | ![Landing](https://example.com/assets/screen-landing.png) |
+| Login / Register | ![Login](https://example.com/assets/screen-login.png) |
+| Dashboard | ![Dashboard](https://example.com/assets/screen-dashboard.png) |
+| Challenges List | ![Challenges](https://example.com/assets/screen-challenges.png) |
+| Challenge Detail | ![Detail](https://example.com/assets/screen-challenge-detail.png) |
+| Scoreboard | ![Scoreboard](https://example.com/assets/screen-scoreboard.png) |
+| User Profile | ![Profile](https://example.com/assets/screen-profile.png) |
+| Admin Panel | ![Admin](https://example.com/assets/screen-admin.png) |
 
-### 🛣️ Roadmap
+---
 
-    [ ] Operațiuni CRUD de bază pentru Challenge-uri și Utilizatori 
-    [ ] Implementarea autentificării pe bază de sesiune
-    [ ] Integrare PostgreSQL
-    [ ] Finalizarea funcționalității de Chat pentru echipe
-    [ ] Optimizarea orchestrării containerelor (Docker/K8s)
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- .NET 10 SDK
+- PostgreSQL instance
+
+### Frontend
+
+```bash
+git clone https://github.com/IvanGazul/DotFlag.git
+cd DotFlag/frontend
+npm install
+npm run dev
+```
+
+### Backend
+
+```bash
+cd DotFlag/backend
+```
+
+Update the connection string in `appsettings.json` to point to your PostgreSQL instance:
+
+```json
+"ConnectionStrings": {
+  "Default": "Host=localhost;Database=dotflag;Username=postgres;Password=yourpassword"
+}
+```
+
+Apply migrations and run:
+
+```bash
+dotnet ef database update
+dotnet run
+```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
