@@ -14,33 +14,12 @@ export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
   const [showAlert, setShowAlert] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(false);
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
-  }
-
-  if (!isAuthenticated || !user) {
-    console.log('Not authenticated, redirecting to login');
-    return <Navigate to={ROUTES.LOGIN} replace />;
-  }
-
-  const userLevel = roleHierarchy.indexOf(user.role);
+  const userLevel = user ? roleHierarchy.indexOf(user.role) : -1;
   const requiredLevel = roleHierarchy.indexOf(requiredRole);
-
-  // DEBUG: This should show Owner=5, User=1, and hasAccess=true
-  console.log('🔍 Access check:', {
-    userRole: user.role,
-    userLevel,
-    requiredRole,
-    requiredLevel,
-    calculation: `${userLevel} >= ${requiredLevel}`,
-    hasAccess: userLevel >= requiredLevel
-  });
-
-  // Owner (5) >= User (1) should be TRUE
-  const hasAccess = userLevel >= requiredLevel;
+  const hasAccess = isAuthenticated && !!user && userLevel >= requiredLevel;
 
   useEffect(() => {
-    if (!hasAccess && !showAlert) {
+    if (!isLoading && isAuthenticated && !hasAccess && !showAlert) {
       setShowAlert(true);
       const timer = setTimeout(() => {
         setShowAlert(false);
@@ -48,7 +27,15 @@ export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [hasAccess, showAlert]);
+  }, [isLoading, isAuthenticated, hasAccess, showAlert]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
+  }
 
   if (!hasAccess) {
     return (
