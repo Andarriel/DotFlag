@@ -28,13 +28,13 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute requiredRole="Admin" />,
         children: [
-          { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
           { path: ROUTE_SEGMENTS.ADMIN, element: <AdminPage /> },
         ],
       },
       {
         element: <ProtectedRoute requiredRole="User" />,
         children: [
+          { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
           { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
           { path: ROUTE_SEGMENTS.CHALLENGE_DETAIL, element: <ChallengeDetailPage /> },
           { path: ROUTE_SEGMENTS.TEAM, element: <TeamPage /> },

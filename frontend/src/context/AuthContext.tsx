@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, _password: string) => {
     await new Promise(r => setTimeout(r, 500));
-    persistUser({ id: 1, email, username: email.split('@')[0], role: 'Owner', currentPoints: 1337, teamId: 1, teamName: 'Cyber Elite' });
+    persistUser({ id: 1, email, username: email.split('@')[0], role: 'Admin', currentPoints: 1337, teamId: 1, teamName: 'Cyber Elite' });
   };
 
   const register = async (data: { email: string; username?: string }) => {
