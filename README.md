@@ -106,10 +106,9 @@ The core relationship: one **User** can have many **Submissions**, and one **Cha
 
 ## Use Case Diagram
 
-> The diagram below illustrates the three actor types and their allowed interactions with the platform.
+The diagram below illustrates the three actor types and their allowed interactions with the platform.
 
-<!-- Replace with your use case diagram image -->
-![Use Case Diagram](https://example.com/assets/use-case-diagram.png)
+![Use Case Diagram](./images/Use_cases.jpg)
 
 | Actor | Capabilities |
 |---|---|
@@ -121,25 +120,25 @@ The core relationship: one **User** can have many **Submissions**, and one **Cha
 
 ## UML Diagrams
 
-<!-- Replace with your UML / class diagrams -->
-![UML Diagram](https://example.com/assets/uml-diagram.png)
+<!-- Insert your UML / class diagrams here -->
 
 ---
 
 ## Platform Screenshots
 
-<!-- Replace each URL below with the actual screenshot hosted on example.com -->
-
 | Page | Preview |
 |---|---|
-| Landing Page | ![Landing](https://example.com/assets/screen-landing.png) |
-| Login / Register | ![Login](https://example.com/assets/screen-login.png) |
-| Dashboard | ![Dashboard](https://example.com/assets/screen-dashboard.png) |
-| Challenges List | ![Challenges](https://example.com/assets/screen-challenges.png) |
-| Challenge Detail | ![Detail](https://example.com/assets/screen-challenge-detail.png) |
-| Scoreboard | ![Scoreboard](https://example.com/assets/screen-scoreboard.png) |
-| User Profile | ![Profile](https://example.com/assets/screen-profile.png) |
-| Admin Panel | ![Admin](https://example.com/assets/screen-admin.png) |
+| Home Page | ![Home](./images/Home_page.png) |
+| Dashboard | ![Dashboard](./images/Dashboard.png) |
+| About | ![About](./images/About_page.png) |
+| Challenges List | ![Challenges](./images/Challenges_page.png) |
+| Challenge Overview | ![Challenge Overview](./images/Challange_overview.png) |
+| Leaderboard | ![Leaderboard](./images/Leaderboard.png) |
+| User Profile | ![User Profile](./images/User_profile_page.png) |
+| Team | ![Team](./images/Team_page.png) |
+| Admin — Challenges | ![Admin Challenges](./images/Admin_challenges_page.png) |
+| Admin — Users | ![Admin Users](./images/Admin_users_page.png) |
+| Admin — Docker | ![Admin Docker](./images/Admin_dockers_page.png) |
 
 ---
 
