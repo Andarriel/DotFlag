@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
+import AppProvider from '../layouts/AppProvider';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import HomePage from '../pages/HomePage';
@@ -13,41 +14,48 @@ import AdminPage from '../pages/AdminPage';
 import TeamPage from '../pages/TeamPage';
 import ProfilePage from '../pages/ProfilePage';
 import AboutPage from '../pages/AboutPage';
+import ServerErrorPage from '../pages/ServerErrorPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { ROUTES, ROUTE_SEGMENTS } from './paths';
 
 export const router = createBrowserRouter([
   {
-    path: ROUTES.HOME,
-    element: <MainLayout />,
+    element: <AppProvider />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
-      { path: ROUTE_SEGMENTS.ABOUT, element: <AboutPage /> },
-      { path: ROUTE_SEGMENTS.PROFILE, element: <ProfilePage /> },
       {
-        element: <ProtectedRoute requiredRole="Admin" />,
+        path: ROUTES.HOME,
+        element: <MainLayout />,
         children: [
-          { path: ROUTE_SEGMENTS.ADMIN, element: <AdminPage /> },
+          { index: true, element: <HomePage /> },
+          { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
+          { path: ROUTE_SEGMENTS.ABOUT, element: <AboutPage /> },
+          { path: ROUTE_SEGMENTS.PROFILE, element: <ProfilePage /> },
+          {
+            element: <ProtectedRoute requiredRole="Admin" />,
+            children: [
+              { path: ROUTE_SEGMENTS.ADMIN, element: <AdminPage /> },
+            ],
+          },
+          {
+            element: <ProtectedRoute requiredRole="User" />,
+            children: [
+              { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
+              { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
+              { path: ROUTE_SEGMENTS.CHALLENGE_DETAIL, element: <ChallengeDetailPage /> },
+              { path: ROUTE_SEGMENTS.TEAM, element: <TeamPage /> },
+            ],
+          },
         ],
       },
       {
-        element: <ProtectedRoute requiredRole="User" />,
+        element: <AuthLayout />,
         children: [
-          { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
-          { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
-          { path: ROUTE_SEGMENTS.CHALLENGE_DETAIL, element: <ChallengeDetailPage /> },
-          { path: ROUTE_SEGMENTS.TEAM, element: <TeamPage /> },
+          { path: ROUTES.LOGIN, element: <LoginPage /> },
+          { path: ROUTES.REGISTER, element: <RegisterPage /> },
         ],
       },
+      { path: ROUTES.NOT_FOUND, element: <NotFoundPage /> },
     ],
   },
-  {
-    element: <AuthLayout />,
-    children: [
-      { path: ROUTES.LOGIN, element: <LoginPage /> },
-      { path: ROUTES.REGISTER, element: <RegisterPage /> },
-    ],
-  },
-  { path: ROUTES.NOT_FOUND, element: <NotFoundPage /> },
+  { path: ROUTES.SERVER_ERROR, element: <ServerErrorPage /> },
 ]);
