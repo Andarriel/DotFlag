@@ -10,6 +10,7 @@ export const ROUTES = {
   ABOUT: '/about',
   LOGIN: '/login',
   REGISTER: '/register',
+  SERVER_ERROR: '/server-error',
   NOT_FOUND: '*',
 } as const;
 
