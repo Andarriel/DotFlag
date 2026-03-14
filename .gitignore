@@ -21,7 +21,9 @@ yarn-debug.log*
 .env.development.local
 .env.production.local
 *.env
-**/appsettings.Development.json
+**/appsettings.json
+**/appsettings.*.json
+!**/appsettings.example.json
 
 # IDE / editors
 .vs/
