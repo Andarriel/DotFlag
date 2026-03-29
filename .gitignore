@@ -14,6 +14,8 @@ yarn-debug.log*
 *.user
 *.userosscache
 *.userprefs
+UpgradeLog.htm
+Backup/
 
 # Environment / secrets
 .env

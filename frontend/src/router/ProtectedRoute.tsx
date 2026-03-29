@@ -4,10 +4,10 @@ import { ROUTES } from './paths';
 import { useState, useEffect } from 'react';
 
 interface ProtectedRouteProps {
-  requiredRole: 'Owner' | 'Admin' | 'Moderator' | 'Coach' | 'User' | 'Guest';
+  requiredRole: 'Owner' | 'Admin' | 'User' | 'Guest';
 }
 
-const roleHierarchy = ['Guest', 'User', 'Coach', 'Moderator', 'Admin', 'Owner'];
+const roleHierarchy = ['Guest', 'User', 'Admin', 'Owner'];
 
 export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
   const { user, isAuthenticated, isLoading } = useAuth();
