@@ -1,4 +1,4 @@
-export type UserRole = 'Owner' | 'Admin' | 'Moderator' | 'Coach' | 'User' | 'Guest';
+export type UserRole = 'Owner' | 'Admin' | 'User' | 'Guest';
 export type ChallengeCategory = 'Web' | 'Crypto' | 'Pwn' | 'Reverse' | 'Misc' | 'Forensics';
 export type ChallengeDifficulty = 'Easy' | 'Medium' | 'Hard';
 export type DockerStatus = 'running' | 'stopped' | 'error';
