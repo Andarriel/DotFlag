@@ -1,6 +1,6 @@
 # DotFlag
 
-**DotFlag** is an open-source Capture The Flag (CTF) platform built with React + TypeScript on the frontend and .NET 10 + PostgreSQL on the backend. It provides a complete environment for hosting cybersecurity competitions, including real-time scoreboards, virtual container support, and a full admin panel.
+**DotFlag** is an open-source Capture The Flag (CTF) platform built with React + TypeScript on the frontend and .NET 8 + PostgreSQL on the backend. It provides a complete environment for hosting cybersecurity competitions, including real-time scoreboards, virtual container support, and a full admin panel.
 
 ---
 
@@ -20,7 +20,7 @@
 
 ## About
 
-DotFlag is designed to be a self-hosted, extensible CTF platform suitable for university-level competitions and cybersecurity training. It follows Clean Architecture principles to keep the codebase decoupled, testable, and maintainable.
+DotFlag is designed to be a self-hosted, extensible CTF platform suitable for university-level competitions and cybersecurity training. It follows a layered architecture to keep the codebase decoupled and maintainable.
 
 ---
 
@@ -44,25 +44,27 @@ DotFlag is designed to be a self-hosted, extensible CTF platform suitable for un
 
 | Technology | Role |
 |---|---|
-| React 18 | UI framework |
-| TypeScript | Type-safe development |
-| SWC | Fast compilation |
-| Vite | Build tool and dev server |
+| React 19 | UI framework |
+| TypeScript 5.9 | Type-safe development |
+| Vite 7 + SWC | Build tool and dev server |
+| Tailwind CSS 3 | Styling |
+| Axios | HTTP client with interceptors |
+| React Router 7 | Client-side routing |
 
 ### Backend
 
 | Technology | Role |
 |---|---|
-| .NET 10 | Web API framework (ASP.NET Core) |
+| .NET 8 | Web API framework (ASP.NET Core) |
 | Entity Framework Core | Data access and migrations |
 | PostgreSQL | Primary database |
-| Session-based Auth | Stateful authentication without JWT tokens |
+| Swagger / OpenAPI | API documentation |
 
 ---
 
 ## Architecture & Data Model
 
-The project follows **Clean Architecture** to ensure separation of concerns across layers: API, Application, Domain, and Infrastructure.
+The project follows a **layered architecture** with separation of concerns across four layers: Api, BusinessLayer, DataAccessLayer, and Domain.
 
 The system is built around three core entities:
 
@@ -70,12 +72,14 @@ The system is built around three core entities:
 
 | Field | Type | Description |
 |---|---|---|
-| Id | int / guid | Primary key |
-| Username | string | Display name |
-| Email | string | Login email |
+| Id | int | Primary key (auto-increment) |
+| UserName | string(35) | Display name |
+| Email | string(50) | Login email |
 | PasswordHash | string | Hashed password |
-| Role | enum | `Admin` or `User` |
+| Role | enum | `Guest`, `User`, `Admin`, `Owner` |
 | CurrentPoints | int | Accumulated score |
+| IsBanned | bool | Whether the user is banned |
+| RegisteredOn | datetime | Registration date |
 
 ### Challenge
 
@@ -114,7 +118,8 @@ The diagram below illustrates the three actor types and their allowed interactio
 |---|---|
 | Guest | View the landing page, public scoreboard; register or log in |
 | User | Browse and filter challenges; submit flags with instant verification; view own profile and statistics |
-| Admin | Create, edit, and delete challenges; manage users (ban, change roles); view activity logs (who submitted what flag, when, and from where) |
+| Admin | Create, edit, and delete challenges; manage users (ban, change roles); view activity logs |
+| Owner | Initial seeded account; can create Admin users; full platform control |
 
 ---
 
@@ -147,7 +152,7 @@ The diagram below illustrates the three actor types and their allowed interactio
 ### Prerequisites
 
 - Node.js 20+
-- .NET 10 SDK
+- .NET 8 SDK
 - PostgreSQL instance
 
 ### Frontend
