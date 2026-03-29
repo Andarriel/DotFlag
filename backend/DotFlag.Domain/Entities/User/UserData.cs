@@ -1,6 +1,8 @@
 ﻿using DotFlag.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DotFlag.Domain.Entities.Submission;
+using DotFlag.Domain.Entities.Team;
 
 namespace DotFlag.Domain.Entities.User
 {
@@ -20,8 +22,8 @@ namespace DotFlag.Domain.Entities.User
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        
         public string PasswordHash { get; set; } = string.Empty;
+        
         public UserRole Role { get; set; }
 
         public int CurrentPoints { get; set; }
@@ -31,9 +33,11 @@ namespace DotFlag.Domain.Entities.User
 
         public bool IsBanned { get; set; }
 
-        // public int? TeamId { get; set; }
-        // [ForeignKey("TeamId")]
-        // public TeamData? Team { get; set; }
-        // public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
+        public int? TeamId { get; set; }
+        
+        [ForeignKey("TeamId")]
+        public TeamData? Team { get; set; }
+        
+        public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
     }
 }

@@ -8,7 +8,7 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<UserData> Users { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(DbSession.ConnectionString);
+            optionsBuilder.UseSqlServer(DbSession.ConnectionString);
         }
     }
 }
