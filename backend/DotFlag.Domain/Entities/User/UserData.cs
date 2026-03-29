@@ -29,5 +29,10 @@ namespace DotFlag.Domain.Entities.User
         public DateTime RegisteredOn { get; set; }
 
         public bool IsBanned { get; set; }
+
+        // public int? TeamId { get; set; }
+        // [ForeignKey("TeamId")]
+        // public TeamData? Team { get; set; }
+        // public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
     }
 }
