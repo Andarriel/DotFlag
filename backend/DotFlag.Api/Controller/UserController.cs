@@ -9,7 +9,7 @@ namespace DotFlag.Api.Controller
     [ApiController]
     public class UserController : ControllerBase
     {
-        private IUserActions _userActions;
+        private readonly IUserActions _userActions;
 
         public UserController()
         {

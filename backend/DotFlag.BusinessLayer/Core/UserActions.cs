@@ -43,7 +43,8 @@ namespace DotFlag.BusinessLayer.UserActions
             {
                 UserName = dto.Username,
                 Email = dto.Email,
-                PasswordHash = dto.Password, // HASHING AICI(!!)
+                // TODO: Hashing aici
+                PasswordHash = dto.Password,
                 RegisteredOn = DateTime.UtcNow
             };
             context.Users.Add(user);
