@@ -16,11 +16,12 @@ namespace DotFlag.Domain.Entities.User
 
         [Required]
         [StringLength(50)]
+        [DataType(DataType.EmailAddress)]
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100)]
-        public string Password { get; set; } = string.Empty;
+        
+        public string PasswordHash { get; set; } = string.Empty;
         public UserRole Role { get; set; }
 
         public int CurrentPoints { get; set; }
