@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotFlag.Domain\DotFlag.Domain.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13" />
   </ItemGroup>
 
 </Project>
