@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using DotFlag.Domain.Models.User;
+using DotFlag.Domain.Entities.User;
 
 namespace DotFlag.Domain.Entities.Team;
 
@@ -18,5 +18,5 @@ public class TeamData
     [StringLength(32)]
     public string InviteCode { get; set; } = string.Empty;
     
-    public ICollection<UserDto> Users { get; set; } = new List<UserDto>();
+    public ICollection<UserData> Users { get; set; } = new List<UserData>();
 }
