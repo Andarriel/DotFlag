@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotFlag.BusinessLayer\DotFlag.BusinessLayer.csproj" />
+    <ProjectReference Include="..\DotFlag.DataAccessLayer\DotFlag.DataAccessLayer.csproj" />
     <ProjectReference Include="..\DotFlag.Domain\DotFlag.Domain.csproj" />
   </ItemGroup>
 
