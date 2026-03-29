@@ -1,5 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
 
+// DB
+DotFlag.DataAccessLayer.DbSession.ConnectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
