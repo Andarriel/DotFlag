@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11620.152 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotFlag.Api", "DotFlag.Api\DotFlag.Api.csproj", "{A67543CD-5032-404D-B5C6-BA5DBA08AF71}"
 EndProject
@@ -15,9 +15,6 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A67543CD-5032-404D-B5C6-BA5DBA08AF71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -36,5 +33,11 @@ Global
 		{433B89A6-5BA4-4DC7-85C9-725D9C26910E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{433B89A6-5BA4-4DC7-85C9-725D9C26910E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{433B89A6-5BA4-4DC7-85C9-725D9C26910E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F7770CFF-0358-4B57-AC99-53C6532FE65D}
 	EndGlobalSection
 EndGlobal

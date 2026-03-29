@@ -98,8 +98,8 @@ export default function UserManagementTable({ users, onToggleBan, onKickSession,
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Role</label>
             <select className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all">
+              <option>Guest</option>
               <option>User</option>
-              <option>Moderator</option>
               <option>Admin</option>
             </select>
           </div>
