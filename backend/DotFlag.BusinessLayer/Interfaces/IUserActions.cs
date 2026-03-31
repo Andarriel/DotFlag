@@ -1,7 +1,7 @@
 ﻿using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.User;
 
-namespace DotFlag.BusinessLayer.UserActions
+namespace DotFlag.BusinessLayer.Interfaces
 {
     public interface IUserActions
     {

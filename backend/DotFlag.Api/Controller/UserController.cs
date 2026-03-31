@@ -1,12 +1,15 @@
-using Microsoft.AspNetCore.Mvc;
-using DotFlag.Domain.Models.User;
 using DotFlag.BusinessLayer;
-using DotFlag.BusinessLayer.UserActions;
+using DotFlag.BusinessLayer.Interfaces;
+using DotFlag.Domain.Models.User;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DotFlag.Api.Controller
 {
     [Route("api/users")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserActions _userActions;
@@ -18,6 +21,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Owner")]
         public IActionResult GetAll()
         {
             var result = _userActions.GetAll();
@@ -25,14 +29,21 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public IActionResult GetById(int id)
         {
+            var currentUserId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            if (currentUserId != id && !User.IsInRole("Admin") && !User.IsInRole("Owner"))
+                return Forbid();
+
             var result = _userActions.GetById(id);
-            if (result == null) return NotFound();
             return Ok(result);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Owner")]
         public IActionResult Create(UserRegisterDto dto)
         {
             var result = _userActions.Create(dto);
@@ -41,6 +52,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Owner")]
         public IActionResult Update(int id, UserDto dto)
         {
             var result = _userActions.Update(id, dto);
@@ -49,6 +61,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Owner")]
         public IActionResult Delete(int id)
         {
             var result = _userActions.Delete(id);

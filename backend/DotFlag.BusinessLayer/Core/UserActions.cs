@@ -2,8 +2,9 @@
 using DotFlag.Domain.Models.User;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.User;
+using DotFlag.BusinessLayer.Interfaces;
 
-namespace DotFlag.BusinessLayer.UserActions
+namespace DotFlag.BusinessLayer.Core
 {
     public class UserActions : IUserActions
     {
