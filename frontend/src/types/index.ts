@@ -1,5 +1,5 @@
 export type UserRole = 'Owner' | 'Admin' | 'User' | 'Guest';
-export type ChallengeCategory = 'Web' | 'Crypto' | 'Pwn' | 'Reverse' | 'Misc' | 'Forensics';
+export type ChallengeCategory = 'Web' | 'Crypto' | 'Pwn' | 'Reverse' | 'Misc' | 'Forensics' | 'Osint';
 export type ChallengeDifficulty = 'Easy' | 'Medium' | 'Hard';
 export type DockerStatus = 'running' | 'stopped' | 'error';
 
@@ -41,10 +41,17 @@ export interface DockerImage {
   expiresAt: string;
 }
 
+export interface ChallengeHint {
+  id: number;
+  text: string;
+  isUnlocked: boolean;
+  cost: number;
+}
+
 export interface ChallengeDetail extends Challenge {
   files: ChallengeFile[];
   dockerImage?: DockerImage;
-  hint?: string;
+  hints: ChallengeHint[];
   solveCount: number;
   author: string;
 }
