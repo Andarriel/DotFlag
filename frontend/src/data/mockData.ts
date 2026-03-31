@@ -32,46 +32,78 @@ export const MOCK_CHALLENGES: Challenge[] = [
 
 export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
   {
-    id: 1, title: "Hello World", description: "Find the flag in this simple web challenge. The flag is hidden somewhere in the source code of a basic web application. Inspect the HTML, CSS, and JavaScript to find it.\n\nHint: Sometimes flags hide in plain sight.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isSolved: false,
+    id: 1, title: "Hello World", description: "Find the flag in this simple web challenge. The flag is hidden somewhere in the source code of a basic web application. Inspect the HTML, CSS, and JavaScript to find it.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isSolved: false,
     files: [{ id: 1, name: "challenge.zip", size: "2.3 KB" }],
+    hints: [
+      { id: 1, text: "Check the HTML comments in the source code", isUnlocked: true, cost: 0 },
+      { id: 2, text: "The flag is in a hidden div element", isUnlocked: false, cost: 20 },
+    ],
     solveCount: 42, author: "Pavel_Admin",
   },
   {
     id: 2, title: "Base64 Madness", description: "Decode the Base64 string to find the flag. But be careful - it's not just one layer of encoding. You'll need to decode multiple layers to reveal the final flag.", points: 200, category: "Crypto", difficulty: "Medium", isActive: true, isSolved: false,
     files: [{ id: 2, name: "encoded.txt", size: "512 B" }, { id: 3, name: "hint.pdf", size: "45 KB" }],
+    hints: [
+      { id: 3, text: "There are exactly 3 layers of encoding", isUnlocked: true, cost: 0 },
+      { id: 4, text: "The second layer uses Base32, not Base64", isUnlocked: false, cost: 40 },
+    ],
     solveCount: 28, author: "Pavel_Admin",
   },
   {
     id: 3, title: "Buffer Overflow 101", description: "Exploit the buffer overflow vulnerability to get the flag. A vulnerable C program is running on the remote server. Connect to it and exploit the buffer overflow to spawn a shell.", points: 300, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false,
     files: [{ id: 4, name: "vuln.c", size: "1.1 KB" }, { id: 5, name: "vuln", size: "8.2 KB" }],
     dockerImage: { id: 1, challengeId: 3, name: "dotflag/pwn-bof101", status: "running", ip: "10.0.13.37", port: 1337, uptime: "2h 15m", expiresAt: "2026-02-17T18:00:00Z" },
-    hint: "Look at the stack layout carefully", solveCount: 12, author: "h4ck3r_pro",
+    hints: [
+      { id: 5, text: "Look at the stack layout carefully", isUnlocked: true, cost: 0 },
+      { id: 6, text: "The buffer is 64 bytes, return address is at offset 72", isUnlocked: false, cost: 50 },
+      { id: 7, text: "There's a win() function at 0x08048456", isUnlocked: false, cost: 75 },
+    ],
+    solveCount: 12, author: "h4ck3r_pro",
   },
   {
     id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques. The login form is vulnerable to classic SQL injection. Can you log in as admin without knowing the password?\n\nThis challenge teaches basic SQLi concepts.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isSolved: true,
     files: [{ id: 6, name: "app.py", size: "3.1 KB" }],
+    hints: [
+      { id: 8, text: "Try classic payloads in the username field", isUnlocked: true, cost: 0 },
+      { id: 9, text: "' OR 1=1 -- is a good starting point", isUnlocked: false, cost: 50 },
+    ],
     solveCount: 35, author: "Pavel_Admin",
   },
   {
     id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message. The encrypted text uses a simple shift cipher. Find the right shift value to decode the flag.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isSolved: true,
     files: [{ id: 7, name: "cipher.txt", size: "256 B" }],
+    hints: [
+      { id: 10, text: "The shift value is between 1 and 25", isUnlocked: true, cost: 0 },
+    ],
     solveCount: 56, author: "Pavel_Admin",
   },
   {
     id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary. The flag is embedded somewhere in the executable. Use tools like strings, objdump, or Ghidra to find it.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isSolved: false,
     files: [{ id: 8, name: "mystery_bin", size: "12.4 KB" }],
     dockerImage: { id: 3, challengeId: 6, name: "dotflag/reverse-strings", status: "running", ip: "10.0.13.39", port: 9090, uptime: "45m", expiresAt: "2026-02-17T16:30:00Z" },
-    hint: "Try running 'strings' on the binary first", solveCount: 19, author: "h4ck3r_pro",
+    hints: [
+      { id: 11, text: "Try running 'strings' on the binary first", isUnlocked: true, cost: 0 },
+      { id: 12, text: "The flag is XOR'd with key 0x42", isUnlocked: false, cost: 40 },
+    ],
+    solveCount: 19, author: "h4ck3r_pro",
   },
   {
     id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials. Someone accidentally sent their password in plain text over HTTP. Find it in the pcap file.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isSolved: false,
     files: [{ id: 9, name: "capture.pcap", size: "1.8 MB" }, { id: 10, name: "readme.txt", size: "412 B" }],
+    hints: [
+      { id: 13, text: "Filter for HTTP POST requests", isUnlocked: false, cost: 30 },
+    ],
     solveCount: 31, author: "Pavel_Admin",
   },
   {
     id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag. You are dropped into a Docker container with limited privileges. Find a way to escape and read /flag.txt on the host.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false,
     files: [],
     dockerImage: { id: 2, challengeId: 8, name: "dotflag/docker-escape", status: "stopped", ip: "10.0.13.38", port: 4444, uptime: "0m", expiresAt: "2026-02-17T20:00:00Z" },
+    hints: [
+      { id: 14, text: "Check what capabilities the container has", isUnlocked: false, cost: 50 },
+      { id: 15, text: "CAP_SYS_ADMIN is your friend here", isUnlocked: false, cost: 75 },
+      { id: 16, text: "Mount the host filesystem using nsenter", isUnlocked: false, cost: 100 },
+    ],
     solveCount: 3, author: "Pavel_Admin",
   },
 ];
