@@ -9,7 +9,7 @@ namespace DotFlag.BusinessLayer.UserActions
     {
         public UserDto GetById(int id)
         {
-            using var context = new UserContext();
+            using var context = new AppDbContext();
             var user = context.Users.FirstOrDefault(u => u.Id == id);
             if (user == null) return null;
 
@@ -17,7 +17,7 @@ namespace DotFlag.BusinessLayer.UserActions
             {
                 Id = user.Id,
                 Email = user.Email,
-                Username = user.UserName,
+                Username = user.Username,
                 CurrentPoints = user.CurrentPoints,
                 Role = user.Role
             };
@@ -25,12 +25,12 @@ namespace DotFlag.BusinessLayer.UserActions
 
         public List<UserDto> GetAll()
         { 
-            using var context = new UserContext();
+            using var context = new AppDbContext();
             return context.Users.Select(user => new UserDto
             {
                 Id = user.Id,
                 Email = user.Email,
-                Username = user.UserName,
+                Username = user.Username,
                 CurrentPoints = user.CurrentPoints,
                 Role = user.Role
             }).ToList();
@@ -38,10 +38,10 @@ namespace DotFlag.BusinessLayer.UserActions
         
         public ActionResponse Create(UserRegisterDto dto)
         {
-            using var context = new UserContext();
+            using var context = new AppDbContext();
             var user = new UserData
             {
-                UserName = dto.Username,
+                Username = dto.Username,
                 Email = dto.Email,
                 // TODO: Hashing aici
                 PasswordHash = dto.Password,
@@ -54,7 +54,7 @@ namespace DotFlag.BusinessLayer.UserActions
       
         public ActionResponse Update(int id, UserDto dto)
         {
-            using var context = new UserContext();
+            using var context = new AppDbContext();
 
             var user = context.Users.FirstOrDefault(u => u.Id == id);
             if (user == null)
@@ -62,7 +62,7 @@ namespace DotFlag.BusinessLayer.UserActions
                 return new ActionResponse { IsSuccess = false, Message = "User not found." };
             }
 
-            user.UserName = dto.Username;
+            user.Username = dto.Username;
             user.Email = dto.Email;
             user.Role = dto.Role;
 
@@ -74,7 +74,8 @@ namespace DotFlag.BusinessLayer.UserActions
 
         public ActionResponse Delete(int id)
         {
-            using var context = new UserContext();
+            using var context = new AppDbContext();
+
             var user = context.Users.FirstOrDefault(u => u.Id == id);
             if (user == null)
             {
