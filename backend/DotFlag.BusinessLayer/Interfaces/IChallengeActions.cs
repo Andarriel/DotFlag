@@ -11,6 +11,7 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse Create(CreateChallengeDto dto);
         ActionResponse Update(int id, ChallengeDto dto);
         ActionResponse Delete(int id);
+        ActionResponse SubmitFlag(int challengeId, int userId, string flag);
 
     }
 }

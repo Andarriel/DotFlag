@@ -1,6 +1,7 @@
 ﻿using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Challenge;
+using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Models.Challenge;
 using DotFlag.Domain.Models.Responses;
 
@@ -107,6 +108,48 @@ namespace DotFlag.BusinessLayer.Core
             context.Challenges.Remove(challenge);
             context.SaveChanges();
             return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };
+        }
+        public ActionResponse SubmitFlag(int challengeId, int userId, string flag)
+        {
+            using var context = new AppDbContext();
+            var challenge = context.Challenges.FirstOrDefault(c => c.Id == challengeId);
+            if (challenge == null)
+            {
+                return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
+            }
+            if (flag == challenge.FlagHash)
+            {
+                bool alreadySolved = context.Submissions.Any(s => s.UserId == userId && s.ChallengeId == challengeId && s.IsCorrect);
+
+                if (!alreadySolved)
+                {
+                    var user = context.Users.FirstOrDefault(u => u.Id == userId);
+                    int solveCount = context.Submissions.Count(s => s.ChallengeId == challengeId && s.IsCorrect);
+                    user.CurrentPoints += CalculateCurrentPoints(challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, solveCount);
+                }
+
+                context.Submissions.Add(new SubmissionData
+                {
+                    UserId = userId,
+                    ChallengeId = challengeId,
+                    Flag = flag,
+                    IsCorrect = true,
+                    CreatedOn = DateTime.UtcNow
+                });
+                context.SaveChanges();
+                return new ActionResponse { IsSuccess = true, Message = "Correct flag!" };
+            }
+
+            context.Submissions.Add(new SubmissionData
+            {
+                UserId = userId,
+                ChallengeId = challengeId,
+                Flag = flag,
+                IsCorrect = false,
+                CreatedOn = DateTime.UtcNow
+            });
+            context.SaveChanges();
+            return new ActionResponse { IsSuccess = false, Message = "Wrong flag." };
         }
     }
 }

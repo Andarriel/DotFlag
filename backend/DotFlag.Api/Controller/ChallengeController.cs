@@ -55,5 +55,15 @@ namespace DotFlag.Api.Controller
             if (!result.IsSuccess) return BadRequest(result.Message);
             return Ok(result);
         }
+
+        [HttpPost("{id}/submit")]
+        public IActionResult SubmitFlag(int id, SubmitFlagDto dto)
+        {
+            // TODO: userId din authenticated user aici
+            int userId = 1;
+            var result = _challengeActions.SubmitFlag(id, userId, dto.Flag);
+            if (!result.IsSuccess) return BadRequest(result.Message);
+            return Ok(result);
+        }
     }
 }
