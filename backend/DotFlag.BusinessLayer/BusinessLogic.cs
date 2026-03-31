@@ -7,5 +7,6 @@ namespace DotFlag.BusinessLayer
     {
        public IUserActions GetUserActions() => new UserActions();
        public IAuthActions GetAuthActions() => new AuthActions();
+       public IChallengeActions GetChallengeActions() => new ChallengeActions();
     }
 }
