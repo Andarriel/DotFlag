@@ -1,11 +1,12 @@
-﻿using DotFlag.Domain.Entities.User;
+﻿using DotFlag.Domain.Entities.Team;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotFlag.DataAccessLayer.Context
 {
-    public class UserContext: DbContext
+    public class TeamContext : DbContext
     {
-        public DbSet<UserData> Users { get; set; }
+        public DbSet<TeamData> Teams { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql(DbSession.ConnectionString);

@@ -17,6 +17,10 @@ public class TeamData
     [Required]
     [StringLength(32)]
     public string InviteCode { get; set; } = string.Empty;
-    
+
+    [DataType(DataType.DateTime)]
+    public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+
+    // Navigation prop
     public ICollection<UserData> Users { get; set; } = new List<UserData>();
 }
