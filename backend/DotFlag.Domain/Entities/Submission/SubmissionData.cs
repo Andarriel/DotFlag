@@ -1,3 +1,4 @@
+using DotFlag.Domain.Entities.User;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,10 +13,19 @@ public class SubmissionData
     [Required]
     public int UserId { get; set; }
 
+    [ForeignKey("UserId")]
+    public UserData User { get; set; }
+
     [Required]
     public int ChallengeId { get; set; }
+
+    [ForeignKey("ChallengeId")]
+    public ChallengeData Challenge { get; set; }
+
     [Required]
     public string Flag { get; set; } = string.Empty;
+    
     public bool IsCorrect { get; set; }
+    
     public DateTime CreatedOn { get; set; }
 }

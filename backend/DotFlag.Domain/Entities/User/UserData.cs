@@ -13,8 +13,8 @@ namespace DotFlag.Domain.Entities.User
         public int Id { get; set; }
 
         [Required]
-        [StringLength(35)]
-        public string UserName { get; set; } = string.Empty;
+        [StringLength(30,MinimumLength = 5, ErrorMessage = "Username cannot be longer than 30 characters")]
+        public string Username { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50)]
@@ -23,13 +23,13 @@ namespace DotFlag.Domain.Entities.User
 
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
-        
-        public UserRole Role { get; set; }
+
+        public UserRole Role { get; set; } = UserRole.User;
 
         public int CurrentPoints { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTime RegisteredOn { get; set; }
+        public DateTime RegisteredOn { get; set; } = DateTime.UtcNow;
 
         public bool IsBanned { get; set; }
 
@@ -37,7 +37,8 @@ namespace DotFlag.Domain.Entities.User
         
         [ForeignKey("TeamId")]
         public TeamData? Team { get; set; }
-        
+
+        // Navigation prop
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
     }
 }
