@@ -1,12 +1,12 @@
-using DotFlag.BusinessLayer.UserActions;
-using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.BusinessLayer.Core;
+using DotFlag.BusinessLayer.Interfaces;
 
 namespace DotFlag.BusinessLayer
 {
     public class BusinessLogic
     {
-       public IUserActions GetUserActions() => new UserActions.UserActions();
+       public IUserActions GetUserActions() => new UserActions();
+       public IAuthActions GetAuthActions() => new AuthActions();
        public IChallengeActions GetChallengeActions() => new ChallengeActions();
     }
 }
