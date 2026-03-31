@@ -8,7 +8,6 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ChallengePage from '../pages/ChallengePage';
-import ChallengeDetailPage from '../pages/ChallengeDetailPage';
 import LeaderboardPage from '../pages/LeaderboardPage';
 import AdminPage from '../pages/AdminPage';
 import TeamPage from '../pages/TeamPage';
@@ -41,7 +40,6 @@ export const router = createBrowserRouter([
             children: [
               { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
               { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
-              { path: ROUTE_SEGMENTS.CHALLENGE_DETAIL, element: <ChallengeDetailPage /> },
               { path: ROUTE_SEGMENTS.TEAM, element: <TeamPage /> },
             ],
           },

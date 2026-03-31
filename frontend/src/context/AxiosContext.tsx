@@ -17,9 +17,13 @@ export const AxiosProvider = ({ children }: { children: ReactNode }) => {
       },
     });
 
-    // Request interceptor
+    // Request interceptor — attach JWT token if present
     instance.interceptors.request.use(
       (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
       (error) => {

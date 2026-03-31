@@ -1,15 +1,19 @@
 import { CheckCircle, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { getDifficultyColor, getCategoryIcon } from '../../utils/challengeUtils';
 import type { Challenge } from '../../types';
 
-export default function ChallengeCard({ challenge }: { challenge: Challenge }) {
+interface ChallengeCardProps {
+  challenge: Challenge;
+  onClick: () => void;
+}
+
+export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps) {
   const Icon = getCategoryIcon(challenge.category);
 
   return (
-    <Link
-      to={`/challenges/${challenge.id}`}
-      className={`block glass rounded-xl p-5 transition-all duration-300 group hover:bg-slate-800/40 hover:shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-0.5 ${
+    <button
+      onClick={onClick}
+      className={`block w-full text-left glass rounded-xl p-5 transition-all duration-300 group hover:bg-slate-800/40 hover:shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-0.5 ${
         challenge.isSolved
           ? 'border-green-500/20'
           : !challenge.isActive
@@ -41,6 +45,6 @@ export default function ChallengeCard({ challenge }: { challenge: Challenge }) {
       <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
         <span className="text-sm font-bold text-indigo-400">{challenge.points} pts</span>
       </div>
-    </Link>
+    </button>
   );
 }
