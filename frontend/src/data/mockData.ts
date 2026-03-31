@@ -1,6 +1,6 @@
 import type {
   User, Challenge, LeaderboardEntry, TeamProgress,
-  ChallengeDetail, AdminUser, Team, Profile, DockerImage,
+  ChallengeDetail, AdminUser, Team, Profile, DockerImage, Submission,
 } from '../types';
 
 // ── Users ──
@@ -48,11 +48,47 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     hint: "Look at the stack layout carefully", solveCount: 12, author: "h4ck3r_pro",
   },
   {
+    id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques. The login form is vulnerable to classic SQL injection. Can you log in as admin without knowing the password?\n\nThis challenge teaches basic SQLi concepts.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isSolved: true,
+    files: [{ id: 6, name: "app.py", size: "3.1 KB" }],
+    solveCount: 35, author: "Pavel_Admin",
+  },
+  {
+    id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message. The encrypted text uses a simple shift cipher. Find the right shift value to decode the flag.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isSolved: true,
+    files: [{ id: 7, name: "cipher.txt", size: "256 B" }],
+    solveCount: 56, author: "Pavel_Admin",
+  },
+  {
+    id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary. The flag is embedded somewhere in the executable. Use tools like strings, objdump, or Ghidra to find it.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isSolved: false,
+    files: [{ id: 8, name: "mystery_bin", size: "12.4 KB" }],
+    dockerImage: { id: 3, challengeId: 6, name: "dotflag/reverse-strings", status: "running", ip: "10.0.13.39", port: 9090, uptime: "45m", expiresAt: "2026-02-17T16:30:00Z" },
+    hint: "Try running 'strings' on the binary first", solveCount: 19, author: "h4ck3r_pro",
+  },
+  {
+    id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials. Someone accidentally sent their password in plain text over HTTP. Find it in the pcap file.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isSolved: false,
+    files: [{ id: 9, name: "capture.pcap", size: "1.8 MB" }, { id: 10, name: "readme.txt", size: "412 B" }],
+    solveCount: 31, author: "Pavel_Admin",
+  },
+  {
     id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag. You are dropped into a Docker container with limited privileges. Find a way to escape and read /flag.txt on the host.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false,
     files: [],
     dockerImage: { id: 2, challengeId: 8, name: "dotflag/docker-escape", status: "stopped", ip: "10.0.13.38", port: 4444, uptime: "0m", expiresAt: "2026-02-17T20:00:00Z" },
     solveCount: 3, author: "Pavel_Admin",
   },
+];
+
+// ── Submissions ──
+
+export const MOCK_SUBMISSIONS: Submission[] = [
+  { id: 1, userId: 1, challengeId: 1, submittedFlag: "dotflag{hello_world_123}", isCorrect: true, timestamp: "2026-02-01T12:00:00Z" },
+  { id: 2, userId: 1, challengeId: 1, submittedFlag: "dotflag{wrong_flag}", isCorrect: false, timestamp: "2026-02-01T11:45:00Z" },
+  { id: 3, userId: 2, challengeId: 1, submittedFlag: "dotflag{hello_world_123}", isCorrect: true, timestamp: "2026-02-01T14:00:00Z" },
+  { id: 4, userId: 1, challengeId: 2, submittedFlag: "dotflag{b4s3_64_m4st3r}", isCorrect: true, timestamp: "2026-02-07T18:45:00Z" },
+  { id: 5, userId: 3, challengeId: 2, submittedFlag: "dotflag{not_this_one}", isCorrect: false, timestamp: "2026-02-06T10:20:00Z" },
+  { id: 6, userId: 2, challengeId: 3, submittedFlag: "dotflag{buff3r_0v3rfl0w}", isCorrect: true, timestamp: "2026-02-02T20:00:00Z" },
+  { id: 7, userId: 1, challengeId: 4, submittedFlag: "dotflag{sql_1nj3ct10n}", isCorrect: true, timestamp: "2026-02-03T15:30:00Z" },
+  { id: 8, userId: 1, challengeId: 5, submittedFlag: "dotflag{c43s4r_sh1ft}", isCorrect: true, timestamp: "2026-02-05T09:00:00Z" },
+  { id: 9, userId: 5, challengeId: 3, submittedFlag: "dotflag{wrong_attempt}", isCorrect: false, timestamp: "2026-02-03T22:10:00Z" },
+  { id: 10, userId: 4, challengeId: 6, submittedFlag: "dotflag{h1dd3n_str1ngs}", isCorrect: true, timestamp: "2026-02-08T14:30:00Z" },
 ];
 
 // ── Leaderboard ──
