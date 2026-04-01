@@ -17,7 +17,6 @@ export const AxiosProvider = ({ children }: { children: ReactNode }) => {
       },
     });
 
-    // Request interceptor — attach JWT token if present
     instance.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem('token');
@@ -36,7 +35,10 @@ export const AxiosProvider = ({ children }: { children: ReactNode }) => {
         return response;
       },
       (error) => {
-        if (!error.response || error.code === 'ERR_NETWORK') {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate(ROUTES.LOGIN);
+        } else if (!error.response || error.code === 'ERR_NETWORK') {
           navigate(ROUTES.SERVER_ERROR);
         }
         return Promise.reject(error);
