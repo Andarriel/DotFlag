@@ -8,7 +8,7 @@ namespace DotFlag.BusinessLayer.Interfaces
         UserDto GetById(int id);
         List<UserDto> GetAll();
 
-        ActionResponse Create(UserRegisterDto dto);
+        ActionResponse Create(CreateUserDto dto);
         ActionResponse Update(int id, UserDto dto);
         ActionResponse Delete (int id);
 
