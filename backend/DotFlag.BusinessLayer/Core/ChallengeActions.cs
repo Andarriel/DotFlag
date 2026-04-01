@@ -16,41 +16,28 @@ namespace DotFlag.BusinessLayer.Core
             _mapper = mapper;
         }
 
-        public ChallengeDto GetById(int id)
+        public ChallengeDto GetById(int id, bool includeInactive = false)
         {
             using var context = new AppDbContext();
 
-            var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
+            var challenge = context.Challenges
+                .FirstOrDefault(c => c.Id == id && (includeInactive || c.IsActive));
 
             if (challenge == null)
                 return null;
 
-            int solveCount = context.Submissions.Count(s => s.ChallengeId == id && s.IsCorrect);
-
-            var dto = _mapper.Map<ChallengeDto>(challenge);
-            dto.CurrentPoints = challenge.CalculateCurrentPoints(challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, solveCount);
-            dto.SolveCount = solveCount;
-
-            return dto;
+            return _mapper.Map<ChallengeDto>(challenge);
         }
 
-        public List<ChallengeDto> GetAll()
+        public List<ChallengeDto> GetAll(bool includeInactive = false)
         {
             using var context = new AppDbContext();
-            
-            var challenges = context.Challenges.ToList();
 
-            return challenges.Select(c =>
-            {
-                int solveCount = context.Submissions.Count(s => s.ChallengeId == c.Id && s.IsCorrect);
+            var challenges = context.Challenges
+                .Where(c => includeInactive || c.IsActive)
+                .ToList();
 
-                var dto = _mapper.Map<ChallengeDto>(c);
-
-                dto.CurrentPoints = c.CalculateCurrentPoints(c.MaxPoints, c.MinPoints, c.DecayRate, solveCount);
-                dto.SolveCount = solveCount;
-
-                return dto;
-            }).ToList();
+            return _mapper.Map<List<ChallengeDto>>(challenges);
         }
 
         public ActionResponse Create(CreateChallengeDto dto) 
@@ -58,7 +45,9 @@ namespace DotFlag.BusinessLayer.Core
             using var context = new AppDbContext();
 
             var challenge = _mapper.Map<ChallengeData>(dto);
+
             challenge.FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag);
+            challenge.CurrentPoints = dto.MaxPoints;
 
             context.Challenges.Add(challenge);
             context.SaveChanges();
@@ -82,6 +71,9 @@ namespace DotFlag.BusinessLayer.Core
             challenge.Difficulty = dto.Difficulty;
             challenge.IsActive = dto.IsActive;
 
+            challenge.CurrentPoints = challenge.CalculateCurrentPoints(
+                dto.MaxPoints, dto.MinPoints, challenge.DecayRate, challenge.SolveCount);
+
             context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "Challenge updated successfully." };
@@ -96,7 +88,7 @@ namespace DotFlag.BusinessLayer.Core
             if (challenge == null)
                 return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
 
-            context.Challenges.Remove(challenge);
+            challenge.IsActive = false;
             context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };

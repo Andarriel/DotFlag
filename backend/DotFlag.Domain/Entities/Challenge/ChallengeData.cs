@@ -29,9 +29,13 @@ namespace DotFlag.Domain.Entities.Challenge
 
         public int MaxPoints { get; set; } = 500;
 
+        public int CurrentPoints { get; set; }
+
         public int DecayRate { get; set; } = 30;
 
         public int FirstBloodBonus { get; set; } = 10;
+
+        public int SolveCount { get; set; }
 
         [Required]
         public string FlagHash { get; set; } = string.Empty;

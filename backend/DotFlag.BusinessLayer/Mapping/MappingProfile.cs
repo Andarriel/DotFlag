@@ -22,9 +22,7 @@ namespace DotFlag.BusinessLayer.Mapping
                 .ForMember(dest => dest.RegisteredOn, opt => opt.Ignore());
 
             // Challenge mappings
-            CreateMap<ChallengeData, ChallengeDto>()
-                .ForMember(dest => dest.CurrentPoints, opt => opt.Ignore())
-                .ForMember(dest => dest.SolveCount, opt => opt.Ignore());
+            CreateMap<ChallengeData, ChallengeDto>();
 
             CreateMap<CreateChallengeDto, ChallengeData>()
                 .ForMember(dest => dest.FlagHash, opt => opt.Ignore());

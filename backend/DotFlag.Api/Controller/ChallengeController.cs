@@ -23,7 +23,8 @@ namespace DotFlag.Api.Controller
         [Authorize]
         public IActionResult GetAll()
         {
-            var result = _challengeActions.GetAll();
+            bool isAdmin = User.IsInRole("Admin") || User.IsInRole("Owner");
+            var result = _challengeActions.GetAll(includeInactive: isAdmin);
 
             return Ok(result);
         }
@@ -32,9 +33,10 @@ namespace DotFlag.Api.Controller
         [Authorize]
         public IActionResult GetById(int id)
         {
-            var result = _challengeActions.GetById(id);
+            bool isAdmin = User.IsInRole("Admin") || User.IsInRole("Owner");
+            var result = _challengeActions.GetById(id, includeInactive: isAdmin);
 
-            if (result == null) 
+            if (result == null)
                 return NotFound();
 
             return Ok(result);

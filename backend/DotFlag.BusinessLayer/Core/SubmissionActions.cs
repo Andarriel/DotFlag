@@ -17,48 +17,48 @@ namespace DotFlag.BusinessLayer.Core
 
         public ActionResponse SubmitFlag(int challengeId, int userId, string flag)
         {
-            using (var context = new AppDbContext())
-            {
-                var challenge = context.Challenges.FirstOrDefault(c => c.Id == challengeId);
+            using var context = new AppDbContext();
 
-                if (challenge == null)
-                    return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
+            var challenge = context.Challenges.FirstOrDefault(c => c.Id == challengeId);
 
-                if (challenge.IsActive == false)
-                    return new ActionResponse { IsSuccess = false, Message = "Challenge is not active." };
+            if (challenge == null)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
 
-                bool alreadySolved = context.Submissions.Any(s => s.UserId == userId && s.ChallengeId == challengeId && s.IsCorrect);
+            if (challenge.IsActive == false)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge is not active." };
 
-                if(alreadySolved)
-                    return new ActionResponse { IsSuccess = false, Message = "Challenge already solved." };
-                
-                var user = context.Users.FirstOrDefault(u => u.Id == userId);
+            bool alreadySolved = context.Submissions.Any(s => s.UserId == userId && s.ChallengeId == challengeId && s.IsCorrect);
 
-                if(user == null)
-                    return new ActionResponse { IsSuccess = false, Message = "User not found." };
+            if (alreadySolved)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge already solved." };
 
-                bool isCorrect = BCrypt.Net.BCrypt.Verify(flag, challenge.FlagHash);
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
 
-                if (isCorrect)
-                {
-                    int solveCount = context.Submissions.Count(s => s.ChallengeId == challengeId && s.IsCorrect);
-                    user.CurrentPoints += challenge.CalculateCurrentPoints(challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, solveCount);
-                }
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
 
-                context.Submissions.Add(new SubmissionData
-                {
-                    UserId = userId,
-                    ChallengeId = challengeId,
-                    Flag = BCrypt.Net.BCrypt.HashPassword(flag),
-                    IsCorrect = isCorrect,
-                    CreatedOn = DateTime.UtcNow
-                });
-
-                context.SaveChanges();
-
-                return new ActionResponse { IsSuccess = isCorrect, Message = isCorrect ? "Correct flag!" : "Incorrect Flag!" };
-            }
+            bool isCorrect = BCrypt.Net.BCrypt.Verify(flag, challenge.FlagHash);
             
+            if (isCorrect)
+            {
+                challenge.SolveCount += 1;
+                challenge.CurrentPoints = challenge.CalculateCurrentPoints(
+                    challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, challenge.SolveCount);
+            }
+
+            context.Submissions.Add(new SubmissionData
+            {
+                UserId = userId,
+                ChallengeId = challengeId,
+                Flag = BCrypt.Net.BCrypt.HashPassword(flag),
+                IsCorrect = isCorrect,
+                CreatedOn = DateTime.UtcNow
+            });
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = isCorrect, Message = isCorrect ? "Correct flag!" : "Incorrect Flag!" };
+
         }
 
     }
