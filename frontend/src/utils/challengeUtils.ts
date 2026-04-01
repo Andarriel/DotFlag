@@ -1,5 +1,5 @@
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../types';
-import { Code, Lock, Globe, Shield, Search, FileText } from 'lucide-react';
+import { Code, Lock, Globe, Shield, Search, FileText, Eye } from 'lucide-react';
 
 export const getDifficultyColor = (difficulty: ChallengeDifficulty): string => {
   const colors: Record<ChallengeDifficulty, string> = {
@@ -17,7 +17,8 @@ export const getCategoryIcon = (category: ChallengeCategory) => {
     Pwn: Code,
     Reverse: Shield,
     Misc: FileText,
-    Forensics: Search
+    Forensics: Search,
+    OSINT: Eye
   };
   return icons[category];
 };

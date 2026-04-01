@@ -2,8 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import axios from 'axios';
 import type { UserRole } from '../types';
 import type { ApiUser, LoginResponse } from '../types/api';
-
-const USE_MOCK = true;
+import { USE_MOCK } from '../config';
 
 interface AuthUser {
   id: number;
