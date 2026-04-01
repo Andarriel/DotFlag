@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Users, User, Lock, Unlock, Coins } from 'lucide-react';
 import { getCategoryIcon, getDifficultyColor } from '../../utils/challengeUtils';
+import { challengeService } from '../../services/challengeService';
+import { useAxios } from '../../context/AxiosContext';
+import { USE_MOCK } from '../../config';
 import type { ChallengeDetail, ChallengeHint } from '../../types';
 
 function HintItem({ hint, index, onUnlock }: { hint: ChallengeHint; index: number; onUnlock: (id: number) => void }) {
@@ -37,8 +40,12 @@ function HintItem({ hint, index, onUnlock }: { hint: ChallengeHint; index: numbe
 }
 
 export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetail }) {
+  const api = useAxios();
   const Icon = getCategoryIcon(challenge.category);
   const [hints, setHints] = useState(challenge.hints);
+  const [flag, setFlag] = useState('');
+  const [submitResult, setSubmitResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleUnlock = (hintId: number) => {
     const hint = hints.find(h => h.id === hintId);
@@ -50,6 +57,29 @@ export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetai
     }
 
     setHints(prev => prev.map(h => h.id === hintId ? { ...h, isUnlocked: true } : h));
+  };
+
+  const handleSubmitFlag = async () => {
+    if (!flag.trim() || submitting) return;
+    setSubmitting(true);
+    setSubmitResult(null);
+
+    if (USE_MOCK) {
+      await new Promise(r => setTimeout(r, 500));
+      const correct = flag === 'dotflag{test}';
+      setSubmitResult({ success: correct, message: correct ? 'Correct flag!' : 'Wrong flag, try again.' });
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await challengeService.submitFlag(api, challenge.id, flag);
+      setSubmitResult({ success: res.isSuccess, message: res.message });
+    } catch {
+      setSubmitResult({ success: false, message: 'Failed to submit flag.' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -91,12 +121,31 @@ export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetai
         )}
 
         <div className="mt-5 flex gap-2.5 flex-col sm:flex-row">
-          <input type="text" placeholder="dotflag{your_flag_here}"
-            className="flex-1 bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm font-mono placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" />
-          <button className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98] whitespace-nowrap">
-            Submit Flag
+          <input
+            type="text"
+            value={flag}
+            onChange={e => setFlag(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSubmitFlag()}
+            placeholder="dotflag{your_flag_here}"
+            className="flex-1 bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm font-mono placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+          />
+          <button
+            onClick={handleSubmitFlag}
+            disabled={submitting || !flag.trim()}
+            className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98] whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? 'Submitting...' : 'Submit Flag'}
           </button>
         </div>
+        {submitResult && (
+          <div className={`mt-3 text-sm px-4 py-2.5 rounded-xl border ${
+            submitResult.success
+              ? 'text-green-400 bg-green-500/[0.06] border-green-500/15'
+              : 'text-red-400 bg-red-500/[0.06] border-red-500/15'
+          }`}>
+            {submitResult.message}
+          </div>
+        )}
       </div>
     </div>
   );
