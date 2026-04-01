@@ -1,29 +1,101 @@
-export interface UserDto {
+export type UserRole = 'Guest' | 'User' | 'Admin' | 'Owner';
+
+export enum ChallengeCategory {
+  Web = 0,
+  Pwn = 1,
+  Crypto = 2,
+  Reverse = 3,
+  Forensics = 4,
+  Misc = 5,
+  OSINT = 6,
+}
+
+export interface ApiUser {
   id: number;
   username: string;
   email: string;
   currentPoints: number;
-  role: 'Guest' | 'User' | 'Admin' | 'Owner';
+  role: UserRole;
 }
 
-export interface UserRegisterDto {
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
 }
 
-export interface UserLoginDto {
-  email: string;
+export interface CreateUserPayload {
+  username: string;
   password: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface UpdateUserPayload {
+  username: string;
+  email: string;
+  role: UserRole;
+  password?: string;
+}
+
+export interface UpdateProfilePayload {
+  username: string;
+  email: string;
+  currentPassword: string;
+  newPassword?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: ApiUser;
+}
+
+export interface ApiChallenge {
+  id: number;
+  name: string;
+  description: string;
+  category: ChallengeCategory;
+  minPoints: number;
+  maxPoints: number;
+  currentPoints: number;
+  isActive: boolean;
+  solveCount: number;
+  createdOn: string;
+}
+
+export interface CreateChallengePayload {
+  name: string;
+  description: string;
+  category: ChallengeCategory;
+  minPoints: number;
+  maxPoints: number;
+  decayRate: number;
+  firstBloodBonus: number;
+  flag: string;
+}
+
+export interface UpdateChallengePayload {
+  name: string;
+  description: string;
+  category: ChallengeCategory;
+  minPoints: number;
+  maxPoints: number;
+  decayRate: number;
+  firstBloodBonus: number;
+  flag: string;
+  isActive: boolean;
+}
+
+export interface FlagSubmission {
+  flag: string;
 }
 
 export interface ActionResponse {
   isSuccess: boolean;
   message: string;
-}
-
-export interface AdminUser extends UserDto {
-  isBanned: boolean;
-  lastLogin: string;
-  sessionActive: boolean;
 }
