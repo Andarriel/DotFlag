@@ -5,14 +5,23 @@ namespace DotFlag.Domain.Models.Challenge
     public class ChallengeDto
     {
         public int Id { get; set; }
+
         public string Name { get; set; }
+
         public string Description { get; set; }
+
         public ChallengeCategory Category { get; set; }
+
         public int MinPoints { get; set; }
+
         public int MaxPoints { get; set; }
+
         public int CurrentPoints { get; set; }
+
         public bool IsActive { get; set; }
+
         public int SolveCount { get; set; }
+
         public DateTime CreatedOn { get; set; }
     }
 }

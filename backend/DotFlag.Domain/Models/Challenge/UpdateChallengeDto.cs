@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DotFlag.Domain.Models.Challenge
 {
-    public class CreateChallengeDto
+    public class UpdateChallengeDto
     {
         [Required]
         [StringLength(50)]
@@ -23,7 +23,8 @@ namespace DotFlag.Domain.Models.Challenge
 
         public int FirstBloodBonus { get; set; }
 
-        public string Flag { get; set; } 
-    }
+        public string Flag { get; set; }
 
+        public bool IsActive { get; set; }
+    }
 }
