@@ -38,5 +38,13 @@ namespace DotFlag.Domain.Entities.Challenge
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
+
+        // Just a math function, it's okay to store it here i think... Domnul Antohi o sa fie suparat ca am pus-o aici ? :D
+        // Trebuieste pentru degradarea punctelor in functie de numarul de solve-uri
+        public int CalculateCurrentPoints(int maxPoints, int minPoints, int decayRate, int solveCount)
+        {
+            double value = ((double)(minPoints - maxPoints) / (decayRate * decayRate)) * (solveCount * solveCount) + maxPoints;
+            return Math.Max((int)Math.Ceiling(value), minPoints);
+        }
     }
 }

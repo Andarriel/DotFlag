@@ -14,7 +14,7 @@ namespace DotFlag.BusinessLayer.Core
             {
                 var user = context.Users.FirstOrDefault(u => u.Id == id);
 
-                if (user == null) 
+                if (user == null)
                     return null;
 
                 return new UserDto
@@ -44,7 +44,7 @@ namespace DotFlag.BusinessLayer.Core
                     ).ToList();
             }
         }
-        
+
         public ActionResponse Create(CreateUserDto dto)
         {
             using (var context = new AppDbContext())
@@ -57,15 +57,15 @@ namespace DotFlag.BusinessLayer.Core
                     Role = dto.Role,
                     RegisteredOn = DateTime.UtcNow
                 };
-                
+
                 context.Users.Add(user);
                 context.SaveChanges();
 
                 return new ActionResponse { IsSuccess = true, Message = "User created successfully." };
             }
         }
-      
-        public ActionResponse Update(int id, UserDto dto)
+
+        public ActionResponse Update(int id, UpdateUserDto dto)
         {
             using (var context = new AppDbContext())
             {
@@ -79,6 +79,11 @@ namespace DotFlag.BusinessLayer.Core
                 user.Username = dto.Username;
                 user.Email = dto.Email;
                 user.Role = dto.Role;
+
+                if (!string.IsNullOrEmpty(dto.Password))
+                {
+                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+                }
 
                 context.SaveChanges();
 
@@ -104,5 +109,32 @@ namespace DotFlag.BusinessLayer.Core
             }
         }
 
+        public ActionResponse UpdateProfile(int id, UpdateUserProfileDto dto)
+        {
+            using (var context = new AppDbContext())
+            {
+                var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+                if (user == null)
+                    return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+                if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+                {
+                    return new ActionResponse { IsSuccess = false, Message = "Current password is incorrect." };
+                }
+
+                user.Username = dto.Username;
+                user.Email = dto.Email;
+
+                if (!string.IsNullOrEmpty(dto.NewPassword))
+                {
+                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+                }
+
+                context.SaveChanges();
+
+                return new ActionResponse { IsSuccess = true, Message = "Profile updated successfully." };
+            }
+        }
     }
 }

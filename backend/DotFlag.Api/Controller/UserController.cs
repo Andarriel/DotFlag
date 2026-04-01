@@ -25,6 +25,7 @@ namespace DotFlag.Api.Controller
         public IActionResult GetAll()
         {
             var result = _userActions.GetAll();
+
             return Ok(result);
         }
 
@@ -35,28 +36,36 @@ namespace DotFlag.Api.Controller
             var currentUserId = int.Parse(
                 User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
+            //Daca nu e admin sau owner, poate vedea doar propriul profil..
             if (currentUserId != id && !User.IsInRole("Admin") && !User.IsInRole("Owner"))
                 return Forbid();
 
             var result = _userActions.GetById(id);
+
             return Ok(result);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin,Owner")]
-        public IActionResult Create(UserRegisterDto dto)
+        public IActionResult Create([FromBody] CreateUserDto dto)
         {
             var result = _userActions.Create(dto);
-            if (!result.IsSuccess) return BadRequest(result.Message);
+
+            if (!result.IsSuccess) 
+                return BadRequest(result);
+
             return Ok(result);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Owner")]
-        public IActionResult Update(int id, UserDto dto)
+        public IActionResult Update([FromBody] UpdateUserDto dto, int id)
         {
             var result = _userActions.Update(id, dto);
-            if (!result.IsSuccess) return BadRequest(result.Message);
+
+            if (!result.IsSuccess) 
+                return BadRequest(result);
+
             return Ok(result);
         }
 
@@ -65,7 +74,28 @@ namespace DotFlag.Api.Controller
         public IActionResult Delete(int id)
         {
             var result = _userActions.Delete(id);
-            if (!result.IsSuccess) return BadRequest(result.Message);
+
+            if (!result.IsSuccess) 
+                return BadRequest(result);
+            
+            return Ok(result);
+        }
+
+        [HttpPut("{id}/profile")]
+        [Authorize]
+        public IActionResult UpdateProfile(int id, [FromBody] UpdateUserProfileDto dto)
+        {
+            var currentUserId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            if (currentUserId != id)
+                return Forbid();
+
+            var result = _userActions.UpdateProfile(id, dto);
+
+            if (!result.IsSuccess) 
+                return BadRequest(result);
+
             return Ok(result);
         }
     }
