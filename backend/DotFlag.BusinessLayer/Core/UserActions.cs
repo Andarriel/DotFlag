@@ -10,83 +10,98 @@ namespace DotFlag.BusinessLayer.Core
     {
         public UserDto GetById(int id)
         {
-            using var context = new AppDbContext();
-            var user = context.Users.FirstOrDefault(u => u.Id == id);
-            if (user == null) return null;
-
-            return new UserDto
+            using (var context = new AppDbContext())
             {
-                Id = user.Id,
-                Email = user.Email,
-                Username = user.Username,
-                CurrentPoints = user.CurrentPoints,
-                Role = user.Role
-            };
+                var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+                if (user == null) 
+                    return null;
+
+                return new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Username = user.Username,
+                    CurrentPoints = user.CurrentPoints,
+                    Role = user.Role
+                };
+            }
         }
 
         public List<UserDto> GetAll()
-        { 
-            using var context = new AppDbContext();
-            return context.Users.Select(user => new UserDto
+        {
+            using (var context = new AppDbContext())
             {
-                Id = user.Id,
-                Email = user.Email,
-                Username = user.Username,
-                CurrentPoints = user.CurrentPoints,
-                Role = user.Role
-            }).ToList();
+                return context.Users.Select
+                    (user => new UserDto
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        Username = user.Username,
+                        CurrentPoints = user.CurrentPoints,
+                        Role = user.Role
+                    }
+                    ).ToList();
+            }
         }
         
-        public ActionResponse Create(UserRegisterDto dto)
+        public ActionResponse Create(CreateUserDto dto)
         {
-            using var context = new AppDbContext();
-            var user = new UserData
+            using (var context = new AppDbContext())
             {
-                Username = dto.Username,
-                Email = dto.Email,
-                // TODO: Hashing aici
-                PasswordHash = dto.Password,
-                RegisteredOn = DateTime.UtcNow
-            };
-            context.Users.Add(user);
-            context.SaveChanges();
-            return new ActionResponse { IsSuccess = true, Message = "User created successfully." };
+                var user = new UserData
+                {
+                    Username = dto.Username,
+                    Email = dto.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                    Role = dto.Role,
+                    RegisteredOn = DateTime.UtcNow
+                };
+                
+                context.Users.Add(user);
+                context.SaveChanges();
+
+                return new ActionResponse { IsSuccess = true, Message = "User created successfully." };
+            }
         }
       
         public ActionResponse Update(int id, UserDto dto)
         {
-            using var context = new AppDbContext();
-
-            var user = context.Users.FirstOrDefault(u => u.Id == id);
-            if (user == null)
+            using (var context = new AppDbContext())
             {
-                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+                var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+                if (user == null)
+                {
+                    return new ActionResponse { IsSuccess = false, Message = "User not found." };
+                }
+
+                user.Username = dto.Username;
+                user.Email = dto.Email;
+                user.Role = dto.Role;
+
+                context.SaveChanges();
+
+                return new ActionResponse { IsSuccess = true, Message = "User updated successfully." };
             }
-
-            user.Username = dto.Username;
-            user.Email = dto.Email;
-            user.Role = dto.Role;
-
-            context.SaveChanges();
-
-            return new ActionResponse { IsSuccess = true, Message = "User updated successfully." };
-
         }
 
         public ActionResponse Delete(int id)
         {
-            using var context = new AppDbContext();
-
-            var user = context.Users.FirstOrDefault(u => u.Id == id);
-            if (user == null)
+            using (var context = new AppDbContext())
             {
-                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+                var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+                if (user == null)
+                {
+                    return new ActionResponse { IsSuccess = false, Message = "User not found." };
+                }
+
+                context.Users.Remove(user);
+                context.SaveChanges();
+
+                return new ActionResponse { IsSuccess = true, Message = "User deleted successfully." };
             }
-
-            context.Users.Remove(user);
-            context.SaveChanges();
-
-            return new ActionResponse { IsSuccess = true, Message = "User deleted successfully." };
         }
 
     }
