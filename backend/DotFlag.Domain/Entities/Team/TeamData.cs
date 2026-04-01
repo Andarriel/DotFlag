@@ -11,16 +11,18 @@ public class TeamData
     public int Id { get; set; }
     
     [Required]
-    [StringLength(25)]
+    [StringLength(25,MinimumLength = 3, ErrorMessage = "The Team Name is too short..")]
     public string Name { get; set; } = string.Empty;
-    
+
     [Required]
-    [StringLength(32)]
+    [StringLength(12,MinimumLength = 12, ErrorMessage = "Invite code must be 12 characters long")]
     public string InviteCode { get; set; } = string.Empty;
 
     [DataType(DataType.DateTime)]
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
+    public bool IsActive { get; set; } = true;
+
     // Navigation prop
-    public ICollection<UserData> Users { get; set; } = new List<UserData>();
+    public ICollection<UserData> Members { get; set; } = new List<UserData>();
 }

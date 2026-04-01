@@ -36,6 +36,8 @@ namespace DotFlag.Domain.Entities.User
         [ForeignKey("TeamId")]
         public TeamData? Team { get; set; }
 
+        public TeamRole? TeamRole { get; set; }
+
         // Navigation prop
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
     }

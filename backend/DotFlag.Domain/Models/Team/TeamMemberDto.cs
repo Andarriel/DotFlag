@@ -1,0 +1,10 @@
+﻿namespace DotFlag.Domain.Models.Team
+{
+    public class TeamMemberDto
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public int CurrentPoints { get; set; }
+        public DateTime CreatedOn { get; set; }
+    }
+}
