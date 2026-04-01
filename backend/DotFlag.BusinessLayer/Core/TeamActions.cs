@@ -1,0 +1,253 @@
+﻿using AutoMapper;
+using DotFlag.BusinessLayer.Interfaces;
+using DotFlag.DataAccessLayer.Context;
+using DotFlag.Domain.Entities.Team;
+using DotFlag.Domain.Enums;
+using DotFlag.Domain.Models.Responses;
+using DotFlag.Domain.Models.Team;
+using Microsoft.EntityFrameworkCore;
+
+namespace DotFlag.BusinessLayer.Core
+{
+    public class TeamActions : ITeamActions
+    {
+        private readonly IMapper _mapper;
+
+        public TeamActions(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
+        private string GenerateInviteCode()
+        {
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            var part1 = new string(Enumerable.Range(0, 4).Select(_ => chars[random.Next(chars.Length)]).ToArray());
+            var part2 = new string(Enumerable.Range(0, 4).Select(_ => chars[random.Next(chars.Length)]).ToArray());
+            return $"DF-{part1}-{part2}";
+        }
+
+        public ActionResponse Create(int userId, CreateTeamDto dto)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(userData => userData.Id == userId);
+
+            if(user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (user.TeamId != null)
+                return new ActionResponse { IsSuccess = false, Message = "You are already in a team." };
+
+            var team = _mapper.Map<TeamData>(dto);
+            team.InviteCode = GenerateInviteCode();
+
+            user.TeamRole = TeamRole.Leader;
+            user.Team = team;
+
+            context.Teams.Add(team);
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Team created successfully." };
+        }
+
+        public ActionResponse Disband(int id, int userId, bool isAdmin)
+        {
+            using var context = new AppDbContext();
+
+            if (!isAdmin)
+            {
+                var user = context.Users.FirstOrDefault(u => u.Id == userId);
+
+                if (user == null)
+                    return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+                if (user.TeamId != id || user.TeamRole != TeamRole.Leader)
+                    return new ActionResponse { IsSuccess = false, Message = "Only the team leader can disband the team." };
+            }
+
+            var team = context.Teams.FirstOrDefault(t => t.Id == id);
+
+            if (team == null)
+                return new ActionResponse { IsSuccess = false, Message = "Team not found." };
+
+            var members = context.Users.Where(u => u.TeamId == id).ToList();
+
+            foreach (var member in members)
+            {
+                member.TeamId = null;
+                member.TeamRole = null;
+            }
+
+            team.IsActive = false;
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Team disbanded successfully." };
+        }
+
+        public List<TeamDto> GetAll(bool includeInactive = false)
+        {
+            using var context = new AppDbContext();
+
+            var teams = context.Teams
+                .Include(t => t.Members)
+                .Where(team => includeInactive || team.IsActive)
+                .ToList();
+
+            return _mapper.Map<List<TeamDto>>(teams);
+        }
+
+        public TeamDto GetById(int id)
+        {
+            using var context = new AppDbContext();
+
+            var team = context.Teams
+                .Include(t => t.Members)
+                .FirstOrDefault(teamData => teamData.Id == id);
+
+            if (team == null)
+                return null;
+
+            return _mapper.Map<TeamDto>(team);
+        }
+
+        public ActionResponse Join(int userId, JoinTeamDto dto)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(userData => userData.Id == userId);
+
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (user.TeamId != null)
+                return new ActionResponse { IsSuccess = false, Message = "You are already in a team." };
+
+            var teamToJoin = context.Teams
+                .Include(t => t.Members)
+                .FirstOrDefault(team => team.InviteCode == dto.InviteCode);
+
+            if (teamToJoin == null || !teamToJoin.IsActive)
+                return new ActionResponse { IsSuccess = false, Message = "Invalid invite code." };
+
+            if (teamToJoin.Members.Count >= 4)
+                return new ActionResponse { IsSuccess = false, Message = "This team is full." };
+
+            user.TeamId = teamToJoin.Id;
+            user.TeamRole = TeamRole.Member;
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "You joined the team!" };
+        }
+
+        public ActionResponse Leave(int teamId, int userId)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(userData => userData.Id == userId);
+
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (user.TeamId != teamId)
+                return new ActionResponse { IsSuccess = false, Message = "You are not in this team." };
+
+            bool isLeader = user.TeamRole == TeamRole.Leader;
+
+            user.TeamId = null;
+            user.TeamRole = null;
+
+            //Dam liderul lu alt user
+            if (isLeader)
+            {
+
+                var nextMember = context.Users
+                    .Where(u => u.TeamId == teamId && u.Id != userId)
+                    .OrderBy(u => u.Id)
+                    .FirstOrDefault();
+
+                if (nextMember != null)
+                {
+                    nextMember.TeamRole = TeamRole.Leader;
+                }
+                else
+                {
+                    var team = context.Teams.FirstOrDefault(t => t.Id == teamId);
+                    if (team != null)
+                        team.IsActive = false;
+                }
+            }
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "You left the team." };
+        }
+
+        public ActionResponse RegenerateInvite(int teamId, int userId)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(userData => userData.Id == userId);
+
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (user.TeamId == null)
+                return new ActionResponse { IsSuccess = false, Message = "You are not in a team." };
+
+            if (user.TeamId != teamId)
+                return new ActionResponse { IsSuccess = false, Message = "You are not in this team." };
+
+            if (user.TeamRole == TeamRole.Member)
+                return new ActionResponse { IsSuccess = false, Message = "Only team leaders can regenerate invite codes." };
+
+            var team = context.Teams.FirstOrDefault(team => team.Id == teamId);
+
+            if(team == null)
+                return new ActionResponse { IsSuccess = false, Message = "Team not found." };
+
+            team.InviteCode = GenerateInviteCode();
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Invite code regenerated successfully." };
+        }
+
+        public ActionResponse Update(int id, UpdateTeamDto dto)
+        {
+            using var context = new AppDbContext();
+
+            var team = context.Teams.FirstOrDefault(teamData => teamData.Id == id);
+
+            if(team == null)
+                return new ActionResponse { IsSuccess = false, Message = "Team not found." };
+
+            team.Name = dto.Name;
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Team updated successfully." };
+        }
+
+        public TeamDetailsDto GetTeamDetails(int userId)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(user => user.Id == userId);
+
+            if (user == null || user.TeamId == null)
+                return null;
+
+            var team = context.Teams
+                .Include(t => t.Members)
+                .FirstOrDefault(team => team.Id == user.TeamId);
+
+            if (team == null)
+                return null;
+
+            return _mapper.Map<TeamDetailsDto>(team);
+        }
+    }
+}

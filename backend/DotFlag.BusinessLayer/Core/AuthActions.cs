@@ -2,7 +2,6 @@
 using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.User;
-using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.User;
 using DotFlag.Domain.Settings;
@@ -84,7 +83,6 @@ namespace DotFlag.BusinessLayer.Core
             var user = _mapper.Map<UserData>(dto);
 
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-            user.RegisteredOn = DateTime.UtcNow;
 
             context.Users.Add(user);
             context.SaveChanges();

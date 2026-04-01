@@ -17,5 +17,13 @@ namespace DotFlag.DataAccessLayer.Context
         {
             optionsBuilder.UseNpgsql(DbSession.ConnectionString);
         }
+
+        // Facem Unique InviteCode pentru echipe, ca sa nu avem probleme cu coduri duplicate
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TeamData>()
+                .HasIndex(t => t.InviteCode)
+                .IsUnique();
+        }
     }
 }
