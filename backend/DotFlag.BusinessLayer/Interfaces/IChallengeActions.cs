@@ -6,8 +6,8 @@ namespace DotFlag.BusinessLayer.Interfaces
 {
     public interface IChallengeActions
     {
-        ChallengeDto GetById(int id);
-        List<ChallengeDto> GetAll();
+        ChallengeDto GetById(int id, bool includeInactive = false);
+        List<ChallengeDto> GetAll(bool includeInactive = false);
         ActionResponse Create(CreateChallengeDto dto);
         ActionResponse Update(int id, UpdateChallengeDto dto);
         ActionResponse Delete(int id);

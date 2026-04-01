@@ -22,13 +22,20 @@ namespace DotFlag.Domain.Entities.Challenge
         [Required]
         public ChallengeCategory Category { get; set; }
 
+        [Required]
+        public ChallengeDifficulty Difficulty { get; set; }
+
         public int MinPoints { get; set; } = 50;
 
         public int MaxPoints { get; set; } = 500;
 
+        public int CurrentPoints { get; set; }
+
         public int DecayRate { get; set; } = 30;
 
         public int FirstBloodBonus { get; set; } = 10;
+
+        public int SolveCount { get; set; }
 
         [Required]
         public string FlagHash { get; set; } = string.Empty;

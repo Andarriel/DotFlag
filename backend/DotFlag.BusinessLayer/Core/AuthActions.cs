@@ -60,11 +60,15 @@ namespace DotFlag.BusinessLayer.Core
 
             var token = GenerateToken(user);
 
-            return new LoginResponseDto
-            {
-                Token = token,
-                User = _mapper.Map<UserData, UserDto>(user)
-            };
+            int score = context.Submissions
+                .Where(s => s.UserId == user.Id && s.IsCorrect && s.Challenge.IsActive)
+                .Select(s => s.Challenge.CurrentPoints)
+                .Sum();
+
+            var userDto = _mapper.Map<UserDto>(user);
+            userDto.CurrentPoints = score;
+
+            return new LoginResponseDto { Token = token, User = userDto };
         }
 
         public ActionResponse Register(UserRegisterDto dto)

@@ -25,7 +25,14 @@ namespace DotFlag.BusinessLayer.Core
             if (user == null) 
                 return null;
 
-            return _mapper.Map<UserDto>(user);
+            int score = context.Submissions
+                .Where(s => s.UserId == id && s.IsCorrect && s.Challenge.IsActive)
+                .Select(s => s.Challenge.CurrentPoints)
+                .Sum();
+
+            var dto = _mapper.Map<UserDto>(user);
+            dto.CurrentPoints = score;
+            return dto;
         }
 
         public List<UserDto> GetAll()
@@ -34,7 +41,18 @@ namespace DotFlag.BusinessLayer.Core
 
             var users = context.Users.ToList();
 
-            return _mapper.Map<List<UserDto>>(users);
+            var scores = context.Submissions
+                .Where(s => s.IsCorrect && s.Challenge.IsActive)
+                .GroupBy(s => s.UserId)
+                .Select(g => new { UserId = g.Key, Score = g.Sum(s => s.Challenge.CurrentPoints) })
+                .ToDictionary(x => x.UserId, x => x.Score);
+
+            return users.Select(u =>
+            {
+                var dto = _mapper.Map<UserDto>(u);
+                dto.CurrentPoints = scores.GetValueOrDefault(u.Id, 0);
+                return dto;
+            }).ToList();
         }
 
         public ActionResponse Create(CreateUserDto dto)

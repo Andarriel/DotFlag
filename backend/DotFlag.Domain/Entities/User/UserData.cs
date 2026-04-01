@@ -26,8 +26,6 @@ namespace DotFlag.Domain.Entities.User
 
         public UserRole Role { get; set; } = UserRole.User;
 
-        public int CurrentPoints { get; set; }
-
         [DataType(DataType.DateTime)]
         public DateTime RegisteredOn { get; set; } = DateTime.UtcNow;
 
