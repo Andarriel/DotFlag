@@ -1,0 +1,10 @@
+﻿namespace DotFlag.Domain.Enums
+{
+    public enum ChallengeDifficulty
+    {
+        Easy = 0,
+        Medium = 1,
+        Hard = 2,
+        Impossible = 3
+    }
+}

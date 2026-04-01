@@ -79,6 +79,7 @@ namespace DotFlag.BusinessLayer.Core
             challenge.Category = dto.Category;
             challenge.MinPoints = dto.MinPoints;
             challenge.MaxPoints = dto.MaxPoints;
+            challenge.Difficulty = dto.Difficulty;
             challenge.IsActive = dto.IsActive;
 
             context.SaveChanges();

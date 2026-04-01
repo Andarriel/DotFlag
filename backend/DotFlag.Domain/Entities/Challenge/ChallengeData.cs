@@ -22,6 +22,9 @@ namespace DotFlag.Domain.Entities.Challenge
         [Required]
         public ChallengeCategory Category { get; set; }
 
+        [Required]
+        public ChallengeDifficulty Difficulty { get; set; }
+
         public int MinPoints { get; set; } = 50;
 
         public int MaxPoints { get; set; } = 500;

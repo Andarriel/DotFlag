@@ -15,6 +15,8 @@ namespace DotFlag.Domain.Models.Challenge
 
         public ChallengeCategory Category { get; set; }
 
+        public ChallengeDifficulty Difficulty { get; set; }
+
         public int MinPoints { get; set; }
 
         public int MaxPoints { get; set; }
@@ -23,7 +25,7 @@ namespace DotFlag.Domain.Models.Challenge
 
         public int FirstBloodBonus { get; set; }
 
-        public string Flag { get; set; } 
+        public string Flag { get; set; }
     }
 
 }
