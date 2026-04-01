@@ -1,4 +1,5 @@
-﻿using DotFlag.BusinessLayer.Interfaces;
+﻿using AutoMapper;
+using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.User;
 using DotFlag.Domain.Enums;
@@ -14,6 +15,13 @@ namespace DotFlag.BusinessLayer.Core
 {
     public class AuthActions : IAuthActions
     {
+        private readonly IMapper _mapper;
+
+        public AuthActions(IMapper mapper) 
+        { 
+            _mapper = mapper;
+        }
+
         private string GenerateToken(UserData user)
         {
             var claims = new[]
@@ -40,56 +48,42 @@ namespace DotFlag.BusinessLayer.Core
 
         public LoginResponseDto? Login(UserLoginDto dto)
         {
-            using (var context = new AppDbContext())
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Email == dto.Email);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+                return null;
+
+            if (user.IsBanned)
+                return null;
+
+            var token = GenerateToken(user);
+
+            return new LoginResponseDto
             {
-                var user = context.Users.FirstOrDefault(u => u.Email == dto.Email);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                    return null;
-
-                if (user.IsBanned)
-                    return null;
-
-                var token = GenerateToken(user);
-
-                return new LoginResponseDto
-                {
-                    Token = token,
-                    User = new UserDto
-                    {
-                        Id = user.Id,
-                        Username = user.Username,
-                        Email = user.Email,
-                        Role = user.Role,
-                        CurrentPoints = user.CurrentPoints
-                    }
-                };
-            }
+                Token = token,
+                User = _mapper.Map<UserData, UserDto>(user)
+            };
         }
 
         public ActionResponse Register(UserRegisterDto dto)
         {
-            using (var context = new AppDbContext())
-            {
-                if (context.Users.Any(u => u.Username == dto.Username))
-                    return new ActionResponse { IsSuccess = false, Message = "Username already exists." };
+            using var context = new AppDbContext();
 
-                if (context.Users.Any(u => u.Email == dto.Email))
-                    return new ActionResponse { IsSuccess = false, Message = "Email already exists." };
+            if (context.Users.Any(u => u.Username == dto.Username))
+                return new ActionResponse { IsSuccess = false, Message = "Username already exists." };
 
-                var user = new UserData
-                {
-                    Username = dto.Username,
-                    Email = dto.Email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                    Role = UserRole.User,
-                    CurrentPoints = 0,
-                    RegisteredOn = DateTime.UtcNow,
-                    IsBanned = false
-                };
+            if (context.Users.Any(u => u.Email == dto.Email))
+                return new ActionResponse { IsSuccess = false, Message = "Email already exists." };
 
-                context.Users.Add(user);
-                context.SaveChanges();
-            }
+            var user = _mapper.Map<UserData>(dto);
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            user.RegisteredOn = DateTime.UtcNow;
+
+            context.Users.Add(user);
+            context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "Registration successful." };
         }

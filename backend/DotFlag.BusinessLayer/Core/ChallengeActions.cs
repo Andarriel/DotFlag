@@ -1,4 +1,5 @@
-﻿using DotFlag.BusinessLayer.Interfaces;
+﻿using AutoMapper;
+using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Challenge;
 using DotFlag.Domain.Models.Challenge;
@@ -8,118 +9,96 @@ namespace DotFlag.BusinessLayer.Core
 {
     public class ChallengeActions : IChallengeActions
     {
+        private readonly IMapper _mapper;
+
+        public ChallengeActions(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
         public ChallengeDto GetById(int id)
         {
-            using (var context = new AppDbContext())
-            {
-                var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
+            using var context = new AppDbContext();
 
-                if (challenge == null) 
-                    return null;
+            var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
 
-                int solveCount = context.Submissions.Count(s => s.ChallengeId == id && s.IsCorrect);
+            if (challenge == null)
+                return null;
 
-                return new ChallengeDto
-                {
-                    Id = challenge.Id,
-                    Name = challenge.Name,
-                    Description = challenge.Description,
-                    Category = challenge.Category,
-                    MinPoints = challenge.MinPoints,
-                    MaxPoints = challenge.MaxPoints,
-                    CurrentPoints = challenge.CalculateCurrentPoints(challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, solveCount),
-                    IsActive = challenge.IsActive,
-                    SolveCount = solveCount,
-                    CreatedOn = challenge.CreatedOn
-                };
+            int solveCount = context.Submissions.Count(s => s.ChallengeId == id && s.IsCorrect);
 
-            }
+            var dto = _mapper.Map<ChallengeDto>(challenge);
+            dto.CurrentPoints = challenge.CalculateCurrentPoints(challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, solveCount);
+            dto.SolveCount = solveCount;
+
+            return dto;
         }
+
         public List<ChallengeDto> GetAll()
         {
-            using (var context = new AppDbContext())
+            using var context = new AppDbContext();
+            
+            var challenges = context.Challenges.ToList();
+
+            return challenges.Select(c =>
             {
-                var challenges = context.Challenges.ToList();
-                return challenges.Select(c =>
-                {
-                    int solveCount = context.Submissions.Count(s => s.ChallengeId == c.Id && s.IsCorrect);
-                    return new ChallengeDto
-                    {
-                        Id = c.Id,
-                        Name = c.Name,
-                        Description = c.Description,
-                        Category = c.Category,
-                        MinPoints = c.MinPoints,
-                        MaxPoints = c.MaxPoints,
-                        CurrentPoints = c.CalculateCurrentPoints(c.MaxPoints, c.MinPoints, c.DecayRate, solveCount),
-                        IsActive = c.IsActive,
-                        SolveCount = solveCount,
-                        CreatedOn = c.CreatedOn
-                    };
-                }).ToList();
-            }
-          
+                int solveCount = context.Submissions.Count(s => s.ChallengeId == c.Id && s.IsCorrect);
+
+                var dto = _mapper.Map<ChallengeDto>(c);
+
+                dto.CurrentPoints = c.CalculateCurrentPoints(c.MaxPoints, c.MinPoints, c.DecayRate, solveCount);
+                dto.SolveCount = solveCount;
+
+                return dto;
+            }).ToList();
         }
+
         public ActionResponse Create(CreateChallengeDto dto) 
         {
-            using (var context = new AppDbContext()) 
-            {
-                var challenge = new ChallengeData
-                {
-                    Name = dto.Name,
-                    Description = dto.Description,
-                    Category = dto.Category,
-                    MinPoints = dto.MinPoints,
-                    MaxPoints = dto.MaxPoints,
-                    DecayRate = dto.DecayRate,
-                    FirstBloodBonus = dto.FirstBloodBonus,
-                    FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag)
-                };
+            using var context = new AppDbContext();
 
-                context.Challenges.Add(challenge);
-                context.SaveChanges();
+            var challenge = _mapper.Map<ChallengeData>(dto);
+            challenge.FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag);
 
-                return new ActionResponse { IsSuccess = true, Message = "Challenge created successfully." };
-            }
+            context.Challenges.Add(challenge);
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Challenge created successfully." };
         }
         public ActionResponse Update(int id, UpdateChallengeDto dto)
         {
-            using (var context = new AppDbContext())
-            {
-                var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
+            using var context = new AppDbContext();
 
-                if (challenge == null)
-                    return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
+            var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
 
-                challenge.Name = dto.Name;
-                challenge.Description = dto.Description;
-                challenge.Category = dto.Category;
-                challenge.MinPoints = dto.MinPoints;
-                challenge.MaxPoints = dto.MaxPoints;
-                challenge.IsActive = dto.IsActive;
+            if (challenge == null)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
 
-                context.SaveChanges();
+            challenge.Name = dto.Name;
+            challenge.Description = dto.Description;
+            challenge.Category = dto.Category;
+            challenge.MinPoints = dto.MinPoints;
+            challenge.MaxPoints = dto.MaxPoints;
+            challenge.IsActive = dto.IsActive;
 
-                return new ActionResponse { IsSuccess = true, Message = "Challenge updated successfully." };
-            }
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Challenge updated successfully." };
         }
 
         public ActionResponse Delete(int id)
         {
-            using (var context = new AppDbContext())
-            {
-                var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
+            using var context = new AppDbContext();
 
-                if (challenge == null)
-                    return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
+            var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
 
-                context.Challenges.Remove(challenge);
-                context.SaveChanges();
+            if (challenge == null)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
 
-                return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };
-            }
-            
+            context.Challenges.Remove(challenge);
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };
         }
-        
     }
 }
