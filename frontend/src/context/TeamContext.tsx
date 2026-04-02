@@ -1,24 +1,37 @@
-import { useState, useEffect, useCallback } from 'react';
-import { MOCK_TEAM } from '../data/mockData';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { teamService } from '../services/teamService';
-import { useAxios } from '../context/AxiosContext';
-import { useToast } from '../context/ToastContext';
+import { useAxios } from './AxiosContext';
+import { useToast } from './ToastContext';
 import { USE_MOCK } from '../config';
+import { MOCK_TEAM } from '../data/mockData';
 import type { Team } from '../types';
 
-export function useTeam() {
+interface TeamContextType {
+  team: Team | null;
+  loading: boolean;
+  refresh: () => void;
+  inviteCode: string;
+  setInviteCode: (code: string) => void;
+  copied: boolean;
+  copyInviteCode: () => void;
+  joinTeam: () => Promise<void>;
+  createTeam: (name: string) => Promise<void>;
+  leaveTeam: () => Promise<void>;
+  disbandTeam: () => Promise<void>;
+}
+
+const TeamContext = createContext<TeamContextType | undefined>(undefined);
+
+export const TeamProvider = ({ children }: { children: ReactNode }) => {
   const api = useAxios();
   const toast = useToast();
-  const [team, setTeam] = useState<Team | null>(null);
+  const [team, setTeam] = useState<Team | null>(USE_MOCK ? MOCK_TEAM : null);
   const [loading, setLoading] = useState(!USE_MOCK);
   const [inviteCode, setInviteCode] = useState('');
   const [copied, setCopied] = useState(false);
 
   const fetchTeam = useCallback(() => {
-    if (USE_MOCK) {
-      setTeam(MOCK_TEAM);
-      return;
-    }
+    if (USE_MOCK) return;
     setLoading(true);
     teamService.get(api)
       .then(data => {
@@ -31,7 +44,7 @@ export function useTeam() {
             username: m.username,
             role: 'User' as const,
             points: m.currentPoints || 0,
-            joinedAt: m.createdOn || '',
+            joinedAt: m.registeredOn || '',
           })),
           totalPoints: (data.members || []).reduce((sum: number, m: any) => sum + (m.currentPoints || 0), 0),
           createdAt: (data as any).createdOn || '',
@@ -111,5 +124,15 @@ export function useTeam() {
     }
   };
 
-  return { team, loading, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam };
-}
+  return (
+    <TeamContext.Provider value={{ team, loading, refresh: fetchTeam, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam }}>
+      {children}
+    </TeamContext.Provider>
+  );
+};
+
+export const useTeamContext = () => {
+  const ctx = useContext(TeamContext);
+  if (!ctx) throw new Error('useTeamContext must be used within TeamProvider');
+  return ctx;
+};

@@ -25,7 +25,9 @@ export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps
         <div className="w-11 h-11 bg-indigo-600/15 border border-indigo-500/20 rounded-xl flex items-center justify-center group-hover:bg-indigo-600/25 transition-colors">
           <Icon className="w-5 h-5 text-indigo-400" />
         </div>
-        {challenge.isSolved ? (
+        {!challenge.isActive ? (
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md">Hidden</span>
+        ) : challenge.isSolved ? (
           <CheckCircle className="w-5 h-5 text-green-400" />
         ) : (
           <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />

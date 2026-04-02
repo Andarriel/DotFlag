@@ -1,21 +1,21 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Trophy, Zap, Copy, Check } from 'lucide-react';
-import { useState } from 'react';
-import { MOCK_TEAM } from '../../data/mockData';
+import { useTeamContext } from '../../context/TeamContext';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
-import type { Profile } from '../../types';
 
-export default function ProfileTeamTab({ profile }: { profile: Profile }) {
-  const [copied, setCopied] = useState(false);
-  const team = profile.teamId ? MOCK_TEAM : null;
+export default function ProfileTeamTab() {
+  const { team, loading, copied, copyInviteCode, refresh } = useTeamContext();
 
-  const copyCode = () => {
-    if (team) {
-      navigator.clipboard.writeText(team.inviteCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+  useEffect(() => { refresh(); }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!team) {
     return (
@@ -59,7 +59,7 @@ export default function ProfileTeamTab({ profile }: { profile: Profile }) {
         <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2">
           <span className="text-xs text-slate-500">Invite:</span>
           <code className="text-sm text-indigo-400 font-mono flex-1">{team.inviteCode}</code>
-          <button onClick={copyCode} className="p-1 text-slate-400 hover:text-white transition">
+          <button onClick={copyInviteCode} className="p-1 text-slate-400 hover:text-white transition">
             {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
           </button>
         </div>

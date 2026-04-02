@@ -2,7 +2,7 @@ export const formatTimeAgo = (timestamp: string): string => {
   if (!timestamp) return "Never";
   const now = new Date();
   const past = new Date(timestamp);
-  if (isNaN(past.getTime())) return "Never";
+  if (isNaN(past.getTime()) || past.getFullYear() < 2020) return "Never";
   const diffMs = now.getTime() - past.getTime();
 
   if (diffMs < 0) return "just now";

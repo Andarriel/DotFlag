@@ -1,5 +1,6 @@
 import { RefreshCw, FileText, Container } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
+import { useAdminContext } from '../../context/AdminContext';
 import type { DockerImage } from '../../types';
 
 function DockerRow({ image }: { image: DockerImage }) {
@@ -29,7 +30,8 @@ function DockerRow({ image }: { image: DockerImage }) {
   );
 }
 
-export default function DockerMonitor({ images }: { images: DockerImage[] }) {
+export default function DockerMonitor() {
+  const { dockerImages: images } = useAdminContext();
   const running = images.filter(i => i.status === 'running').length;
   const errored = images.filter(i => i.status === 'error').length;
 

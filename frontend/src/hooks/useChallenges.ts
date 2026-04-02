@@ -3,6 +3,7 @@ import { MOCK_CHALLENGES } from '../data/mockData';
 import { filterChallenges, calculateChallengeStats } from '../utils/challengeUtils';
 import { challengeService } from '../services/challengeService';
 import { useAxios } from '../context/AxiosContext';
+import { useAuth } from '../context/AuthContext';
 import { USE_MOCK } from '../config';
 import type { ApiChallenge } from '../types/api';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../types';
@@ -26,6 +27,8 @@ function mapChallenge(api: ApiChallenge): Challenge {
 
 export function useChallenges() {
   const api = useAxios();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin' || user?.role === 'Owner';
   const [challenges, setChallenges] = useState<Challenge[]>(USE_MOCK ? MOCK_CHALLENGES : []);
   const [loading, setLoading] = useState(!USE_MOCK);
   const [error, setError] = useState<string | null>(null);
@@ -41,10 +44,12 @@ export function useChallenges() {
       .finally(() => setLoading(false));
   }, [api]);
 
-  const filteredChallenges = filterChallenges(challenges, selectedCategory, selectedDifficulty);
-  const stats = calculateChallengeStats(challenges);
+  const visibleChallenges = isAdmin ? challenges : challenges.filter(c => c.isActive);
+  const filteredChallenges = filterChallenges(visibleChallenges, selectedCategory, selectedDifficulty);
+  const stats = calculateChallengeStats(visibleChallenges);
 
   return {
+    challenges,
     selectedCategory,
     setSelectedCategory,
     selectedDifficulty,

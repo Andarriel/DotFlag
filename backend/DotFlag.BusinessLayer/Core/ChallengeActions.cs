@@ -70,9 +70,11 @@ namespace DotFlag.BusinessLayer.Core
             challenge.MaxPoints = dto.MaxPoints;
             challenge.Difficulty = dto.Difficulty;
             challenge.IsActive = dto.IsActive;
+            challenge.DecayRate = dto.DecayRate;
+            challenge.FirstBloodBonus = dto.FirstBloodBonus;
 
             challenge.CurrentPoints = challenge.CalculateCurrentPoints(
-                dto.MaxPoints, dto.MinPoints, challenge.DecayRate, challenge.SolveCount);
+                dto.MaxPoints, dto.MinPoints, dto.DecayRate, challenge.SolveCount);
 
             context.SaveChanges();
 

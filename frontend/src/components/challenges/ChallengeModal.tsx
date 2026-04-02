@@ -35,7 +35,7 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-1.5 text-slate-500 hover:text-white hover:bg-white/[0.06] rounded-lg transition"
+          className="absolute top-4 right-4 z-10 p-2 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 rounded-xl transition"
         >
           <X className="w-5 h-5" />
         </button>
