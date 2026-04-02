@@ -5,7 +5,8 @@ export const getDifficultyColor = (difficulty: ChallengeDifficulty): string => {
   const colors: Record<ChallengeDifficulty, string> = {
     Easy: "text-green-400 bg-green-400/10 border-green-400/20",
     Medium: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
-    Hard: "text-red-400 bg-red-400/10 border-red-400/20"
+    Hard: "text-red-400 bg-red-400/10 border-red-400/20",
+    Impossible: "text-purple-400 bg-purple-400/10 border-purple-400/20"
   };
   return colors[difficulty];
 };

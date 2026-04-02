@@ -1,8 +1,10 @@
 export const formatTimeAgo = (timestamp: string): string => {
+  if (!timestamp) return "Never";
   const now = new Date();
   const past = new Date(timestamp);
+  if (isNaN(past.getTime())) return "Never";
   const diffMs = now.getTime() - past.getTime();
-  
+
   if (diffMs < 0) return "just now";
   
   const diffMinutes = Math.floor(diffMs / 60000);

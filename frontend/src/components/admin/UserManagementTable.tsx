@@ -1,11 +1,11 @@
-import { ShieldCheck, Ban, LogOut, UserPlus } from 'lucide-react';
+import { ShieldCheck, Ban, LogOut, UserPlus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import StatusBadge from '../common/StatusBadge';
 import Modal from '../common/Modal';
 import type { AdminUser } from '../../types';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 
-function UserRow({ user, onToggleBan, onKick, onPromote }: { user: AdminUser; onToggleBan: () => void; onKick: () => void; onPromote: () => void }) {
+function UserRow({ user, onToggleBan, onKick, onPromote, onDelete }: { user: AdminUser; onToggleBan: () => void; onKick: () => void; onPromote?: () => void; onDelete: () => void }) {
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
@@ -28,7 +28,7 @@ function UserRow({ user, onToggleBan, onKick, onPromote }: { user: AdminUser; on
       <td className="px-4 py-3 text-[11px] text-slate-500 hidden md:table-cell">{formatTimeAgo(user.lastLogin)}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-0.5">
-          {user.role !== 'Admin' && user.role !== 'Owner' && (
+          {user.role !== 'Admin' && user.role !== 'Owner' && onPromote && (
             <button onClick={onPromote} title="Promote to Admin" className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-400/10 rounded-lg transition">
               <ShieldCheck className="w-3.5 h-3.5" />
             </button>
@@ -41,6 +41,11 @@ function UserRow({ user, onToggleBan, onKick, onPromote }: { user: AdminUser; on
               <LogOut className="w-3.5 h-3.5" />
             </button>
           )}
+          {user.role !== 'Owner' && (
+            <button onClick={onDelete} title="Delete user" className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </td>
     </tr>
@@ -51,10 +56,11 @@ interface UserManagementTableProps {
   users: AdminUser[];
   onToggleBan: (id: number) => void;
   onKickSession: (id: number) => void;
-  onPromote: (id: number) => void;
+  onPromote?: (id: number) => void;
+  onDelete: (id: number) => void;
 }
 
-export default function UserManagementTable({ users, onToggleBan, onKickSession, onPromote }: UserManagementTableProps) {
+export default function UserManagementTable({ users, onToggleBan, onKickSession, onPromote, onDelete }: UserManagementTableProps) {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -78,7 +84,7 @@ export default function UserManagementTable({ users, onToggleBan, onKickSession,
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
               {users.map(user => (
-                <UserRow key={user.id} user={user} onToggleBan={() => onToggleBan(user.id)} onKick={() => onKickSession(user.id)} onPromote={() => onPromote(user.id)} />
+                <UserRow key={user.id} user={user} onToggleBan={() => onToggleBan(user.id)} onKick={() => onKickSession(user.id)} onPromote={onPromote ? () => onPromote(user.id) : undefined} onDelete={() => onDelete(user.id)} />
               ))}
             </tbody>
           </table>

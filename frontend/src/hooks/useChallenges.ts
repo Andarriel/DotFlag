@@ -7,21 +7,9 @@ import { USE_MOCK } from '../config';
 import type { ApiChallenge } from '../types/api';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../types';
 
-const CATEGORY_MAP: Record<number, ChallengeCategory> = {
-  0: 'Web',
-  1: 'Pwn',
-  2: 'Crypto',
-  3: 'Reverse',
-  4: 'Forensics',
-  5: 'Misc',
-  6: 'OSINT',
+const DIFFICULTY_MAP: Record<string, ChallengeDifficulty> = {
+  Easy: 'Easy', Medium: 'Medium', Hard: 'Hard', Impossible: 'Hard',
 };
-
-function getDifficulty(maxPoints: number): ChallengeDifficulty {
-  if (maxPoints <= 200) return 'Easy';
-  if (maxPoints <= 400) return 'Medium';
-  return 'Hard';
-}
 
 function mapChallenge(api: ApiChallenge): Challenge {
   return {
@@ -29,8 +17,8 @@ function mapChallenge(api: ApiChallenge): Challenge {
     title: api.name,
     description: api.description,
     points: api.currentPoints,
-    category: CATEGORY_MAP[api.category] ?? 'Misc',
-    difficulty: getDifficulty(api.maxPoints),
+    category: (api.category as unknown as string) as ChallengeCategory,
+    difficulty: DIFFICULTY_MAP[api.difficulty as unknown as string] ?? 'Medium',
     isActive: api.isActive,
     isSolved: false,
   };

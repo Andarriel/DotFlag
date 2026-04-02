@@ -5,9 +5,16 @@ import UserManagementTable from '../../components/admin/UserManagementTable';
 import ChallengeManagementTable from '../../components/admin/ChallengeManagementTable';
 import DockerMonitor from '../../components/admin/DockerMonitor';
 import { useAdmin } from '../../hooks/useAdmin';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminPage() {
-  const { activeTab, setActiveTab, users, challenges, dockerImages, toggleBan, kickSession, promoteToAdmin, toggleChallengeActive } = useAdmin();
+  const { user } = useAuth();
+  const isOwner = user?.role === 'Owner';
+  const {
+    activeTab, setActiveTab, users, challenges, dockerImages,
+    toggleBan, kickSession, promoteToAdmin, deleteUser,
+    createChallenge, toggleChallengeActive, deleteChallenge,
+  } = useAdmin();
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -23,10 +30,10 @@ export default function AdminPage() {
 
           <div className="flex-1">
             {activeTab === 'users' && (
-              <UserManagementTable users={users} onToggleBan={toggleBan} onKickSession={kickSession} onPromote={promoteToAdmin} />
+              <UserManagementTable users={users} onToggleBan={toggleBan} onKickSession={kickSession} onPromote={isOwner ? promoteToAdmin : undefined} onDelete={deleteUser} />
             )}
             {activeTab === 'challenges' && (
-              <ChallengeManagementTable challenges={challenges} onToggleActive={toggleChallengeActive} />
+              <ChallengeManagementTable challenges={challenges} onToggleActive={toggleChallengeActive} onCreate={createChallenge} onDelete={deleteChallenge} />
             )}
             {activeTab === 'docker' && (
               <DockerMonitor images={dockerImages} />

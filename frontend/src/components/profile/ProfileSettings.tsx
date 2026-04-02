@@ -1,16 +1,60 @@
 import { useState } from 'react';
 import { Key, UserX, AlertTriangle } from 'lucide-react';
 import Modal from '../common/Modal';
-
-function InputField({ type = 'text', placeholder }: { type?: string; placeholder: string }) {
-  return (
-    <input type={type} placeholder={placeholder}
-      className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" />
-  );
-}
+import { userService } from '../../services/userService';
+import { useAxios } from '../../context/AxiosContext';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { USE_MOCK } from '../../config';
 
 export default function ProfileSettings() {
+  const api = useAxios();
+  const { user } = useAuth();
+  const toast = useToast();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showDisband, setShowDisband] = useState(false);
+
+  const handleChangePassword = async () => {
+    if (!newPassword || !currentPassword) {
+      toast.error('Fill in all password fields');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast.error('New password must be at least 8 characters');
+      return;
+    }
+
+    if (USE_MOCK) {
+      toast.success('Password updated (mock)');
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+      return;
+    }
+
+    try {
+      const res = await userService.updateProfile(api, user!.id, {
+        username: user!.username,
+        email: user!.email,
+        currentPassword,
+        newPassword,
+      });
+      if (res.isSuccess) {
+        toast.success('Password updated');
+        setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to update password');
+    }
+  };
+
+  const inputClass = "w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all";
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -19,10 +63,10 @@ export default function ProfileSettings() {
           <Key className="w-4 h-4 text-indigo-400" /> Change Password
         </h4>
         <div className="space-y-3 max-w-sm">
-          <InputField type="password" placeholder="Current password" />
-          <InputField type="password" placeholder="New password" />
-          <InputField type="password" placeholder="Confirm new password" />
-          <button className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]">
+          <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="Current password" className={inputClass} />
+          <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="New password (min. 8 chars)" className={inputClass} />
+          <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm new password" className={inputClass} />
+          <button onClick={handleChangePassword} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]">
             Update Password
           </button>
         </div>

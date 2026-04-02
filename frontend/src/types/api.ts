@@ -10,12 +10,20 @@ export enum ChallengeCategory {
   OSINT = 6,
 }
 
+export enum ChallengeDifficulty {
+  Easy = 0,
+  Medium = 1,
+  Hard = 2,
+  Impossible = 3,
+}
+
 export interface ApiUser {
   id: number;
   username: string;
   email: string;
   currentPoints: number;
   role: UserRole;
+  registeredOn: string;
 }
 
 export interface LoginRequest {
@@ -60,6 +68,7 @@ export interface ApiChallenge {
   name: string;
   description: string;
   category: ChallengeCategory;
+  difficulty: ChallengeDifficulty;
   minPoints: number;
   maxPoints: number;
   currentPoints: number;
@@ -72,6 +81,7 @@ export interface CreateChallengePayload {
   name: string;
   description: string;
   category: ChallengeCategory;
+  difficulty: ChallengeDifficulty;
   minPoints: number;
   maxPoints: number;
   decayRate: number;
@@ -83,6 +93,7 @@ export interface UpdateChallengePayload {
   name: string;
   description: string;
   category: ChallengeCategory;
+  difficulty: ChallengeDifficulty;
   minPoints: number;
   maxPoints: number;
   decayRate: number;
