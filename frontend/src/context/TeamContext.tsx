@@ -44,7 +44,7 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
             username: m.username,
             role: 'User' as const,
             points: m.currentPoints || 0,
-            joinedAt: m.createdOn || '',
+            joinedAt: m.registeredOn || '',
           })),
           totalPoints: (data.members || []).reduce((sum: number, m: any) => sum + (m.currentPoints || 0), 0),
           createdAt: (data as any).createdOn || '',

@@ -7,16 +7,36 @@ import ChallengeStats from '../../components/challenges/ChallengeStats';
 import ChallengeCard from '../../components/challenges/ChallengeCard';
 import ChallengeModal from '../../components/challenges/ChallengeModal';
 import { useChallenges } from '../../hooks/useChallenges';
+import { challengeService } from '../../services/challengeService';
+import { useAxios } from '../../context/AxiosContext';
+import { USE_MOCK } from '../../config';
 import { MOCK_CHALLENGE_DETAILS } from '../../data/mockData';
-import type { ChallengeDetail } from '../../types';
+import type { ChallengeDetail, Challenge } from '../../types';
+
+function challengeToDetail(c: Challenge, solveCount?: number): ChallengeDetail {
+  return { ...c, files: [], hints: [], solveCount: solveCount ?? 0, author: '' };
+}
 
 export default function ChallengePage() {
-  const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats, loading } = useChallenges();
+  const api = useAxios();
+  const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats, loading, challenges } = useChallenges();
   const [selectedChallenge, setSelectedChallenge] = useState<ChallengeDetail | null>(null);
 
-  const openChallenge = (id: number) => {
-    const detail = MOCK_CHALLENGE_DETAILS.find(c => c.id === id) ?? null;
-    setSelectedChallenge(detail);
+  const openChallenge = async (id: number) => {
+    if (USE_MOCK) {
+      setSelectedChallenge(MOCK_CHALLENGE_DETAILS.find(c => c.id === id) ?? null);
+      return;
+    }
+    const local = challenges.find(c => c.id === id);
+    if (local) setSelectedChallenge(challengeToDetail(local));
+    try {
+      const apiChallenge = await challengeService.getById(api, id);
+      const detail = challengeToDetail(
+        { id: apiChallenge.id, title: apiChallenge.name, description: apiChallenge.description, points: apiChallenge.currentPoints, category: (apiChallenge.category as unknown as string) as Challenge['category'], difficulty: (apiChallenge.difficulty as unknown as string) as Challenge['difficulty'], isActive: apiChallenge.isActive },
+        apiChallenge.solveCount,
+      );
+      setSelectedChallenge(detail);
+    } catch { /* keep local data if fetch fails */ }
   };
 
   return (
