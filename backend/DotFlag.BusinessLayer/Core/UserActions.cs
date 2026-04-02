@@ -16,7 +16,7 @@ namespace DotFlag.BusinessLayer.Core
             _mapper = mapper;
         }
 
-        public UserDto GetById(int id)
+        public UserProfileDto GetById(int id)
         {
             using var context = new AppDbContext();
 
@@ -27,6 +27,25 @@ namespace DotFlag.BusinessLayer.Core
 
             int score = context.Submissions
                 .Where(s => s.UserId == id && s.IsCorrect && s.Challenge.IsActive)
+                .Select(s => s.Challenge.CurrentPoints)
+                .Sum();
+
+            var dto = _mapper.Map<UserProfileDto>(user);
+            dto.CurrentPoints = score;
+            return dto;
+        }
+
+        public UserDto GetMyProfile(int userId)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+                return null;
+
+            int score = context.Submissions
+                .Where(s => s.UserId == userId && s.IsCorrect && s.Challenge.IsActive)
                 .Select(s => s.Challenge.CurrentPoints)
                 .Sum();
 

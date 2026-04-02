@@ -33,14 +33,20 @@ namespace DotFlag.Api.Controller
         [Authorize]
         public IActionResult GetById(int id)
         {
-            var currentUserId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-            //Daca nu e admin sau owner, poate vedea doar propriul profil..
-            if (currentUserId != id && !User.IsInRole("Admin") && !User.IsInRole("Owner"))
-                return Forbid();
-
             var result = _userActions.GetById(id);
+
+            if(result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
+
+        [HttpGet("my")]
+        public IActionResult GetMyProfile()
+        {
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var result = _userActions.GetMyProfile(currentUserId);
 
             return Ok(result);
         }
