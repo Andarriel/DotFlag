@@ -13,5 +13,6 @@ export const CHALLENGE_CATEGORIES: readonly ChallengeCategory[] = [
 export const CHALLENGE_DIFFICULTIES: readonly ChallengeDifficulty[] = [
   'Easy',
   'Medium',
-  'Hard'
+  'Hard',
+  'Impossible'
 ] as const;

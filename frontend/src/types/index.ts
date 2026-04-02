@@ -1,6 +1,6 @@
 export type UserRole = 'Owner' | 'Admin' | 'User' | 'Guest';
 export type ChallengeCategory = 'Web' | 'Crypto' | 'Pwn' | 'Reverse' | 'Misc' | 'Forensics' | 'OSINT';
-export type ChallengeDifficulty = 'Easy' | 'Medium' | 'Hard';
+export type ChallengeDifficulty = 'Easy' | 'Medium' | 'Hard' | 'Impossible';
 export type DockerStatus = 'running' | 'stopped' | 'error';
 
 export interface User {
@@ -60,7 +60,6 @@ export interface Submission {
   id: number;
   userId: number;
   challengeId: number;
-  submittedFlag: string;
   isCorrect: boolean;
   timestamp: string;
 }

@@ -111,16 +111,16 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
 // ── Submissions ──
 
 export const MOCK_SUBMISSIONS: Submission[] = [
-  { id: 1, userId: 1, challengeId: 1, submittedFlag: "dotflag{hello_world_123}", isCorrect: true, timestamp: "2026-02-01T12:00:00Z" },
-  { id: 2, userId: 1, challengeId: 1, submittedFlag: "dotflag{wrong_flag}", isCorrect: false, timestamp: "2026-02-01T11:45:00Z" },
-  { id: 3, userId: 2, challengeId: 1, submittedFlag: "dotflag{hello_world_123}", isCorrect: true, timestamp: "2026-02-01T14:00:00Z" },
-  { id: 4, userId: 1, challengeId: 2, submittedFlag: "dotflag{b4s3_64_m4st3r}", isCorrect: true, timestamp: "2026-02-07T18:45:00Z" },
-  { id: 5, userId: 3, challengeId: 2, submittedFlag: "dotflag{not_this_one}", isCorrect: false, timestamp: "2026-02-06T10:20:00Z" },
-  { id: 6, userId: 2, challengeId: 3, submittedFlag: "dotflag{buff3r_0v3rfl0w}", isCorrect: true, timestamp: "2026-02-02T20:00:00Z" },
-  { id: 7, userId: 1, challengeId: 4, submittedFlag: "dotflag{sql_1nj3ct10n}", isCorrect: true, timestamp: "2026-02-03T15:30:00Z" },
-  { id: 8, userId: 1, challengeId: 5, submittedFlag: "dotflag{c43s4r_sh1ft}", isCorrect: true, timestamp: "2026-02-05T09:00:00Z" },
-  { id: 9, userId: 5, challengeId: 3, submittedFlag: "dotflag{wrong_attempt}", isCorrect: false, timestamp: "2026-02-03T22:10:00Z" },
-  { id: 10, userId: 4, challengeId: 6, submittedFlag: "dotflag{h1dd3n_str1ngs}", isCorrect: true, timestamp: "2026-02-08T14:30:00Z" },
+  { id: 1, userId: 1, challengeId: 1, isCorrect: true, timestamp: "2026-02-01T12:00:00Z" },
+  { id: 2, userId: 1, challengeId: 1, isCorrect: false, timestamp: "2026-02-01T11:45:00Z" },
+  { id: 3, userId: 2, challengeId: 1, isCorrect: true, timestamp: "2026-02-01T14:00:00Z" },
+  { id: 4, userId: 1, challengeId: 2, isCorrect: true, timestamp: "2026-02-07T18:45:00Z" },
+  { id: 5, userId: 3, challengeId: 2, isCorrect: false, timestamp: "2026-02-06T10:20:00Z" },
+  { id: 6, userId: 2, challengeId: 3, isCorrect: true, timestamp: "2026-02-02T20:00:00Z" },
+  { id: 7, userId: 1, challengeId: 4, isCorrect: true, timestamp: "2026-02-03T15:30:00Z" },
+  { id: 8, userId: 1, challengeId: 5, isCorrect: true, timestamp: "2026-02-05T09:00:00Z" },
+  { id: 9, userId: 5, challengeId: 3, isCorrect: false, timestamp: "2026-02-03T22:10:00Z" },
+  { id: 10, userId: 4, challengeId: 6, isCorrect: true, timestamp: "2026-02-08T14:30:00Z" },
 ];
 
 // ── Leaderboard ──

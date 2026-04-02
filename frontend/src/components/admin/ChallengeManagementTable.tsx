@@ -1,10 +1,14 @@
-import { Plus, Edit, ToggleLeft, ToggleRight, Upload } from 'lucide-react';
+import { Plus, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
 import type { Challenge } from '../../types';
+import type { CreateChallengePayload } from '../../types/api';
 
-function ChallengeRow({ challenge, onToggleActive }: { challenge: Challenge; onToggleActive: () => void }) {
+const CATEGORIES = ['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics', 'OSINT'] as const;
+const DIFFICULTIES = ['Easy', 'Medium', 'Hard', 'Impossible'] as const;
+
+function ChallengeRow({ challenge, onToggleActive, onDelete }: { challenge: Challenge; onToggleActive: () => void; onDelete: () => void }) {
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
@@ -26,11 +30,8 @@ function ChallengeRow({ challenge, onToggleActive }: { challenge: Challenge; onT
             className={`p-1.5 rounded-lg transition ${challenge.isActive ? 'text-green-400 hover:bg-green-400/10' : 'text-slate-600 hover:bg-slate-800/50'}`}>
             {challenge.isActive ? <ToggleRight className="w-4.5 h-4.5" /> : <ToggleLeft className="w-4.5 h-4.5" />}
           </button>
-          <button title="Edit" className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-400/10 rounded-lg transition">
-            <Edit className="w-3.5 h-3.5" />
-          </button>
-          <button title="Upload file" className="p-1.5 text-slate-500 hover:text-purple-400 hover:bg-purple-400/10 rounded-lg transition">
-            <Upload className="w-3.5 h-3.5" />
+          <button onClick={onDelete} title="Delete" className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition">
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </td>
@@ -41,10 +42,40 @@ function ChallengeRow({ challenge, onToggleActive }: { challenge: Challenge; onT
 interface ChallengeManagementTableProps {
   challenges: Challenge[];
   onToggleActive: (id: number) => void;
+  onCreate: (data: CreateChallengePayload) => void;
+  onDelete: (id: number) => void;
 }
 
-export default function ChallengeManagementTable({ challenges, onToggleActive }: ChallengeManagementTableProps) {
+const inputClass = "w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all";
+const labelClass = "block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5";
+
+const INITIAL_FORM = {
+  name: '', description: '', category: 'Web' as typeof CATEGORIES[number],
+  difficulty: 'Easy' as typeof DIFFICULTIES[number],
+  minPoints: 50, maxPoints: 500, decayRate: 30, firstBloodBonus: 10, flag: '',
+};
+
+export default function ChallengeManagementTable({ challenges, onToggleActive, onCreate, onDelete }: ChallengeManagementTableProps) {
   const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState(INITIAL_FORM);
+
+  const handleCreate = () => {
+    if (!form.name || !form.description || !form.flag) return;
+    onCreate({
+      name: form.name,
+      description: form.description,
+      category: CATEGORIES.indexOf(form.category) as any,
+      difficulty: DIFFICULTIES.indexOf(form.difficulty) as any,
+      minPoints: form.minPoints,
+      maxPoints: form.maxPoints,
+      decayRate: form.decayRate,
+      firstBloodBonus: form.firstBloodBonus,
+      flag: form.flag,
+    });
+    setForm(INITIAL_FORM);
+    setShowModal(false);
+  };
+
   const headers = [
     { label: 'Challenge', className: '' },
     { label: 'Category', className: 'hidden sm:table-cell' },
@@ -73,45 +104,61 @@ export default function ChallengeManagementTable({ challenges, onToggleActive }:
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
-              {challenges.map(c => <ChallengeRow key={c.id} challenge={c} onToggleActive={() => onToggleActive(c.id)} />)}
+              {challenges.map(c => (
+                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => onToggleActive(c.id)} onDelete={() => onDelete(c.id)} />
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create New Challenge" onConfirm={() => setShowModal(false)} confirmLabel="Create">
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create New Challenge" onConfirm={handleCreate} confirmLabel="Create">
         <div className="space-y-4">
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Title</label>
-            <input type="text" className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" placeholder="Challenge title" />
+            <label className={labelClass}>Name</label>
+            <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputClass} placeholder="Challenge name" />
           </div>
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Description</label>
-            <textarea rows={3} className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all resize-none" placeholder="Challenge description" />
+            <label className={labelClass}>Description</label>
+            <textarea rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className={`${inputClass} resize-none`} placeholder="Challenge description" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Category</label>
-              <select className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all">
-                {['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics'].map(c => <option key={c}>{c}</option>)}
+              <label className={labelClass}>Category</label>
+              <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as any }))} className={inputClass}>
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Difficulty</label>
-              <select className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all">
-                {['Easy', 'Medium', 'Hard'].map(d => <option key={d}>{d}</option>)}
+              <label className={labelClass}>Difficulty</label>
+              <select value={form.difficulty} onChange={e => setForm(f => ({ ...f, difficulty: e.target.value as any }))} className={inputClass}>
+                {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
           </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Points</label>
-            <input type="number" className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" placeholder="100" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Min Points</label>
+              <input type="number" value={form.minPoints} onChange={e => setForm(f => ({ ...f, minPoints: +e.target.value }))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Max Points</label>
+              <input type="number" value={form.maxPoints} onChange={e => setForm(f => ({ ...f, maxPoints: +e.target.value }))} className={inputClass} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Decay Rate</label>
+              <input type="number" value={form.decayRate} onChange={e => setForm(f => ({ ...f, decayRate: +e.target.value }))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>First Blood Bonus</label>
+              <input type="number" value={form.firstBloodBonus} onChange={e => setForm(f => ({ ...f, firstBloodBonus: +e.target.value }))} className={inputClass} />
+            </div>
           </div>
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Files</label>
-            <button type="button" className="flex items-center gap-2 px-4 py-2.5 glass border-dashed rounded-xl text-sm text-slate-500 hover:text-white hover:border-indigo-500/30 transition w-full justify-center">
-              <Upload className="w-4 h-4" /> Upload Challenge Files
-            </button>
+            <label className={labelClass}>Flag</label>
+            <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder="dotflag{your_flag_here}" />
           </div>
         </div>
       </Modal>
