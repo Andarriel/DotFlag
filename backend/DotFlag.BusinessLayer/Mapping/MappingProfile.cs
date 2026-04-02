@@ -21,6 +21,8 @@ namespace DotFlag.BusinessLayer.Mapping
             CreateMap<UserRegisterDto, UserData>()
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
 
+            CreateMap<UserData, UserProfileDto>();
+
             // Challenge mappings
             CreateMap<ChallengeData, ChallengeDto>();
 

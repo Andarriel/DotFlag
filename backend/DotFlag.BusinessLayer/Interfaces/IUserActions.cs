@@ -5,8 +5,9 @@ namespace DotFlag.BusinessLayer.Interfaces
 {
     public interface IUserActions
     {
-        UserDto GetById(int id);
+        UserProfileDto GetById(int id);
         List<UserDto> GetAll();
+        UserDto GetMyProfile(int userId);
 
         ActionResponse Create(CreateUserDto dto);
         ActionResponse Update(int id, UpdateUserDto dto);
