@@ -14,6 +14,7 @@ interface AuthUser {
 
 interface AuthContextType {
   user: AuthUser | null;
+  updateUser: (updates: Partial<AuthUser>) => void;
   isAuthenticated: boolean;
   isLoading: boolean;
   token: string | null;
@@ -111,8 +112,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('token');
   };
 
+  const updateUser = (updates: Partial<AuthUser>) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...updates };
+      if (USE_MOCK) {
+        localStorage.setItem('mock_user', JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, updateUser, isAuthenticated: !!user, isLoading, token, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

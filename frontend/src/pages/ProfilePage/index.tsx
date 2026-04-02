@@ -27,8 +27,18 @@ const TABS: TabConfig[] = [
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
-  const { profile, isOwnProfile } = useProfile(Number(id));
+  const { profile, isOwnProfile, loading } = useProfile(Number(id));
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 pt-24">
+        <div className="flex justify-center py-20">
+          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   if (!profile) {
     return (
@@ -70,7 +80,7 @@ export default function ProfilePage() {
 
         {activeTab === 'overview' && <ProfileOverview profile={profile} />}
         {activeTab === 'flags' && <FlagHistory history={profile.flagHistory} />}
-        {activeTab === 'team' && <ProfileTeamTab profile={profile} />}
+        {activeTab === 'team' && <ProfileTeamTab />}
         {activeTab === 'settings' && isOwnProfile && <ProfileSettings />}
       </div>
     </div>

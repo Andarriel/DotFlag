@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Key, UserX, AlertTriangle } from 'lucide-react';
+import { Key, UserX, AlertTriangle, User, Mail } from 'lucide-react';
 import Modal from '../common/Modal';
 import { userService } from '../../services/userService';
 import { useAxios } from '../../context/AxiosContext';
@@ -9,12 +9,53 @@ import { USE_MOCK } from '../../config';
 
 export default function ProfileSettings() {
   const api = useAxios();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const toast = useToast();
+  const [username, setUsername] = useState(user?.username || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [profilePassword, setProfilePassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showDisband, setShowDisband] = useState(false);
+
+  const handleUpdateProfile = async () => {
+    if (!profilePassword) {
+      toast.error('Enter your current password to confirm changes');
+      return;
+    }
+    if (username.trim().length < 5) {
+      toast.error('Username must be at least 5 characters');
+      return;
+    }
+    if (!email.includes('@')) {
+      toast.error('Enter a valid email address');
+      return;
+    }
+
+    if (USE_MOCK) {
+      toast.success('Profile updated (mock)');
+      setProfilePassword('');
+      return;
+    }
+
+    try {
+      const res = await userService.updateProfile(api, user!.id, {
+        username: username.trim(),
+        email: email.trim(),
+        currentPassword: profilePassword,
+      });
+      if (res.isSuccess) {
+        toast.success('Profile updated');
+        setProfilePassword('');
+        updateUser({ username: username.trim(), email: email.trim() });
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to update profile');
+    }
+  };
 
   const handleChangePassword = async () => {
     if (!newPassword || !currentPassword) {
@@ -58,6 +99,33 @@ export default function ProfileSettings() {
 
   return (
     <div className="space-y-5 animate-fade-in">
+      <div className="glass rounded-xl p-5 gradient-border">
+        <h4 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+          <User className="w-4 h-4 text-indigo-400" /> Profile Info
+        </h4>
+        <div className="space-y-3 max-w-sm">
+          <div>
+            <label className="block text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-1.5">Username</label>
+            <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-1.5">Email</label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className={`${inputClass} pl-10`} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-1.5">Current password</label>
+            <input type="password" value={profilePassword} onChange={e => setProfilePassword(e.target.value)} placeholder="Required to save changes" className={inputClass} />
+          </div>
+          <button onClick={handleUpdateProfile} disabled={username === user?.username && email === user?.email}
+            className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed">
+            Save Changes
+          </button>
+        </div>
+      </div>
+
       <div className="glass rounded-xl p-5 gradient-border">
         <h4 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
           <Key className="w-4 h-4 text-indigo-400" /> Change Password
