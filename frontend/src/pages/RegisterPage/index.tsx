@@ -1,26 +1,63 @@
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { ROUTES } from '../../router/paths';
 import BrandLogo from '../../components/common/BrandLogo';
 import { FormField, AuthDivider, SubmitButton } from '../LoginPage/components';
+
+interface FieldErrors {
+  username?: string;
+  email?: string;
+  password?: string;
+}
+
+function validate(username: string, email: string, password: string): FieldErrors {
+  const errors: FieldErrors = {};
+  if (username.length < 5) errors.username = 'Username must be at least 5 characters';
+  else if (username.length > 30) errors.username = 'Username must be under 30 characters';
+  if (!email.includes('@')) errors.email = 'Enter a valid email address';
+  if (password.length < 8) errors.password = 'Password must be at least 8 characters';
+  return errors;
+}
+
+function parseBackendError(err: any): string {
+  const data = err.response?.data;
+  if (data?.message) return data.message;
+  return 'Registration failed. Please try again.';
+}
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [touched, setTouched] = useState(false);
   const navigate = useNavigate();
   const { register, isAuthenticated } = useAuth();
+  const toast = useToast();
 
   if (isAuthenticated) {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    register({ username, email });
-    navigate(ROUTES.DASHBOARD);
+    setTouched(true);
+    const fieldErrors = validate(username, email, password);
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) return;
+
+    try {
+      await register({ username, email, password });
+      toast.success('Account created successfully!');
+      navigate(ROUTES.DASHBOARD);
+    } catch (err: any) {
+      toast.error(parseBackendError(err));
+    }
   };
+
+  const fieldErrors = touched ? errors : {};
 
   return (
     <>
@@ -40,27 +77,30 @@ export default function RegisterPage() {
             label="Username"
             type="text"
             value={username}
-            onChange={setUsername}
+            onChange={v => { setUsername(v); if (touched) setErrors(validate(v, email, password)); }}
             placeholder="h4ck3r"
             required
+            error={fieldErrors.username}
           />
           <FormField
             id="email"
             label="Email"
             type="email"
             value={email}
-            onChange={setEmail}
+            onChange={v => { setEmail(v); if (touched) setErrors(validate(username, v, password)); }}
             placeholder="hacker@dotflag.md"
             required
+            error={fieldErrors.email}
           />
           <FormField
             id="password"
             label="Password"
             type="password"
             value={password}
-            onChange={setPassword}
-            placeholder="••••••••••••"
+            onChange={v => { setPassword(v); if (touched) setErrors(validate(username, email, v)); }}
+            placeholder="Min. 8 characters"
             required
+            error={fieldErrors.password}
           />
           <SubmitButton>Create Account</SubmitButton>
         </form>

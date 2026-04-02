@@ -35,7 +35,9 @@ export const AxiosProvider = ({ children }: { children: ReactNode }) => {
         return response;
       },
       (error) => {
-        if (error.response?.status === 401) {
+        const url = error.config?.url || '';
+        const isAuthEndpoint = url.includes('/auth/');
+        if (error.response?.status === 401 && !isAuthEndpoint) {
           localStorage.removeItem('token');
           navigate(ROUTES.LOGIN);
         } else if (!error.response || error.code === 'ERR_NETWORK') {
