@@ -3,6 +3,7 @@ import { Users, User, Lock, Unlock, Coins } from 'lucide-react';
 import { getCategoryIcon, getDifficultyColor } from '../../utils/challengeUtils';
 import { challengeService } from '../../services/challengeService';
 import { useAxios } from '../../context/AxiosContext';
+import { useToast } from '../../context/ToastContext';
 import { USE_MOCK } from '../../config';
 import type { ChallengeDetail, ChallengeHint } from '../../types';
 
@@ -41,10 +42,10 @@ function HintItem({ hint, index, onUnlock }: { hint: ChallengeHint; index: numbe
 
 export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetail }) {
   const api = useAxios();
+  const toast = useToast();
   const Icon = getCategoryIcon(challenge.category);
   const [hints, setHints] = useState(challenge.hints);
   const [flag, setFlag] = useState('');
-  const [submitResult, setSubmitResult] = useState<{ success: boolean; message: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleUnlock = (hintId: number) => {
@@ -62,21 +63,22 @@ export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetai
   const handleSubmitFlag = async () => {
     if (!flag.trim() || submitting) return;
     setSubmitting(true);
-    setSubmitResult(null);
 
     if (USE_MOCK) {
       await new Promise(r => setTimeout(r, 500));
       const correct = flag === 'dotflag{test}';
-      setSubmitResult({ success: correct, message: correct ? 'Correct flag!' : 'Wrong flag, try again.' });
+      correct ? toast.success('Correct flag!') : toast.error('Wrong flag, try again.');
       setSubmitting(false);
+      if (correct) setFlag('');
       return;
     }
 
     try {
       const res = await challengeService.submitFlag(api, challenge.id, flag);
-      setSubmitResult({ success: res.isSuccess, message: res.message });
+      res.isSuccess ? toast.success(res.message) : toast.error(res.message);
+      if (res.isSuccess) setFlag('');
     } catch {
-      setSubmitResult({ success: false, message: 'Failed to submit flag.' });
+      toast.error('Failed to submit flag.');
     } finally {
       setSubmitting(false);
     }
@@ -137,15 +139,6 @@ export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetai
             {submitting ? 'Submitting...' : 'Submit Flag'}
           </button>
         </div>
-        {submitResult && (
-          <div className={`mt-3 text-sm px-4 py-2.5 rounded-xl border ${
-            submitResult.success
-              ? 'text-green-400 bg-green-500/[0.06] border-green-500/15'
-              : 'text-red-400 bg-red-500/[0.06] border-red-500/15'
-          }`}>
-            {submitResult.message}
-          </div>
-        )}
       </div>
     </div>
   );

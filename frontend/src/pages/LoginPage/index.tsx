@@ -1,15 +1,23 @@
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { ROUTES } from '../../router/paths';
 import BrandLogo from '../../components/common/BrandLogo';
 import { FormField, AuthDivider, SubmitButton } from './components';
+
+function parseError(err: any): string {
+  const data = err.response?.data;
+  if (data?.errors) return Object.values(data.errors).flat().join(' ');
+  return data?.message || 'Invalid email or password.';
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
+  const toast = useToast();
 
   if (isAuthenticated) {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
@@ -19,9 +27,10 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login(email, password);
+      toast.success('Welcome back!');
       navigate(ROUTES.DASHBOARD);
-    } catch (error: any) {
-      alert(error.message);
+    } catch (err: any) {
+      toast.error(parseError(err));
     }
   };
 

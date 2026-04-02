@@ -9,9 +9,10 @@ interface FormFieldProps {
   placeholder: string;
   required?: boolean;
   headerRight?: React.ReactNode;
+  error?: string;
 }
 
-export function FormField({ id, label, type, value, onChange, placeholder, required, headerRight }: FormFieldProps) {
+export function FormField({ id, label, type, value, onChange, placeholder, required, headerRight, error }: FormFieldProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -25,10 +26,15 @@ export function FormField({ id, label, type, value, onChange, placeholder, requi
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-3 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+        className={`w-full bg-slate-800/50 border rounded-xl px-4 py-3 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:ring-1 transition-all ${
+          error
+            ? 'border-red-500/40 focus:border-red-500/50 focus:ring-red-500/20'
+            : 'border-white/[0.06] focus:border-indigo-500/50 focus:ring-indigo-500/20'
+        }`}
         placeholder={placeholder}
         required={required}
       />
+      {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
     </div>
   );
 }
