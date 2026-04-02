@@ -1,22 +1,44 @@
+import { lazy, Suspense } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import AdminSidebar from '../../components/admin/AdminSidebar';
-import UserManagementTable from '../../components/admin/UserManagementTable';
-import ChallengeManagementTable from '../../components/admin/ChallengeManagementTable';
-import DockerMonitor from '../../components/admin/DockerMonitor';
-import { useAdmin } from '../../hooks/useAdmin';
-import { useAuth } from '../../context/AuthContext';
+import { AdminProvider, useAdminContext } from '../../context/AdminContext';
+
+const UserManagementTable = lazy(() => import('../../components/admin/UserManagementTable'));
+const ChallengeManagementTable = lazy(() => import('../../components/admin/ChallengeManagementTable'));
+const DockerMonitor = lazy(() => import('../../components/admin/DockerMonitor'));
+
+const Spinner = () => (
+  <div className="flex justify-center py-20">
+    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
+function AdminContent() {
+  const { activeTab, loading } = useAdminContext();
+
+  return (
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <AdminSidebar />
+
+        <div className="flex-1">
+          <Suspense fallback={<Spinner />}>
+            {loading ? <Spinner /> : (
+              <>
+                {activeTab === 'users' && <UserManagementTable />}
+                {activeTab === 'challenges' && <ChallengeManagementTable />}
+                {activeTab === 'docker' && <DockerMonitor />}
+              </>
+            )}
+          </Suspense>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPage() {
-  const { user } = useAuth();
-  const isOwner = user?.role === 'Owner';
-  const {
-    activeTab, setActiveTab, users, challenges, dockerImages,
-    toggleBan, kickSession, promoteToAdmin, deleteUser,
-    createChallenge, toggleChallengeActive, deleteChallenge,
-    registerUser, loading,
-  } = useAdmin();
-
   return (
     <div className="min-h-screen bg-slate-950">
       <PageHeader
@@ -24,36 +46,9 @@ export default function AdminPage() {
         title="Admin Panel"
         description="Manage users, challenges, and monitor infrastructure."
       />
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-
-          <div className="flex-1">
-            {activeTab === 'users' && (
-              loading ? (
-                <div className="flex justify-center py-20">
-                  <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : (
-                <UserManagementTable users={users} onToggleBan={toggleBan} onKickSession={kickSession} onPromote={isOwner ? promoteToAdmin : undefined} onDelete={deleteUser} onRegister={registerUser} />
-              )
-            )}
-            {activeTab === 'challenges' && (
-              loading ? (
-                <div className="flex justify-center py-20">
-                  <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : (
-                <ChallengeManagementTable challenges={challenges} onToggleActive={toggleChallengeActive} onCreate={createChallenge} onDelete={deleteChallenge} />
-              )
-            )}
-            {activeTab === 'docker' && (
-              <DockerMonitor images={dockerImages} />
-            )}
-          </div>
-        </div>
-      </div>
+      <AdminProvider>
+        <AdminContent />
+      </AdminProvider>
     </div>
   );
 }

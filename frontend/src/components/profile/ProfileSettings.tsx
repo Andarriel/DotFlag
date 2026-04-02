@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Key, UserX, AlertTriangle, User, Mail } from 'lucide-react';
-import Modal from '../common/Modal';
+import { Key, User, Mail } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { useAxios } from '../../context/AxiosContext';
 import { useAuth } from '../../context/AuthContext';
@@ -17,7 +16,6 @@ export default function ProfileSettings() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showDisband, setShowDisband] = useState(false);
 
   const handleUpdateProfile = async () => {
     if (!profilePassword) {
@@ -140,20 +138,6 @@ export default function ProfileSettings() {
         </div>
       </div>
 
-      <div className="glass rounded-xl p-5 border-red-500/10">
-        <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4" /> Danger Zone
-        </h4>
-        <p className="text-xs text-slate-500 mb-3">Destructive actions that cannot be undone.</p>
-        <button onClick={() => setShowDisband(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-sm font-medium hover:bg-red-500/20 transition-all active:scale-[0.98]">
-          <UserX className="w-4 h-4" /> Disband Team
-        </button>
-      </div>
-
-      <Modal isOpen={showDisband} onClose={() => setShowDisband(false)} title="Disband Team" onConfirm={() => setShowDisband(false)} confirmLabel="Disband" confirmVariant="danger">
-        <p className="text-sm text-slate-400">Are you sure you want to disband your team? This action cannot be undone and all members will be removed.</p>
-      </Modal>
     </div>
   );
 }

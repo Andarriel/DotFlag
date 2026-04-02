@@ -12,9 +12,9 @@ export const teamService = {
   join: (api: AxiosInstance, inviteCode: string) =>
     api.post<ActionResponse>('/teams/join', { inviteCode }).then(res => res.data),
 
-  leave: (api: AxiosInstance) =>
-    api.post<ActionResponse>('/teams/leave').then(res => res.data),
+  leave: (api: AxiosInstance, teamId: number) =>
+    api.post<ActionResponse>(`/teams/${teamId}/leave`).then(res => res.data),
 
-  disband: (api: AxiosInstance) =>
-    api.delete<ActionResponse>('/teams').then(res => res.data),
+  disband: (api: AxiosInstance, teamId: number) =>
+    api.delete<ActionResponse>(`/teams/${teamId}`).then(res => res.data),
 };

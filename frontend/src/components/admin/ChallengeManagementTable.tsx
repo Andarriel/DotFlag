@@ -2,11 +2,11 @@ import { Plus, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
-import type { Challenge } from '../../types';
-import type { CreateChallengePayload } from '../../types/api';
+import { useAdminContext } from '../../context/AdminContext';
+import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../../types';
 
-const CATEGORIES = ['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics', 'OSINT'] as const;
-const DIFFICULTIES = ['Easy', 'Medium', 'Hard', 'Impossible'] as const;
+const CATEGORIES: ChallengeCategory[] = ['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics', 'OSINT'];
+const DIFFICULTIES: ChallengeDifficulty[] = ['Easy', 'Medium', 'Hard', 'Impossible'];
 
 function ChallengeRow({ challenge, onToggleActive, onDelete }: { challenge: Challenge; onToggleActive: () => void; onDelete: () => void }) {
   return (
@@ -39,33 +39,28 @@ function ChallengeRow({ challenge, onToggleActive, onDelete }: { challenge: Chal
   );
 }
 
-interface ChallengeManagementTableProps {
-  challenges: Challenge[];
-  onToggleActive: (id: number) => void;
-  onCreate: (data: CreateChallengePayload) => void;
-  onDelete: (id: number) => void;
-}
-
 const inputClass = "w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all";
+const selectClass = `${inputClass} appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] pr-10 cursor-pointer [&>option]:bg-slate-800 [&>option]:text-white`;
 const labelClass = "block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5";
 
 const INITIAL_FORM = {
-  name: '', description: '', category: 'Web' as typeof CATEGORIES[number],
-  difficulty: 'Easy' as typeof DIFFICULTIES[number],
+  name: '', description: '', category: 'Web' as ChallengeCategory,
+  difficulty: 'Easy' as ChallengeDifficulty,
   minPoints: 50, maxPoints: 500, decayRate: 30, firstBloodBonus: 10, flag: '',
 };
 
-export default function ChallengeManagementTable({ challenges, onToggleActive, onCreate, onDelete }: ChallengeManagementTableProps) {
+export default function ChallengeManagementTable() {
+  const { challenges, toggleChallengeActive, createChallenge, deleteChallenge } = useAdminContext();
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
 
   const handleCreate = () => {
     if (!form.name || !form.description || !form.flag) return;
-    onCreate({
+    createChallenge({
       name: form.name,
       description: form.description,
-      category: CATEGORIES.indexOf(form.category) as any,
-      difficulty: DIFFICULTIES.indexOf(form.difficulty) as any,
+      category: CATEGORIES.indexOf(form.category),
+      difficulty: DIFFICULTIES.indexOf(form.difficulty),
       minPoints: form.minPoints,
       maxPoints: form.maxPoints,
       decayRate: form.decayRate,
@@ -105,7 +100,7 @@ export default function ChallengeManagementTable({ challenges, onToggleActive, o
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
               {challenges.map(c => (
-                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => onToggleActive(c.id)} onDelete={() => onDelete(c.id)} />
+                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => toggleChallengeActive(c.id)} onDelete={() => deleteChallenge(c.id)} />
               ))}
             </tbody>
           </table>
@@ -115,8 +110,8 @@ export default function ChallengeManagementTable({ challenges, onToggleActive, o
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create New Challenge" onConfirm={handleCreate} confirmLabel="Create">
         <div className="space-y-4">
           <div>
-            <label className={labelClass}>Name</label>
-            <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputClass} placeholder="Challenge name" />
+            <label className={labelClass}>Title</label>
+            <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputClass} placeholder="Challenge title" />
           </div>
           <div>
             <label className={labelClass}>Description</label>
@@ -125,13 +120,13 @@ export default function ChallengeManagementTable({ challenges, onToggleActive, o
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Category</label>
-              <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as any }))} className={inputClass}>
+              <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as ChallengeCategory }))} className={selectClass}>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
               <label className={labelClass}>Difficulty</label>
-              <select value={form.difficulty} onChange={e => setForm(f => ({ ...f, difficulty: e.target.value as any }))} className={inputClass}>
+              <select value={form.difficulty} onChange={e => setForm(f => ({ ...f, difficulty: e.target.value as ChallengeDifficulty }))} className={selectClass}>
                 {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>

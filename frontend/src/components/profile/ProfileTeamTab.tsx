@@ -1,10 +1,13 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Trophy, Zap, Copy, Check } from 'lucide-react';
-import { useTeam } from '../../hooks/useTeam';
+import { useTeamContext } from '../../context/TeamContext';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 
 export default function ProfileTeamTab() {
-  const { team, loading, copied, copyInviteCode } = useTeam();
+  const { team, loading, copied, copyInviteCode, refresh } = useTeamContext();
+
+  useEffect(() => { refresh(); }, []);
 
   if (loading) {
     return (

@@ -1,14 +1,18 @@
-import { useState } from 'react';
-import { Users, Plus, LogOut } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, Plus, LogOut, Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import TeamInfo from '../../components/team/TeamInfo';
 import MemberList from '../../components/team/MemberList';
 import JoinTeamPanel from '../../components/team/JoinTeamPanel';
-import { useTeam } from '../../hooks/useTeam';
+import Modal from '../../components/common/Modal';
+import { useTeamContext } from '../../context/TeamContext';
 
 export default function TeamPage() {
-  const { team, loading, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam } = useTeam();
+  const { team, loading, refresh, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam } = useTeamContext();
+
+  useEffect(() => { refresh(); }, []);
   const [showCreate, setShowCreate] = useState(false);
+  const [showDisband, setShowDisband] = useState(false);
   const [teamName, setTeamName] = useState('');
 
   const handleCreate = async () => {
@@ -46,12 +50,20 @@ export default function TeamPage() {
           <>
             <TeamInfo team={team} copied={copied} onCopyCode={copyInviteCode} />
             <MemberList members={team.members} />
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end gap-3">
               <button onClick={leaveTeam}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
                 <LogOut className="w-4 h-4" /> Leave Team
               </button>
+              <button onClick={() => setShowDisband(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
+                <Trash2 className="w-4 h-4" /> Disband Team
+              </button>
             </div>
+
+            <Modal isOpen={showDisband} onClose={() => setShowDisband(false)} title="Disband Team" onConfirm={async () => { await disbandTeam(); setShowDisband(false); }} confirmLabel="Disband" confirmVariant="danger">
+              <p className="text-sm text-slate-400">Are you sure you want to disband your team? This action cannot be undone and all members will be removed.</p>
+            </Modal>
           </>
         ) : (
           <div className="space-y-6">

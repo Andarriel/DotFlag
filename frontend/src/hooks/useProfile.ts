@@ -6,19 +6,33 @@ import { useAuth } from '../context/AuthContext';
 import { USE_MOCK } from '../config';
 import type { Profile } from '../types';
 
+function authToProfile(user: { id: number; email: string; username: string; role: string; currentPoints?: number }): Profile {
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    role: user.role as Profile['role'],
+    currentPoints: user.currentPoints ?? 0,
+    bio: '',
+    joinedAt: '',
+    flagHistory: [],
+  };
+}
+
 export function useProfile(userId: number): { profile: Profile | null; isOwnProfile: boolean; loading: boolean } {
   const api = useAxios();
   const { user } = useAuth();
   const isOwnProfile = user?.id === userId;
 
-  const [profile, setProfile] = useState<Profile | null>(
-    USE_MOCK ? (MOCK_PROFILES.find(p => p.id === userId) ?? null) : null
-  );
-  const [loading, setLoading] = useState(!USE_MOCK);
+  const [profile, setProfile] = useState<Profile | null>(() => {
+    if (USE_MOCK) return MOCK_PROFILES.find(p => p.id === userId) ?? null;
+    if (isOwnProfile && user) return authToProfile(user);
+    return null;
+  });
+  const [loading, setLoading] = useState(!USE_MOCK && !isOwnProfile);
 
   useEffect(() => {
     if (USE_MOCK) return;
-    setLoading(true);
     userService.getById(api, userId)
       .then(apiUser => {
         setProfile({
@@ -32,9 +46,9 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
           flagHistory: [],
         });
       })
-      .catch(() => setProfile(null))
+      .catch(() => { if (!isOwnProfile) setProfile(null); })
       .finally(() => setLoading(false));
-  }, [api, userId]);
+  }, [api, userId, isOwnProfile]);
 
   return { profile, isOwnProfile, loading };
 }
