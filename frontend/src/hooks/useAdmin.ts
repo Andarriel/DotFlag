@@ -123,11 +123,34 @@ export function useAdmin() {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, sessionActive: false } : u));
   };
 
+  const registerUser = async (data: { username: string; email: string; password: string; role: string }) => {
+    if (USE_MOCK) {
+      toast.success('User registered (mock)');
+      return;
+    }
+    try {
+      const res = await userService.create(api, {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        role: data.role as 'Guest' | 'User' | 'Admin' | 'Owner',
+      });
+      if (res.isSuccess) {
+        toast.success('User registered');
+        refresh();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to register user');
+    }
+  };
+
   return {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
     toggleBan, kickSession, promoteToAdmin, deleteUser,
     createChallenge, toggleChallengeActive, deleteChallenge,
-    loading, refresh,
+    registerUser, loading, refresh,
   };
 }

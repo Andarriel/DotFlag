@@ -45,6 +45,7 @@ export function useChallenges() {
   const stats = calculateChallengeStats(challenges);
 
   return {
+    challenges,
     selectedCategory,
     setSelectedCategory,
     selectedDifficulty,

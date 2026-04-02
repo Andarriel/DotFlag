@@ -58,10 +58,21 @@ interface UserManagementTableProps {
   onKickSession: (id: number) => void;
   onPromote?: (id: number) => void;
   onDelete: (id: number) => void;
+  onRegister?: (data: { username: string; email: string; password: string; role: string }) => Promise<void>;
 }
 
-export default function UserManagementTable({ users, onToggleBan, onKickSession, onPromote, onDelete }: UserManagementTableProps) {
+export default function UserManagementTable({ users, onToggleBan, onKickSession, onPromote, onDelete, onRegister }: UserManagementTableProps) {
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'User' });
+
+  const handleRegister = async () => {
+    if (!formData.username.trim() || !formData.email.trim() || !formData.password.trim()) return;
+    if (onRegister) {
+      await onRegister(formData);
+    }
+    setFormData({ username: '', email: '', password: '', role: 'User' });
+    setShowModal(false);
+  };
 
   return (
     <div>
@@ -91,22 +102,30 @@ export default function UserManagementTable({ users, onToggleBan, onKickSession,
         </div>
       </div>
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Register New User" onConfirm={() => setShowModal(false)} confirmLabel="Register">
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Register New User" onConfirm={handleRegister} confirmLabel="Register">
         <div className="space-y-4">
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Username</label>
-            <input type="text" className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" placeholder="Enter username" />
+            <input type="text" value={formData.username} onChange={e => setFormData(p => ({ ...p, username: e.target.value }))}
+              className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" placeholder="Enter username" />
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Email</label>
-            <input type="email" className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" placeholder="Enter email" />
+            <input type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+              className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" placeholder="Enter email" />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
+            <input type="password" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
+              className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all" placeholder="Enter password" />
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Role</label>
-            <select className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all">
-              <option>Guest</option>
-              <option>User</option>
-              <option>Admin</option>
+            <select value={formData.role} onChange={e => setFormData(p => ({ ...p, role: e.target.value }))}
+              className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all">
+              <option value="Guest">Guest</option>
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
             </select>
           </div>
         </div>

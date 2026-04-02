@@ -11,7 +11,7 @@ import { MOCK_CHALLENGE_DETAILS } from '../../data/mockData';
 import type { ChallengeDetail } from '../../types';
 
 export default function ChallengePage() {
-  const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats } = useChallenges();
+  const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats, loading } = useChallenges();
   const [selectedChallenge, setSelectedChallenge] = useState<ChallengeDetail | null>(null);
 
   const openChallenge = (id: number) => {
@@ -38,14 +38,22 @@ export default function ChallengePage() {
 
         <ChallengeStats solvedCount={stats.solvedCount} availableCount={stats.availableCount} totalPoints={stats.totalPoints} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredChallenges.map(challenge => (
-            <ChallengeCard key={challenge.id} challenge={challenge} onClick={() => openChallenge(challenge.id)} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredChallenges.map(challenge => (
+                <ChallengeCard key={challenge.id} challenge={challenge} onClick={() => openChallenge(challenge.id)} />
+              ))}
+            </div>
 
-        {filteredChallenges.length === 0 && (
-          <EmptyState icon={Shield} title="No challenges found" description="Try adjusting your filters" />
+            {filteredChallenges.length === 0 && (
+              <EmptyState icon={Shield} title="No challenges found" description="Try adjusting your filters" />
+            )}
+          </>
         )}
       </div>
 

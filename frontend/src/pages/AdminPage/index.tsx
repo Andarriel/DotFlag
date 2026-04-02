@@ -14,6 +14,7 @@ export default function AdminPage() {
     activeTab, setActiveTab, users, challenges, dockerImages,
     toggleBan, kickSession, promoteToAdmin, deleteUser,
     createChallenge, toggleChallengeActive, deleteChallenge,
+    registerUser, loading,
   } = useAdmin();
 
   return (
@@ -30,10 +31,22 @@ export default function AdminPage() {
 
           <div className="flex-1">
             {activeTab === 'users' && (
-              <UserManagementTable users={users} onToggleBan={toggleBan} onKickSession={kickSession} onPromote={isOwner ? promoteToAdmin : undefined} onDelete={deleteUser} />
+              loading ? (
+                <div className="flex justify-center py-20">
+                  <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <UserManagementTable users={users} onToggleBan={toggleBan} onKickSession={kickSession} onPromote={isOwner ? promoteToAdmin : undefined} onDelete={deleteUser} onRegister={registerUser} />
+              )
             )}
             {activeTab === 'challenges' && (
-              <ChallengeManagementTable challenges={challenges} onToggleActive={toggleChallengeActive} onCreate={createChallenge} onDelete={deleteChallenge} />
+              loading ? (
+                <div className="flex justify-center py-20">
+                  <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <ChallengeManagementTable challenges={challenges} onToggleActive={toggleChallengeActive} onCreate={createChallenge} onDelete={deleteChallenge} />
+              )
             )}
             {activeTab === 'docker' && (
               <DockerMonitor images={dockerImages} />
