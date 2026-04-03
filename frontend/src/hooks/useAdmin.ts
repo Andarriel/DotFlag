@@ -5,7 +5,7 @@ import { challengeService } from '../services/challengeService';
 import { useAxios } from '../context/AxiosContext';
 import { useToast } from '../context/ToastContext';
 import { USE_MOCK } from '../config';
-import type { ApiUser, ApiChallenge, CreateChallengePayload, UserRole } from '../types/api';
+import type { ApiUser, ApiChallenge, CreateChallengePayload, UpdateChallengePayload, UserRole } from '../types/api';
 import type { AdminUser, Challenge, DockerImage, ChallengeCategory, ChallengeDifficulty } from '../types';
 
 export type AdminTab = 'users' | 'challenges' | 'docker';
@@ -98,6 +98,24 @@ export function useAdmin() {
     toast.success('Challenge created (mock)');
   };
 
+  const updateChallenge = async (challengeId: number, data: UpdateChallengePayload) => {
+    if (USE_MOCK) {
+      toast.success('Challenge updated (mock)');
+      return;
+    }
+    try {
+      const res = await challengeService.update(api, challengeId, data);
+      if (res.isSuccess) {
+        toast.success('Challenge updated');
+        refresh();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to update challenge');
+    }
+  };
+
   const toggleChallengeActive = async (challengeId: number) => {
     if (USE_MOCK) {
       setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, isActive: !c.isActive } : c));
@@ -112,8 +130,8 @@ export function useAdmin() {
         difficulty: full.difficulty,
         minPoints: full.minPoints,
         maxPoints: full.maxPoints,
-        decayRate: 0,
-        firstBloodBonus: 0,
+        decayRate: full.decayRate,
+        firstBloodBonus: full.firstBloodBonus,
         flag: '',
         isActive: !full.isActive,
       });
@@ -171,7 +189,7 @@ export function useAdmin() {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
     toggleBan, kickSession, promoteToAdmin, deleteUser,
-    createChallenge, toggleChallengeActive, deleteChallenge,
+    createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge,
     registerUser, loading, refresh,
   };
 }

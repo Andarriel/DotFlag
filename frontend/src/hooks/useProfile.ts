@@ -33,21 +33,40 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
 
   useEffect(() => {
     if (USE_MOCK) return;
-    userService.getById(api, userId)
-      .then(apiUser => {
-        setProfile({
-          id: apiUser.id,
-          username: apiUser.username,
-          email: apiUser.email,
-          role: apiUser.role,
-          currentPoints: apiUser.currentPoints,
-          bio: '',
-          joinedAt: apiUser.registeredOn || new Date().toISOString(),
-          flagHistory: [],
-        });
-      })
-      .catch(() => { if (!isOwnProfile) setProfile(null); })
-      .finally(() => setLoading(false));
+
+    if (isOwnProfile) {
+      userService.getMyProfile(api)
+        .then(apiUser => {
+          setProfile({
+            id: apiUser.id,
+            username: apiUser.username,
+            email: apiUser.email,
+            role: apiUser.role,
+            currentPoints: apiUser.currentPoints,
+            bio: '',
+            joinedAt: apiUser.registeredOn || new Date().toISOString(),
+            flagHistory: [],
+          });
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    } else {
+      userService.getById(api, userId)
+        .then(publicUser => {
+          setProfile({
+            id: publicUser.id,
+            username: publicUser.username,
+            email: '',
+            role: 'User',
+            currentPoints: publicUser.currentPoints,
+            bio: '',
+            joinedAt: publicUser.registeredOn || new Date().toISOString(),
+            flagHistory: [],
+          });
+        })
+        .catch(() => setProfile(null))
+        .finally(() => setLoading(false));
+    }
   }, [api, userId, isOwnProfile]);
 
   return { profile, isOwnProfile, loading };

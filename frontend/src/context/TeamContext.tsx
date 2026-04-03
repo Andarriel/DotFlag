@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { teamService } from '../services/teamService';
 import { useAxios } from './AxiosContext';
+import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 import { USE_MOCK } from '../config';
 import { MOCK_TEAM } from '../data/mockData';
@@ -24,14 +25,15 @@ const TeamContext = createContext<TeamContextType | undefined>(undefined);
 
 export const TeamProvider = ({ children }: { children: ReactNode }) => {
   const api = useAxios();
+  const { isAuthenticated } = useAuth();
   const toast = useToast();
   const [team, setTeam] = useState<Team | null>(USE_MOCK ? MOCK_TEAM : null);
-  const [loading, setLoading] = useState(!USE_MOCK);
+  const [loading, setLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
   const [copied, setCopied] = useState(false);
 
   const fetchTeam = useCallback(() => {
-    if (USE_MOCK) return;
+    if (USE_MOCK || !isAuthenticated) return;
     setLoading(true);
     teamService.get(api)
       .then(data => {
@@ -52,9 +54,13 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
       })
       .catch(() => setTeam(null))
       .finally(() => setLoading(false));
-  }, [api]);
+  }, [api, isAuthenticated]);
 
   useEffect(() => { fetchTeam(); }, [fetchTeam]);
+
+  useEffect(() => {
+    if (!isAuthenticated) setTeam(null);
+  }, [isAuthenticated]);
 
   const copyInviteCode = () => {
     if (team) {

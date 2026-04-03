@@ -20,6 +20,10 @@ namespace DotFlag.Domain.Models.Challenge
 
         public int CurrentPoints { get; set; }
 
+        public int DecayRate { get; set; }
+
+        public int FirstBloodBonus { get; set; }
+
         public bool IsActive { get; set; }
 
         public int SolveCount { get; set; }
