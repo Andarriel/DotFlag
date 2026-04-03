@@ -1,6 +1,7 @@
 import type { AxiosInstance } from 'axios';
 import type {
   ApiUser,
+  ApiUserProfile,
   CreateUserPayload,
   UpdateUserPayload,
   UpdateProfilePayload,
@@ -12,7 +13,10 @@ export const userService = {
     api.get<ApiUser[]>('/users').then(res => res.data),
 
   getById: (api: AxiosInstance, id: number) =>
-    api.get<ApiUser>(`/users/${id}`).then(res => res.data),
+    api.get<ApiUserProfile>(`/users/${id}`).then(res => res.data),
+
+  getMyProfile: (api: AxiosInstance) =>
+    api.get<ApiUser>('/users/my').then(res => res.data),
 
   create: (api: AxiosInstance, data: CreateUserPayload) =>
     api.post<ActionResponse>('/users', data).then(res => res.data),

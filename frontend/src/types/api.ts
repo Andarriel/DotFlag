@@ -26,6 +26,13 @@ export interface ApiUser {
   registeredOn: string;
 }
 
+export interface ApiUserProfile {
+  id: number;
+  username: string;
+  currentPoints: number;
+  registeredOn: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -72,6 +79,8 @@ export interface ApiChallenge {
   minPoints: number;
   maxPoints: number;
   currentPoints: number;
+  decayRate: number;
+  firstBloodBonus: number;
   isActive: boolean;
   solveCount: number;
   createdOn: string;

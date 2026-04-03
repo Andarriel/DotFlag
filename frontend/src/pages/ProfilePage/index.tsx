@@ -21,7 +21,7 @@ interface TabConfig {
 const TABS: TabConfig[] = [
   { id: 'overview', label: 'Overview', icon: BarChart3 },
   { id: 'flags', label: 'Flag History', icon: Flag },
-  { id: 'team', label: 'Team', icon: Users },
+  { id: 'team', label: 'Team', icon: Users, ownerOnly: true },
   { id: 'settings', label: 'Settings', icon: Settings, ownerOnly: true },
 ];
 

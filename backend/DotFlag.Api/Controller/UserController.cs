@@ -29,8 +29,8 @@ namespace DotFlag.Api.Controller
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        [Authorize]
+        [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public IActionResult GetById(int id)
         {
             var result = _userActions.GetById(id);
