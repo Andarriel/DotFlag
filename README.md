@@ -161,8 +161,24 @@ The diagram below illustrates the three actor types and their allowed interactio
 git clone https://github.com/IvanGazul/DotFlag.git
 cd DotFlag/frontend
 npm install
+```
+
+By default the frontend runs with **mock data** so you can explore the UI without a backend.
+To connect to a real backend, create a `.env.local` file:
+
+```bash
+echo "VITE_USE_MOCK=false" > .env.local
+```
+
+Then start the dev server:
+
+```bash
 npm run dev
 ```
+
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_USE_MOCK` | `true` | Set to `false` to use the real API instead of mock data |
 
 ### Backend
 
