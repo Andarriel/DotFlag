@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Team;
 using DotFlag.Domain.Enums;
@@ -9,16 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DotFlag.BusinessLayer.Core
 {
-    public class TeamActions : ITeamActions
+    public class TeamActions
     {
-        private readonly IMapper _mapper;
+        protected readonly IMapper _mapper;
 
-        public TeamActions(IMapper mapper)
+        protected TeamActions(IMapper mapper)
         {
             _mapper = mapper;
         }
 
-        private string GenerateInviteCode()
+        protected string GenerateInviteCode()
         {
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var random = new Random();
@@ -27,7 +26,7 @@ namespace DotFlag.BusinessLayer.Core
             return $"DF-{part1}-{part2}";
         }
 
-        public ActionResponse Create(int userId, CreateTeamDto dto)
+        protected ActionResponse CreateExecution(int userId, CreateTeamDto dto)
         {
             using var context = new AppDbContext();
 
@@ -51,7 +50,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Team created successfully." };
         }
 
-        public ActionResponse Disband(int id, int userId, bool isAdmin)
+        protected ActionResponse DisbandExecution(int id, int userId, bool isAdmin)
         {
             using var context = new AppDbContext();
 
@@ -86,7 +85,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Team disbanded successfully." };
         }
 
-        public List<TeamDto> GetAll(bool includeInactive = false)
+        protected List<TeamDto> GetAllExecution(bool includeInactive = false)
         {
             using var context = new AppDbContext();
 
@@ -98,7 +97,7 @@ namespace DotFlag.BusinessLayer.Core
             return _mapper.Map<List<TeamDto>>(teams);
         }
 
-        public TeamDto GetById(int id)
+        protected TeamDto GetByIdExecution(int id)
         {
             using var context = new AppDbContext();
 
@@ -112,7 +111,7 @@ namespace DotFlag.BusinessLayer.Core
             return _mapper.Map<TeamDto>(team);
         }
 
-        public ActionResponse Join(int userId, JoinTeamDto dto)
+        protected ActionResponse JoinExecution(int userId, JoinTeamDto dto)
         {
             using var context = new AppDbContext();
 
@@ -142,7 +141,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "You joined the team!" };
         }
 
-        public ActionResponse Leave(int teamId, int userId)
+        protected ActionResponse LeaveExecution(int teamId, int userId)
         {
             using var context = new AppDbContext();
 
@@ -185,7 +184,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "You left the team." };
         }
 
-        public ActionResponse RegenerateInvite(int teamId, int userId)
+        protected ActionResponse RegenerateInviteExecution(int teamId, int userId)
         {
             using var context = new AppDbContext();
 
@@ -215,7 +214,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Invite code regenerated successfully." };
         }
 
-        public ActionResponse Update(int id, UpdateTeamDto dto)
+        protected ActionResponse UpdateExecution(int id, UpdateTeamDto dto)
         {
             using var context = new AppDbContext();
 
@@ -231,7 +230,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Team updated successfully." };
         }
 
-        public TeamDetailsDto GetTeamDetails(int userId)
+        protected TeamDetailsDto GetTeamDetailsExecution(int userId)
         {
             using var context = new AppDbContext();
 
