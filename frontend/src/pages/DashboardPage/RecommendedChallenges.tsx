@@ -38,9 +38,16 @@ export default function RecommendedChallenges({ challenges }: { challenges: Chal
           View All
         </Link>
       </div>
-      <div className="space-y-2.5">
-        {challenges.map(challenge => <ChallengeItem key={challenge.id} challenge={challenge} />)}
-      </div>
+      {challenges.length > 0 ? (
+        <div className="space-y-2.5">
+          {challenges.map(challenge => <ChallengeItem key={challenge.id} challenge={challenge} />)}
+        </div>
+      ) : (
+        <div className="py-8 text-center">
+          <p className="text-sm text-slate-300">No live challenges right now.</p>
+          <p className="text-xs text-slate-500 mt-1">As soon as new ones drop, your recommendations will show up here.</p>
+        </div>
+      )}
     </div>
   );
 }
