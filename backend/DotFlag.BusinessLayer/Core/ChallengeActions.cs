@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Challenge;
+using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.Challenge;
 using DotFlag.Domain.Models.Responses;
 
@@ -15,10 +16,12 @@ namespace DotFlag.BusinessLayer.Core
             _mapper = mapper;
         }
 
-        protected ChallengeDto GetByIdExecution(int id, bool includeInactive = false)
+        protected ChallengeDto GetByIdExecution(int id, UserRole role)
         {
             using var context = new AppDbContext();
 
+            bool includeInactive = role == UserRole.Admin || role == UserRole.Owner;
+            
             var challenge = context.Challenges
                 .FirstOrDefault(c => c.Id == id && (includeInactive || c.IsActive));
 
@@ -28,10 +31,12 @@ namespace DotFlag.BusinessLayer.Core
             return _mapper.Map<ChallengeDto>(challenge);
         }
 
-        protected List<ChallengeDto> GetAllExecution(bool includeInactive = false)
+        protected List<ChallengeDto> GetAllExecution(UserRole role)
         {
             using var context = new AppDbContext();
 
+            bool includeInactive = role == UserRole.Admin || role == UserRole.Owner;
+            
             var challenges = context.Challenges
                 .Where(c => includeInactive || c.IsActive)
                 .ToList();

@@ -1,10 +1,9 @@
 using DotFlag.BusinessLayer;
 using DotFlag.BusinessLayer.Interfaces;
-using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using DotFlag.Api.Extensions;
 
 namespace DotFlag.Api.Controller
 {
@@ -45,8 +44,7 @@ namespace DotFlag.Api.Controller
         [HttpGet("my")]
         public IActionResult GetMyProfile()
         {
-            var currentUserId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var currentUserId = User.GetId();
 
             var result = _userActions.GetMyProfile(currentUserId);
 
@@ -93,8 +91,7 @@ namespace DotFlag.Api.Controller
         [Authorize]
         public IActionResult UpdateProfile(int id, [FromBody] UpdateUserProfileDto dto)
         {
-            var currentUserId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var currentUserId = User.GetId();
 
             if (currentUserId != id)
                 return Forbid();
@@ -111,11 +108,9 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Ban(int id)
         {
-            var currentUserId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-            var currentUserRole = Enum.Parse<UserRole>(User.FindFirstValue(ClaimTypes.Role)!);
-
+            var currentUserId = User.GetId();
+            var currentUserRole = User.GetRole();
+            
             var result = _userActions.Ban(id, currentUserId, currentUserRole);
 
             if (!result.IsSuccess)
@@ -128,11 +123,9 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Unban(int id)
         {
-            var currentUserId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-            var currentUserRole = Enum.Parse<UserRole>(User.FindFirstValue(ClaimTypes.Role)!);
-
+            var currentUserId = User.GetId();
+            var currentUserRole = User.GetRole();
+            
             var result = _userActions.Unban(id, currentUserId, currentUserRole);
 
             if (!result.IsSuccess)
@@ -145,8 +138,7 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Owner")]
         public IActionResult Promote(int id)
         {
-            var currentUserId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var currentUserId = User.GetId();
 
             var result = _userActions.Promote(id, currentUserId);
 
@@ -160,8 +152,7 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Owner")]
         public IActionResult Demote(int id)
         {
-            var currentUserId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var currentUserId = User.GetId();
 
             var result = _userActions.Demote(id, currentUserId);
 

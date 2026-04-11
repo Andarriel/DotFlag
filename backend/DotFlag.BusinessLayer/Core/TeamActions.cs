@@ -50,9 +50,11 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Team created successfully." };
         }
 
-        protected ActionResponse DisbandExecution(int id, int userId, bool isAdmin)
+        protected ActionResponse DisbandExecution(int id, int userId, UserRole role)
         {
             using var context = new AppDbContext();
+
+            bool isAdmin = role == UserRole.Admin || role == UserRole.Owner;
 
             if (!isAdmin)
             {
@@ -85,10 +87,12 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Team disbanded successfully." };
         }
 
-        protected List<TeamDto> GetAllExecution(bool includeInactive = false)
+        protected List<TeamDto> GetAllExecution(UserRole role)
         {
             using var context = new AppDbContext();
 
+            bool  includeInactive = role == UserRole.Admin || role == UserRole.Owner;
+            
             var teams = context.Teams
                 .Include(t => t.Members)
                 .Where(team => includeInactive || team.IsActive)
