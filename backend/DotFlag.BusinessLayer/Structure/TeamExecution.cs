@@ -1,6 +1,7 @@
 using AutoMapper;
 using DotFlag.BusinessLayer.Core;
 using DotFlag.BusinessLayer.Interfaces;
+using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.Team;
 
@@ -20,9 +21,9 @@ public class TeamExecution : TeamActions, ITeamActions
         return GetTeamDetailsExecution(userId);
     }
 
-    public List<TeamDto> GetAll(bool includeInactive)
+    public List<TeamDto> GetAll(UserRole role)
     {
-        return  GetAllExecution(includeInactive);
+        return  GetAllExecution(role);
     }
 
     public ActionResponse Join(int userId, JoinTeamDto dto)
@@ -40,9 +41,9 @@ public class TeamExecution : TeamActions, ITeamActions
         return UpdateExecution(userId, dto);
     }
 
-    public ActionResponse Disband(int id, int userId, bool isAdmin)
+    public ActionResponse Disband(int id, int userId, UserRole role)
     {
-        return DisbandExecution(id, userId, isAdmin);
+        return DisbandExecution(id, userId, role);
     }
 
     public ActionResponse RegenerateInvite(int teamId, int userId)

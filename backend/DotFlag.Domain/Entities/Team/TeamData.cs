@@ -23,6 +23,6 @@ public class TeamData
 
     public bool IsActive { get; set; } = true;
 
-    // Navigation prop
+    [InverseProperty("Team")]
     public ICollection<UserData> Members { get; set; } = new List<UserData>();
 }

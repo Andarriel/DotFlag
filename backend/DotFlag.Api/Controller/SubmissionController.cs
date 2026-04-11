@@ -2,12 +2,13 @@
 using DotFlag.Domain.Models.Challenge;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using DotFlag.Api.Extensions;
 
 namespace DotFlag.Api.Controller
 {
     [Route("api/challenges/{id}/submit")]
     [ApiController]
+    [Authorize]
     public class SubmissionController : ControllerBase
     {
         private readonly ISubmissionActions _submissionActions;
@@ -19,10 +20,9 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost]
-        [Authorize]
         public IActionResult SubmitFlag(int id, [FromBody] SubmitFlagDto dto)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            int userId = User.GetId();
 
             var result = _submissionActions.SubmitFlag(id, userId, dto.Flag);
 

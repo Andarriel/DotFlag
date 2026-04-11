@@ -1,6 +1,7 @@
 using AutoMapper;
 using DotFlag.BusinessLayer.Core;
 using DotFlag.BusinessLayer.Interfaces;
+using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.Challenge;
 using DotFlag.Domain.Models.Responses;
 
@@ -10,14 +11,14 @@ public class ChallengeExecution : ChallengeActions, IChallengeActions
 {
     public ChallengeExecution(IMapper mapper) : base(mapper) { }
 
-    public ChallengeDto GetById(int id, bool includeInactive = false)
+    public ChallengeDto GetById(int id, UserRole role)
     {
-        return GetByIdExecution(id, includeInactive);
+        return GetByIdExecution(id, role);
     }
 
-    public List<ChallengeDto> GetAll(bool includeInactive = false)
+    public List<ChallengeDto> GetAll(UserRole role)
     {
-        return GetAllExecution(includeInactive);
+        return GetAllExecution(role);
     }
 
     public ActionResponse Create(CreateChallengeDto dto)

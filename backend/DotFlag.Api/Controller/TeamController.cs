@@ -3,7 +3,7 @@ using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.Domain.Models.Team;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using DotFlag.Api.Extensions;
 
 namespace DotFlag.Api.Controller
 {
@@ -19,15 +19,13 @@ namespace DotFlag.Api.Controller
             var bl = new BusinessLogic();
             _teamActions = bl.GetTeamActions();
         }
-
-        private int GetCurrentUserId() =>
-            int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
+        
         [HttpGet]
         public IActionResult GetAll()
         {
-            bool isAdmin = User.IsInRole("Admin") || User.IsInRole("Owner");
-            var result = _teamActions.GetAll(includeInactive: isAdmin);
+            var role = User.GetRole();
+            
+            var result = _teamActions.GetAll(role);
 
             return Ok(result);
         }
@@ -46,7 +44,7 @@ namespace DotFlag.Api.Controller
         [HttpGet("my")]
         public IActionResult GetMyTeam()
         {
-            int userId = GetCurrentUserId();
+            int userId = User.GetId();
             var result = _teamActions.GetTeamDetails(userId);
 
             if (result == null)
@@ -58,7 +56,7 @@ namespace DotFlag.Api.Controller
         [HttpPost]
         public IActionResult Create([FromBody] CreateTeamDto dto)
         {
-            int userId = GetCurrentUserId();
+            int userId = User.GetId();
             var result = _teamActions.Create(userId, dto);
 
             if (!result.IsSuccess)
@@ -70,7 +68,7 @@ namespace DotFlag.Api.Controller
         [HttpPost("join")]
         public IActionResult Join([FromBody] JoinTeamDto dto)
         {
-            int userId = GetCurrentUserId();
+            int userId = User.GetId();
             var result = _teamActions.Join(userId, dto);
 
             if (!result.IsSuccess)
@@ -82,7 +80,7 @@ namespace DotFlag.Api.Controller
         [HttpPost("{id}/leave")]
         public IActionResult Leave(int id)
         {
-            int userId = GetCurrentUserId();
+            int userId = User.GetId();
             var result = _teamActions.Leave(id, userId);
 
             if (!result.IsSuccess)
@@ -94,7 +92,7 @@ namespace DotFlag.Api.Controller
         [HttpPost("{id}/regenerate-invite")]
         public IActionResult RegenerateInvite(int id)
         {
-            int userId = GetCurrentUserId();
+            int userId = User.GetId();
             var result = _teamActions.RegenerateInvite(id, userId);
 
             if (!result.IsSuccess)
@@ -118,9 +116,10 @@ namespace DotFlag.Api.Controller
         [HttpDelete("{id}")]
         public IActionResult Disband(int id)
         {
-            int userId = GetCurrentUserId();
-            bool isAdmin = User.IsInRole("Admin") || User.IsInRole("Owner");
-            var result = _teamActions.Disband(id, userId, isAdmin);
+            int userId = User.GetId();
+            var role =  User.GetRole();
+            
+            var result = _teamActions.Disband(id, userId, role);
 
             if (!result.IsSuccess)
                 return BadRequest(result);

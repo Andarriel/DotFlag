@@ -44,6 +44,7 @@ namespace DotFlag.Domain.Entities.Challenge
 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
+        [InverseProperty("Challenge")]
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
 
         // Just a math function, it's okay to store it here i think... Domnul Antohi o sa fie suparat ca am pus-o aici ? :D
