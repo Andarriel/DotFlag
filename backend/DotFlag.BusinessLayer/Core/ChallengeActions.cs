@@ -73,6 +73,9 @@ namespace DotFlag.BusinessLayer.Core
             challenge.DecayRate = dto.DecayRate;
             challenge.FirstBloodBonus = dto.FirstBloodBonus;
 
+            if (!string.IsNullOrEmpty(dto.Flag))
+                challenge.FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag);
+
             challenge.CurrentPoints = challenge.CalculateCurrentPoints(
                 dto.MaxPoints, dto.MinPoints, dto.DecayRate, challenge.SolveCount);
 

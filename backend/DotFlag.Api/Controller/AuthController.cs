@@ -21,16 +21,16 @@ namespace DotFlag.Api.Controller
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLoginDto dto)
         {
-            var result = _authActions.Login(dto);
+            var (data, error) = _authActions.Login(dto);
 
-            if (result == null)
+            if (data == null)
                 return Unauthorized(new ActionResponse
                 {
                     IsSuccess = false,
-                    Message = "Invalid email or password."
+                    Message = error ?? "Invalid email or password."
                 });
 
-            return Ok(result);
+            return Ok(data);
         }
 
         [HttpPost("register")]

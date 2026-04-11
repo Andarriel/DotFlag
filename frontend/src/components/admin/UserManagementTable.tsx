@@ -1,4 +1,4 @@
-import { ShieldCheck, Ban, LogOut, UserPlus, Trash2 } from 'lucide-react';
+import { ShieldCheck, ShieldOff, Ban, LogOut, UserPlus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import StatusBadge from '../common/StatusBadge';
 import Modal from '../common/Modal';
@@ -10,7 +10,7 @@ import type { UserRole } from '../../types/api';
 
 const ROLES: UserRole[] = ['Guest', 'User', 'Admin'];
 
-function UserRow({ user, onToggleBan, onKick, onPromote, onDelete }: { user: AdminUser; onToggleBan: () => void; onKick: () => void; onPromote?: () => void; onDelete: () => void }) {
+function UserRow({ user, onToggleBan, onKick, onPromote, onDemote, onDelete }: { user: AdminUser; onToggleBan: () => void; onKick: () => void; onPromote?: () => void; onDemote?: () => void; onDelete: () => void }) {
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
@@ -33,9 +33,14 @@ function UserRow({ user, onToggleBan, onKick, onPromote, onDelete }: { user: Adm
       <td className="px-4 py-3 text-[11px] text-slate-500 hidden md:table-cell">{formatTimeAgo(user.lastLogin)}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-0.5">
-          {user.role !== 'Admin' && user.role !== 'Owner' && onPromote && (
+          {user.role === 'User' && onPromote && (
             <button onClick={onPromote} title="Promote to Admin" className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-400/10 rounded-lg transition">
               <ShieldCheck className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {user.role === 'Admin' && onDemote && (
+            <button onClick={onDemote} title="Demote to User" className="p-1.5 text-slate-500 hover:text-amber-400 hover:bg-amber-400/10 rounded-lg transition">
+              <ShieldOff className="w-3.5 h-3.5" />
             </button>
           )}
           <button onClick={onToggleBan} title={user.isBanned ? 'Unban' : 'Ban'} className={`p-1.5 rounded-lg transition ${user.isBanned ? 'text-green-400 hover:bg-green-400/10' : 'text-slate-500 hover:text-red-400 hover:bg-red-400/10'}`}>
@@ -63,7 +68,7 @@ const selectClass = `${inputClass} appearance-none bg-[url('data:image/svg+xml;c
 export default function UserManagementTable() {
   const { user } = useAuth();
   const isOwner = user?.role === 'Owner';
-  const { users, toggleBan, kickSession, promoteToAdmin, deleteUser, registerUser } = useAdminContext();
+  const { users, toggleBan, kickSession, promote, demote, deleteUser, registerUser } = useAdminContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<{ username: string; email: string; password: string; role: UserRole }>({
     username: '', email: '', password: '', role: 'User',
@@ -100,7 +105,8 @@ export default function UserManagementTable() {
                 <UserRow key={u.id} user={u}
                   onToggleBan={() => toggleBan(u.id)}
                   onKick={() => kickSession(u.id)}
-                  onPromote={isOwner ? () => promoteToAdmin(u.id) : undefined}
+                  onPromote={isOwner ? () => promote(u.id) : undefined}
+                  onDemote={isOwner ? () => demote(u.id) : undefined}
                   onDelete={() => deleteUser(u.id)}
                 />
               ))}

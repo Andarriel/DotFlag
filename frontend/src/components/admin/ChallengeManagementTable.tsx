@@ -216,6 +216,9 @@ export default function ChallengeManagementTable() {
             <div>
               <label className={labelClass}>Decay Rate</label>
               <input type="number" value={form.decayRate} onChange={e => setForm(f => ({ ...f, decayRate: +e.target.value }))} className={inputClass} />
+              <p className="text-[10px] text-slate-600 mt-1 leading-relaxed">
+                Solves until points hit the floor. Lower = faster decay.
+              </p>
             </div>
             <div>
               <label className={labelClass}>First Blood Bonus</label>

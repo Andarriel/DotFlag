@@ -18,5 +18,6 @@ public class UserDto
 
     public int CurrentPoints { get; set; }
     public UserRole Role { get; set; }
+    public bool IsBanned { get; set; }
     public DateTime RegisteredOn { get; set; }
 }

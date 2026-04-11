@@ -45,17 +45,17 @@ namespace DotFlag.BusinessLayer.Core
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public LoginResponseDto? Login(UserLoginDto dto)
+        public (LoginResponseDto? Data, string? Error) Login(UserLoginDto dto)
         {
             using var context = new AppDbContext();
 
             var user = context.Users.FirstOrDefault(u => u.Email == dto.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return null;
+                return (null, "Invalid email or password.");
 
             if (user.IsBanned)
-                return null;
+                return (null, "Your account has been banned.");
 
             var token = GenerateToken(user);
 
@@ -67,7 +67,7 @@ namespace DotFlag.BusinessLayer.Core
             var userDto = _mapper.Map<UserDto>(user);
             userDto.CurrentPoints = score;
 
-            return new LoginResponseDto { Token = token, User = userDto };
+            return (new LoginResponseDto { Token = token, User = userDto }, null);
         }
 
         public ActionResponse Register(UserRegisterDto dto)

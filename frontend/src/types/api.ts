@@ -23,6 +23,7 @@ export interface ApiUser {
   email: string;
   currentPoints: number;
   role: UserRole;
+  isBanned: boolean;
   registeredOn: string;
 }
 
@@ -118,4 +119,13 @@ export interface FlagSubmission {
 export interface ActionResponse {
   isSuccess: boolean;
   message: string;
+}
+
+export interface ApiLeaderboardEntry {
+  rank: number;
+  userId: number;
+  username: string;
+  score: number;
+  solvesCount: number;
+  lastSolveAt: string;
 }

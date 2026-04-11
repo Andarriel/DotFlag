@@ -1,10 +1,7 @@
 import type { AxiosInstance } from 'axios';
-import type { LeaderboardEntry, TeamProgress } from '../types';
+import type { ApiLeaderboardEntry } from '../types/api';
 
 export const leaderboardService = {
-  getPlayers: (api: AxiosInstance) =>
-    api.get<LeaderboardEntry[]>('/leaderboard').then(res => res.data),
-
-  getTeamProgress: (api: AxiosInstance) =>
-    api.get<TeamProgress[]>('/leaderboard/teams').then(res => res.data),
+  getAll: (api: AxiosInstance) =>
+    api.get<ApiLeaderboardEntry[]>('/leaderboard').then(res => res.data),
 };
