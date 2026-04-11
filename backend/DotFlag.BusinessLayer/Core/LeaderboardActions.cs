@@ -1,12 +1,11 @@
-﻿using DotFlag.BusinessLayer.Interfaces;
-using DotFlag.DataAccessLayer.Context;
+﻿using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Models.Leaderboard;
 
 namespace DotFlag.BusinessLayer.Core
 {
-    public class LeaderboardActions : ILeaderboardActions
+    public class LeaderboardActions
     {
-        public List<LeaderboardEntryDto> GetLeaderboard()
+        protected List<LeaderboardEntryDto> GetLeaderboardExecution()
         {
             using var context = new AppDbContext();
 

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Challenge;
 using DotFlag.Domain.Models.Challenge;
@@ -7,16 +6,16 @@ using DotFlag.Domain.Models.Responses;
 
 namespace DotFlag.BusinessLayer.Core
 {
-    public class ChallengeActions : IChallengeActions
+    public class ChallengeActions
     {
-        private readonly IMapper _mapper;
+        protected readonly IMapper _mapper;
 
-        public ChallengeActions(IMapper mapper)
+        protected ChallengeActions(IMapper mapper)
         {
             _mapper = mapper;
         }
 
-        public ChallengeDto GetById(int id, bool includeInactive = false)
+        protected ChallengeDto GetByIdExecution(int id, bool includeInactive = false)
         {
             using var context = new AppDbContext();
 
@@ -29,7 +28,7 @@ namespace DotFlag.BusinessLayer.Core
             return _mapper.Map<ChallengeDto>(challenge);
         }
 
-        public List<ChallengeDto> GetAll(bool includeInactive = false)
+        protected List<ChallengeDto> GetAllExecution(bool includeInactive = false)
         {
             using var context = new AppDbContext();
 
@@ -40,7 +39,7 @@ namespace DotFlag.BusinessLayer.Core
             return _mapper.Map<List<ChallengeDto>>(challenges);
         }
 
-        public ActionResponse Create(CreateChallengeDto dto) 
+        protected ActionResponse CreateExecution(CreateChallengeDto dto) 
         {
             using var context = new AppDbContext();
 
@@ -54,7 +53,7 @@ namespace DotFlag.BusinessLayer.Core
 
             return new ActionResponse { IsSuccess = true, Message = "Challenge created successfully." };
         }
-        public ActionResponse Update(int id, UpdateChallengeDto dto)
+        protected ActionResponse UpdateExecution(int id, UpdateChallengeDto dto)
         {
             using var context = new AppDbContext();
 
@@ -84,7 +83,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Challenge updated successfully." };
         }
 
-        public ActionResponse Delete(int id)
+        protected ActionResponse DeleteExecution(int id)
         {
             using var context = new AppDbContext();
 

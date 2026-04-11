@@ -1,21 +1,20 @@
 ﻿using AutoMapper;
-using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Models.Responses;
 
 namespace DotFlag.BusinessLayer.Core
 {
-    public class SubmissionActions : ISubmissionActions
+    public class SubmissionActions
     {
-        private readonly IMapper _mapper;
+        protected readonly IMapper _mapper;
 
-        public SubmissionActions(IMapper mapper)
+        protected SubmissionActions(IMapper mapper)
         {
             _mapper = mapper;
         }
 
-        public ActionResponse SubmitFlag(int challengeId, int userId, string flag)
+        protected ActionResponse SubmitFlagExecution(int challengeId, int userId, string flag)
         {
             using var context = new AppDbContext();
 

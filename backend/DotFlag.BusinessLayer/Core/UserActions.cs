@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.User;
 using DotFlag.Domain.Models.Responses;
@@ -9,16 +8,16 @@ using System.Runtime.InteropServices;
 
 namespace DotFlag.BusinessLayer.Core
 {
-    public class UserActions : IUserActions
+    public class UserActions
     {
-        private readonly IMapper _mapper;
+        protected readonly IMapper _mapper;
 
-        public UserActions(IMapper mapper)
+        protected UserActions(IMapper mapper)
         {
             _mapper = mapper;
         }
 
-        public UserProfileDto GetById(int id)
+        protected UserProfileDto GetByIdExecution(int id)
         {
             using var context = new AppDbContext();
 
@@ -37,7 +36,7 @@ namespace DotFlag.BusinessLayer.Core
             return dto;
         }
 
-        public UserDto GetMyProfile(int userId)
+        protected UserDto GetMyProfileExecution(int userId)
         {
             using var context = new AppDbContext();
 
@@ -56,7 +55,7 @@ namespace DotFlag.BusinessLayer.Core
             return dto;
         }
 
-        public List<UserDto> GetAll()
+        protected List<UserDto> GetAllExecution()
         {
             using var context = new AppDbContext();
 
@@ -76,7 +75,7 @@ namespace DotFlag.BusinessLayer.Core
             }).ToList();
         }
 
-        public ActionResponse Create(CreateUserDto dto)
+        protected ActionResponse CreateExecution(CreateUserDto dto)
         {
             using var context = new AppDbContext();
 
@@ -91,7 +90,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User created successfully." };
         }
 
-        public ActionResponse Update(int id, UpdateUserDto dto)
+        protected ActionResponse UpdateExecution(int id, UpdateUserDto dto)
         {
             using var context = new AppDbContext();
 
@@ -112,7 +111,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User updated successfully." };
         }
 
-        public ActionResponse Delete(int id)
+        protected ActionResponse DeleteExecution(int id)
         {
             using var context = new AppDbContext();
 
@@ -127,7 +126,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User deleted successfully." };
         }
 
-        public ActionResponse UpdateProfile(int id, UpdateUserProfileDto dto)
+        protected ActionResponse UpdateProfileExecution(int id, UpdateUserProfileDto dto)
         {
             using var context = new AppDbContext();
 
@@ -150,7 +149,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Profile updated successfully." };
         }
 
-        public ActionResponse Ban(int id, int currentUserId, UserRole currentUserRole)
+        protected ActionResponse BanExecution(int id, int currentUserId, UserRole currentUserRole)
         {
             using var context = new AppDbContext();
 
@@ -175,7 +174,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User banned successfully." };
         }
 
-        public ActionResponse Unban(int id, int currentUserId, UserRole currentUserRole)
+        protected ActionResponse UnbanExecution(int id, int currentUserId, UserRole currentUserRole)
         {
             using var context = new AppDbContext();
 
@@ -200,7 +199,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User unbanned successfully." };
         }
 
-        public ActionResponse Promote(int id, int currentUserId)
+        protected ActionResponse PromoteExecution(int id, int currentUserId)
         {
             using var context = new AppDbContext();
 
@@ -224,7 +223,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User promoted to Admin successfully." };
         }
 
-        public ActionResponse Demote(int id, int currentUserId)
+        protected ActionResponse DemoteExecution(int id, int currentUserId)
         {
             using var context = new AppDbContext();
 

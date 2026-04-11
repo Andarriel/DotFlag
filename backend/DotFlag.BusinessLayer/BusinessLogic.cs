@@ -2,6 +2,7 @@ using AutoMapper;
 using DotFlag.BusinessLayer.Core;
 using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.BusinessLayer.Mapping;
+using DotFlag.BusinessLayer.Structure;
 using Microsoft.Extensions.Logging;
 
 namespace DotFlag.BusinessLayer
@@ -20,11 +21,11 @@ namespace DotFlag.BusinessLayer
             _mapper = config.CreateMapper();
         }
 
-        public IUserActions GetUserActions() => new UserActions(_mapper);
-        public IAuthActions GetAuthActions() => new AuthActions(_mapper);
-        public IChallengeActions GetChallengeActions() => new ChallengeActions(_mapper);
-        public ISubmissionActions GetSubmissionActions() => new SubmissionActions(_mapper);
-        public ITeamActions GetTeamActions() => new TeamActions(_mapper);
-        public ILeaderboardActions GetLeaderboardActions() => new LeaderboardActions();
+        public IUserActions GetUserActions() => new UserExecution(_mapper);
+        public IAuthActions GetAuthActions() => new AuthExecution(_mapper);
+        public IChallengeActions GetChallengeActions() => new ChallengeExecution(_mapper);
+        public ISubmissionActions GetSubmissionActions() => new SubmissionExecution(_mapper);
+        public ITeamActions GetTeamActions() => new TeamExecution(_mapper);
+        public ILeaderboardActions GetLeaderboardActions() => new LeaderboardExecution();
     }
 }

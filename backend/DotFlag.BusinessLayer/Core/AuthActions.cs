@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.User;
 using DotFlag.Domain.Models.Responses;
@@ -12,16 +11,16 @@ using System.Text;
 
 namespace DotFlag.BusinessLayer.Core
 {
-    public class AuthActions : IAuthActions
+    public class AuthActions
     {
-        private readonly IMapper _mapper;
+        protected readonly IMapper _mapper;
 
-        public AuthActions(IMapper mapper) 
+        protected AuthActions(IMapper mapper) 
         { 
             _mapper = mapper;
         }
 
-        private string GenerateToken(UserData user)
+        protected string GenerateToken(UserData user)
         {
             var claims = new[]
             {
@@ -45,7 +44,7 @@ namespace DotFlag.BusinessLayer.Core
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public (LoginResponseDto? Data, string? Error) Login(UserLoginDto dto)
+        protected (LoginResponseDto? Data, string? Error) LoginExecution(UserLoginDto dto)
         {
             using var context = new AppDbContext();
 
@@ -70,7 +69,7 @@ namespace DotFlag.BusinessLayer.Core
             return (new LoginResponseDto { Token = token, User = userDto }, null);
         }
 
-        public ActionResponse Register(UserRegisterDto dto)
+        protected ActionResponse RegisterExecution(UserRegisterDto dto)
         {
             using var context = new AppDbContext();
 
