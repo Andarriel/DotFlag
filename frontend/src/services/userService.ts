@@ -35,4 +35,10 @@ export const userService = {
 
   unban: (api: AxiosInstance, id: number) =>
     api.post<ActionResponse>(`/users/${id}/unban`).then(res => res.data),
+
+  promote: (api: AxiosInstance, id: number) =>
+    api.post<ActionResponse>(`/users/${id}/promote`).then(res => res.data),
+
+  demote: (api: AxiosInstance, id: number) =>
+    api.post<ActionResponse>(`/users/${id}/demote`).then(res => res.data),
 };

@@ -55,19 +55,44 @@ export function useAdmin() {
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  const promoteToAdmin = async (userId: number) => {
-    if (!USE_MOCK) {
-      const user = users.find(u => u.id === userId);
-      if (!user) return;
-      try {
-        await userService.update(api, userId, { username: user.username, email: user.email, role: 'Admin' });
-        toast.success(`${user.username} promoted to Admin`);
-      } catch {
-        toast.error('Failed to promote user');
-        return;
-      }
+  const promote = async (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    if (USE_MOCK) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'Admin' as const } : u));
+      return;
     }
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'Admin' as const } : u));
+    try {
+      const res = await userService.promote(api, userId);
+      if (res.isSuccess) {
+        toast.success(`${user.username} promoted to Admin`);
+        setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'Admin' as const } : u));
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? 'Failed to promote user');
+    }
+  };
+
+  const demote = async (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    if (USE_MOCK) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'User' as const } : u));
+      return;
+    }
+    try {
+      const res = await userService.demote(api, userId);
+      if (res.isSuccess) {
+        toast.success(`${user.username} demoted to User`);
+        setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'User' as const } : u));
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? 'Failed to demote user');
+    }
   };
 
   const deleteUser = async (userId: number) => {
@@ -206,7 +231,7 @@ export function useAdmin() {
   return {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
-    toggleBan, kickSession, promoteToAdmin, deleteUser,
+    toggleBan, kickSession, promote, demote, deleteUser,
     createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge,
     registerUser, loading, refresh,
   };
