@@ -1,5 +1,6 @@
 ﻿using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.User;
+using DotFlag.Domain.Enums;
 
 namespace DotFlag.BusinessLayer.Interfaces
 {
@@ -13,6 +14,9 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse Update(int id, UpdateUserDto dto);
         ActionResponse UpdateProfile(int id, UpdateUserProfileDto dto);
         ActionResponse Delete (int id);
+        ActionResponse Ban(int id, int currentUserId, UserRole currentUserRole);
+
+        ActionResponse Unban(int id, int currentUserId, UserRole currentUserRole);
 
     }
 }

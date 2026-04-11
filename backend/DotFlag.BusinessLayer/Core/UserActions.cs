@@ -4,6 +4,7 @@ using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.User;
 using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.User;
+using DotFlag.Domain.Enums;
 
 namespace DotFlag.BusinessLayer.Core
 {
@@ -22,7 +23,7 @@ namespace DotFlag.BusinessLayer.Core
 
             var user = context.Users.FirstOrDefault(u => u.Id == id);
 
-            if (user == null) 
+            if (user == null)
                 return null;
 
             int score = context.Submissions
@@ -146,6 +147,55 @@ namespace DotFlag.BusinessLayer.Core
             context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "Profile updated successfully." };
+        }
+
+        public ActionResponse Ban(int id, int currentUserId, UserRole currentUserRole)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (id == currentUserId)
+                return new ActionResponse { IsSuccess = false, Message = "You cannot ban yourself." };
+
+            if (user.Role >= currentUserRole)
+                return new ActionResponse { IsSuccess = false, Message = "You cannot ban a user with equal or higher role." };
+
+            if (user.IsBanned)
+                return new ActionResponse { IsSuccess = true, Message = "User is already banned." };
+
+            user.IsBanned = true;
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "User banned successfully." };
+        }
+        public ActionResponse Unban(int id, int currentUserId, UserRole currentUserRole)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (id == currentUserId)
+                return new ActionResponse { IsSuccess = false, Message = "You cannot unban yourself." };
+
+            if (user.Role >= currentUserRole)
+                return new ActionResponse { IsSuccess = false, Message = "You cannot unban a user with equal or higher role." };
+
+            if (!user.IsBanned)
+                return new ActionResponse { IsSuccess = true, Message = "User is not banned." };
+
+            user.IsBanned = false;
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "User unbanned successfully." };
         }
     }
 }
