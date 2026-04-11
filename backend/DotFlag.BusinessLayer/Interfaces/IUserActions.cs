@@ -16,6 +16,7 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse Delete (int id);
         ActionResponse Ban(int id, int currentUserId, UserRole currentUserRole);
         ActionResponse Unban(int id, int currentUserId, UserRole currentUserRole);
-
+        ActionResponse Promote(int id, int currentUserId);
+        ActionResponse Demote(int id, int currentUserId);
     }
 }

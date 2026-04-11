@@ -45,7 +45,8 @@ namespace DotFlag.Api.Controller
         [HttpGet("my")]
         public IActionResult GetMyProfile()
         {
-            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var currentUserId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var result = _userActions.GetMyProfile(currentUserId);
 
@@ -105,6 +106,7 @@ namespace DotFlag.Api.Controller
 
             return Ok(result);
         }
+
         [HttpPost("{id}/ban")]
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Ban(int id)
@@ -121,6 +123,7 @@ namespace DotFlag.Api.Controller
 
             return Ok(result);
         }
+
         [HttpPost("{id}/unban")]
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Unban(int id)
@@ -131,6 +134,36 @@ namespace DotFlag.Api.Controller
             var currentUserRole = Enum.Parse<UserRole>(User.FindFirstValue(ClaimTypes.Role)!);
 
             var result = _userActions.Unban(id, currentUserId, currentUserRole);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/promote")]
+        [Authorize(Roles = "Owner")]
+        public IActionResult Promote(int id)
+        {
+            var currentUserId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var result = _userActions.Promote(id, currentUserId);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/demote")]
+        [Authorize(Roles = "Owner")]
+        public IActionResult Demote(int id)
+        {
+            var currentUserId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var result = _userActions.Demote(id, currentUserId);
 
             if (!result.IsSuccess)
                 return BadRequest(result);

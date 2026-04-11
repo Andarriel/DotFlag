@@ -5,6 +5,7 @@ using DotFlag.Domain.Entities.User;
 using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.User;
 using DotFlag.Domain.Enums;
+using System.Runtime.InteropServices;
 
 namespace DotFlag.BusinessLayer.Core
 {
@@ -173,6 +174,7 @@ namespace DotFlag.BusinessLayer.Core
 
             return new ActionResponse { IsSuccess = true, Message = "User banned successfully." };
         }
+
         public ActionResponse Unban(int id, int currentUserId, UserRole currentUserRole)
         {
             using var context = new AppDbContext();
@@ -186,7 +188,7 @@ namespace DotFlag.BusinessLayer.Core
                 return new ActionResponse { IsSuccess = false, Message = "You cannot unban yourself." };
 
             if (user.Role >= currentUserRole)
-                return new ActionResponse { IsSuccess = false, Message = "You cannot unban a user with equal or higher role." };
+                return new ActionResponse { IsSuccess = false, Message = "You cannot unban a User with equal or higher role." };
 
             if (!user.IsBanned)
                 return new ActionResponse { IsSuccess = true, Message = "User is not banned." };
@@ -196,6 +198,55 @@ namespace DotFlag.BusinessLayer.Core
             context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "User unbanned successfully." };
+        }
+
+        public ActionResponse Promote(int id, int currentUserId)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (id == currentUserId)
+                return new ActionResponse { IsSuccess = false, Message = "You cannot promote yourself." };
+
+            if (user.Role == UserRole.Admin)
+                return new ActionResponse { IsSuccess = true, Message = "User is already an Admin." };
+            if (user.Role == UserRole.Owner)
+                return new ActionResponse { IsSuccess = false, Message = "Cannot promote Owner." };
+
+            user.Role = UserRole.Admin;
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "User promoted to Admin successfully." };
+        }
+
+        public ActionResponse Demote(int id, int currentUserId)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Id == id);
+
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (id == currentUserId)
+                return new ActionResponse { IsSuccess = false, Message = "You cannot demote yourself." };
+
+            if (user.Role == UserRole.User)
+                return new ActionResponse { IsSuccess = true, Message = "User is already a regular User." };
+
+            if (user.Role == UserRole.Owner)
+                return new ActionResponse { IsSuccess = false, Message = "Cannot demote Owner." };
+
+            user.Role = UserRole.User;
+
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "User demoted to regular User successfully." };
         }
     }
 }
