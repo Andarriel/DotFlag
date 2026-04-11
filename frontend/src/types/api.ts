@@ -23,6 +23,7 @@ export interface ApiUser {
   email: string;
   currentPoints: number;
   role: UserRole;
+  isBanned: boolean;
   registeredOn: string;
 }
 

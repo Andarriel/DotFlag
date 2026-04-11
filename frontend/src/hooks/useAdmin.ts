@@ -22,7 +22,7 @@ const DIFFICULTY_MAP: Record<string, ChallengeDifficulty> = {
 function mapApiUserToAdmin(u: ApiUser): AdminUser {
   return {
     id: u.id, username: u.username, email: u.email, role: u.role,
-    currentPoints: u.currentPoints, isBanned: false, lastLogin: '', sessionActive: false,
+    currentPoints: u.currentPoints, isBanned: u.isBanned, lastLogin: '', sessionActive: false,
   };
 }
 
@@ -159,8 +159,26 @@ export function useAdmin() {
     setChallenges(prev => prev.filter(c => c.id !== challengeId));
   };
 
-  const toggleBan = (userId: number) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, isBanned: !u.isBanned } : u));
+  const toggleBan = async (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    if (USE_MOCK) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, isBanned: !u.isBanned } : u));
+      return;
+    }
+    try {
+      const res = user.isBanned
+        ? await userService.unban(api, userId)
+        : await userService.ban(api, userId);
+      if (res.isSuccess) {
+        toast.success(user.isBanned ? `${user.username} unbanned` : `${user.username} banned`);
+        setUsers(prev => prev.map(u => u.id === userId ? { ...u, isBanned: !u.isBanned } : u));
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? 'Failed to update ban status');
+    }
   };
 
   const kickSession = (userId: number) => {

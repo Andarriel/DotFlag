@@ -29,4 +29,10 @@ export const userService = {
 
   delete: (api: AxiosInstance, id: number) =>
     api.delete<ActionResponse>(`/users/${id}`).then(res => res.data),
+
+  ban: (api: AxiosInstance, id: number) =>
+    api.post<ActionResponse>(`/users/${id}/ban`).then(res => res.data),
+
+  unban: (api: AxiosInstance, id: number) =>
+    api.post<ActionResponse>(`/users/${id}/unban`).then(res => res.data),
 };

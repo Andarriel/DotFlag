@@ -15,7 +15,6 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse UpdateProfile(int id, UpdateUserProfileDto dto);
         ActionResponse Delete (int id);
         ActionResponse Ban(int id, int currentUserId, UserRole currentUserRole);
-
         ActionResponse Unban(int id, int currentUserId, UserRole currentUserRole);
 
     }

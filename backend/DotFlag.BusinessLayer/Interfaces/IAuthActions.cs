@@ -6,6 +6,6 @@ namespace DotFlag.BusinessLayer.Interfaces
     public interface IAuthActions
     {
         ActionResponse Register(UserRegisterDto dto);
-        LoginResponseDto? Login(UserLoginDto dto);
+        (LoginResponseDto? Data, string? Error) Login(UserLoginDto dto);
     }
 }
