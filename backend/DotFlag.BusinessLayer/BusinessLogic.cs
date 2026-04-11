@@ -25,5 +25,6 @@ namespace DotFlag.BusinessLayer
         public IChallengeActions GetChallengeActions() => new ChallengeActions(_mapper);
         public ISubmissionActions GetSubmissionActions() => new SubmissionActions(_mapper);
         public ITeamActions GetTeamActions() => new TeamActions(_mapper);
+        public ILeaderboardActions GetLeaderboardActions() => new LeaderboardActions();
     }
 }
