@@ -120,3 +120,12 @@ export interface ActionResponse {
   isSuccess: boolean;
   message: string;
 }
+
+export interface ApiLeaderboardEntry {
+  rank: number;
+  userId: number;
+  username: string;
+  score: number;
+  solvesCount: number;
+  lastSolveAt: string;
+}

@@ -21,7 +21,7 @@ export default function LeaderboardPage() {
           <UserStatsCard rank={currentUserRank.rank} points={currentUserRank.currentPoints} solved={currentUserRank.solvedChallenges} />
         )}
         <TeamProgressChart teamProgress={teamProgress} maxPoints={maxPoints} />
-        <LeaderboardTable entries={leaderboard} currentUserId={currentUser.id} />
+        <LeaderboardTable entries={leaderboard} currentUserId={currentUser?.id ?? -1} />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import EmptyState from '../../components/common/EmptyState';
@@ -21,6 +22,7 @@ export default function ChallengePage() {
   const api = useAxios();
   const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats, loading, challenges } = useChallenges();
   const [selectedChallenge, setSelectedChallenge] = useState<ChallengeDetail | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const openChallenge = async (id: number) => {
     if (USE_MOCK) {
@@ -38,6 +40,16 @@ export default function ChallengePage() {
       setSelectedChallenge(detail);
     } catch { /* keep local data if fetch fails */ }
   };
+
+  useEffect(() => {
+    const openId = searchParams.get('open');
+    if (!openId || loading) return;
+    const id = Number(openId);
+    if (Number.isNaN(id)) return;
+    openChallenge(id);
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, searchParams]);
 
   return (
     <div className="min-h-screen bg-slate-950">

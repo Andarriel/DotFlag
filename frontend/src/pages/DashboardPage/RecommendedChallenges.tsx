@@ -6,7 +6,7 @@ import type { Challenge } from '../../types';
 function ChallengeItem({ challenge }: { challenge: Challenge }) {
   return (
     <Link
-      to={`/challenges/${challenge.id}`}
+      to={`/challenges?open=${challenge.id}`}
       className="block glass rounded-xl p-4 hover:bg-slate-800/40 transition-all group"
     >
       <div className="flex items-center justify-between">
