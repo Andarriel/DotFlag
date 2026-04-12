@@ -6,7 +6,7 @@ import LeaderboardTable from '../../components/leaderboard/LeaderboardTable';
 import { useLeaderboard } from '../../hooks/useLeaderboard';
 
 export default function LeaderboardPage() {
-  const { leaderboard, currentUser, currentUserRank, teamProgress, maxPoints } = useLeaderboard();
+  const { leaderboard, currentUser, currentUserRank, teamProgress, maxPoints, loading } = useLeaderboard();
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -17,11 +17,19 @@ export default function LeaderboardPage() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {currentUserRank && (
-          <UserStatsCard rank={currentUserRank.rank} points={currentUserRank.currentPoints} solved={currentUserRank.solvedChallenges} />
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <>
+            {currentUserRank && (
+              <UserStatsCard rank={currentUserRank.rank} points={currentUserRank.currentPoints} solved={currentUserRank.solvedChallenges} />
+            )}
+            <TeamProgressChart teamProgress={teamProgress} maxPoints={maxPoints} />
+            <LeaderboardTable entries={leaderboard} currentUserId={currentUser?.id ?? -1} />
+          </>
         )}
-        <TeamProgressChart teamProgress={teamProgress} maxPoints={maxPoints} />
-        <LeaderboardTable entries={leaderboard} currentUserId={currentUser?.id ?? -1} />
       </div>
     </div>
   );

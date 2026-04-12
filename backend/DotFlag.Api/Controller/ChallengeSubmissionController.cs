@@ -8,7 +8,7 @@ namespace DotFlag.Api.Controller
 {
     [ApiController]
     [Authorize]
-    [Route("api/challenges/{id}/submissions")]
+    [Route("api/challenges/{id}")]
     public class ChallengeSubmissionController : ControllerBase
     {
         private readonly ISubmissionActions _submissionActions;
@@ -19,20 +19,16 @@ namespace DotFlag.Api.Controller
             _submissionActions = bl.GetSubmissionActions();
         }
 
-        [HttpPost]
+        [HttpPost("submit")]
         public IActionResult SubmitFlag(int id, [FromBody] SubmitFlagDto dto)
         {
             int userId = User.GetId();
 
             var result = _submissionActions.SubmitFlag(id, userId, dto.Flag);
-
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
             return Ok(result);
         }
         
-        [HttpGet]
+        [HttpGet("submissions")]
         public IActionResult GetSubmissions(int id)
         {
             int userId = User.GetId();

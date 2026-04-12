@@ -50,9 +50,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      setToken(storedToken);
       try {
         const payload = JSON.parse(atob(storedToken.split('.')[1]));
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          localStorage.removeItem('token');
+          setIsLoading(false);
+          return;
+        }
+        setToken(storedToken);
         setUser({
           id: parseInt(payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']),
           email: payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],

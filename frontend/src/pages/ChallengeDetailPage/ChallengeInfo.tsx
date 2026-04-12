@@ -40,7 +40,7 @@ function HintItem({ hint, index, onUnlock }: { hint: ChallengeHint; index: numbe
   );
 }
 
-export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetail }) {
+export default function ChallengeInfo({ challenge, onSubmit }: { challenge: ChallengeDetail; onSubmit?: () => void }) {
   const api = useAxios();
   const toast = useToast();
   const Icon = getCategoryIcon(challenge.category);
@@ -68,6 +68,7 @@ export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetai
       await new Promise(r => setTimeout(r, 500));
       const correct = flag === 'dotflag{test}';
       correct ? toast.success('Correct flag!') : toast.error('Wrong flag, try again.');
+      onSubmit?.();
       setSubmitting(false);
       if (correct) setFlag('');
       return;
@@ -76,6 +77,7 @@ export default function ChallengeInfo({ challenge }: { challenge: ChallengeDetai
     try {
       const res = await challengeService.submitFlag(api, challenge.id, flag);
       res.isSuccess ? toast.success(res.message) : toast.error(res.message);
+      onSubmit?.();
       if (res.isSuccess) setFlag('');
     } catch {
       toast.error('Failed to submit flag.');

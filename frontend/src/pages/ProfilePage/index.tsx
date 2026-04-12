@@ -9,7 +9,7 @@ import ProfileTeamTab from '../../components/profile/ProfileTeamTab';
 import ProfileSettings from '../../components/profile/ProfileSettings';
 import { useProfile } from '../../hooks/useProfile';
 
-type ProfileTab = 'overview' | 'flags' | 'team' | 'settings';
+type ProfileTab = 'overview' | 'flags' | 'submissions' | 'team' | 'settings';
 
 interface TabConfig {
   id: ProfileTab;
@@ -24,7 +24,8 @@ export default function ProfilePage() {
 
   const TABS: TabConfig[] = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'flags', label: isOwnProfile ? 'Submissions' : 'Flag History', icon: isOwnProfile ? ScrollText : Flag },
+    { id: 'flags', label: 'Flag History', icon: Flag },
+    ...(isOwnProfile ? [{ id: 'submissions' as ProfileTab, label: 'Submissions', icon: ScrollText, ownerOnly: true }] : []),
     { id: 'team', label: 'Team', icon: Users, ownerOnly: true },
     { id: 'settings', label: 'Settings', icon: Settings, ownerOnly: true },
   ];
@@ -79,7 +80,8 @@ export default function ProfilePage() {
         </div>
 
         {activeTab === 'overview' && <ProfileOverview profile={profile} />}
-        {activeTab === 'flags' && <FlagHistory history={profile.flagHistory} />}
+        {activeTab === 'flags' && <FlagHistory history={profile.flagHistory.filter(f => f.isCorrect)} />}
+        {activeTab === 'submissions' && <FlagHistory history={profile.flagHistory} />}
         {activeTab === 'team' && <ProfileTeamTab />}
         {activeTab === 'settings' && isOwnProfile && <ProfileSettings />}
       </div>

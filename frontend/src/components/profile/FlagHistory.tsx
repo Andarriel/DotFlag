@@ -1,10 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, XCircle, Zap, ScrollText } from 'lucide-react';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 import type { FlagEntry } from '../../types';
 
-function SubmissionRow({ entry, index }: { entry: FlagEntry; index: number }) {
+function SubmissionRow({ entry, index, onClick }: { entry: FlagEntry; index: number; onClick: () => void }) {
   return (
-    <div className={`flex items-center justify-between p-4 glass rounded-xl group hover:bg-slate-800/50 transition-all animate-fade-in-up opacity-0 stagger-${Math.min(index + 1, 5)}`}>
+    <div onClick={onClick} className={`flex items-center justify-between p-4 glass rounded-xl group hover:bg-slate-800/50 transition-all cursor-pointer animate-fade-in-up opacity-0 stagger-${Math.min(index + 1, 5)}`}>
       <div className="flex items-center gap-3 min-w-0">
         <div className={`w-10 h-10 ${entry.isCorrect ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'} border rounded-lg flex items-center justify-center shrink-0 group-hover:${entry.isCorrect ? 'border-green-500/40' : 'border-red-500/40'} transition-colors`}>
           {entry.isCorrect
@@ -33,11 +34,13 @@ function SubmissionRow({ entry, index }: { entry: FlagEntry; index: number }) {
 }
 
 export default function FlagHistory({ history }: { history: FlagEntry[] }) {
+  const navigate = useNavigate();
+
   return (
     <div className="animate-fade-in">
       {history.length > 0 ? (
         <div className="space-y-2">
-          {history.map((entry, i) => <SubmissionRow key={entry.challengeId + '-' + i} entry={entry} index={i} />)}
+          {history.map((entry, i) => <SubmissionRow key={entry.challengeId + '-' + i} entry={entry} index={i} onClick={() => navigate(`/challenges?open=${entry.challengeId}`)} />)}
         </div>
       ) : (
         <div className="glass rounded-xl p-12 text-center">
