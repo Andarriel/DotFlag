@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import ChallengeInfo from '../../pages/ChallengeDetailPage/ChallengeInfo';
 import FileAttachments from '../../pages/ChallengeDetailPage/FileAttachments';
@@ -19,13 +19,18 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
   const api = useAxios();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
-  useEffect(() => {
-    if (!challenge || USE_MOCK) {
-      if (challenge && USE_MOCK) setSubmissions(MOCK_SUBMISSIONS.filter(s => s.challengeId === challenge.id));
+  const refetchSubmissions = useCallback(() => {
+    if (!challenge) return;
+    if (USE_MOCK) {
+      setSubmissions(MOCK_SUBMISSIONS.filter(s => s.challengeId === challenge.id));
       return;
     }
     challengeService.getSubmissions(api, challenge.id).then(setSubmissions).catch(() => {});
   }, [api, challenge]);
+
+  useEffect(() => {
+    refetchSubmissions();
+  }, [refetchSubmissions]);
 
   useEffect(() => {
     if (!challenge) return;
@@ -44,7 +49,7 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-2xl max-h-[85vh] mx-4 overflow-y-auto rounded-2xl glass-strong gradient-border animate-fade-in-up scrollbar-none"
+        className="relative w-full max-w-2xl max-h-[85vh] mx-4 overflow-hidden rounded-2xl glass-strong gradient-border animate-fade-in-up"
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -56,7 +61,7 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
         </button>
 
         <div className="space-y-4 p-5 pt-12 sm:p-6 sm:pt-14">
-          <ChallengeInfo challenge={challenge} />
+          <ChallengeInfo challenge={challenge} onSubmit={refetchSubmissions} />
           <FileAttachments files={challenge.files} />
           {challenge.dockerImage && <DockerInstance docker={challenge.dockerImage} />}
           <SubmissionHistory submissions={submissions} />
