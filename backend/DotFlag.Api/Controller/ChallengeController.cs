@@ -25,8 +25,9 @@ namespace DotFlag.Api.Controller
         public IActionResult GetAll()
         {
             var role = User.GetRole();
-            
-            var result = _challengeActions.GetAll(role);
+            var userId = User.GetId();
+
+            var result = _challengeActions.GetAll(role, userId);
 
             return Ok(result);
         }
@@ -36,8 +37,9 @@ namespace DotFlag.Api.Controller
         public IActionResult GetById(int id)
         {
             var role = User.GetRole();
-            
-            var result = _challengeActions.GetById(id, role);
+            var userId = User.GetId();
+
+            var result = _challengeActions.GetById(id, role, userId);
 
             if (result == null)
                 return NotFound();
