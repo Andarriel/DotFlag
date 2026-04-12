@@ -125,7 +125,53 @@ The diagram below illustrates the three actor types and their allowed interactio
 
 ## UML Diagrams
 
-<!-- Insert your UML / class diagrams here -->
+### Component Diagram
+
+High-level view of the system's layered architecture and external dependencies.
+
+![Component Diagram](./images/Component_Arhitecture_UML.png)
+
+### Class Diagrams
+
+**Domain Entities** — core data models and their relationships.
+
+![Class Diagram — Entities](./images/Class_Entities_UML.png)
+
+**Data Access Layer** — EF Core context hierarchy and session management.
+
+![Class Diagram — DataAccessLayer](./images/Class_DataAccessLayer_UML.png)
+
+### Activity Diagrams
+
+**Challenge Submission Flow** — user journey from browsing to solving a challenge.
+
+![Activity — Challenge Submission](./images/Activity_Challenge_Submission_UML.png)
+
+**Admin Panel Flow** — admin authentication, role check, and management operations.
+
+![Activity — Admin Flow](./images/Activity_Admin_Flow_UML.png)
+
+### Sequence Diagrams
+
+**User Registration**
+
+![Sequence — Register](./images/Register_UML.png)
+
+**User Login**
+
+![Sequence — Login](./images/Login_UML.png)
+
+**Flag Submission**
+
+![Sequence — Send Flag](./images/Send_Flag_UML.png)
+
+**Admin Panel Operations**
+
+![Sequence — Admin Panel](./images/Sequence_Admin_Panel_UML.png)
+
+**Docker Container Startup**
+
+![Sequence — Start Docker](./images/Start_Docker_UML.png)
 
 ---
 
@@ -164,21 +210,31 @@ npm install
 ```
 
 By default the frontend runs with **mock data** so you can explore the UI without a backend.
-To connect to a real backend, create a `.env.local` file:
+
+To connect to a real backend, create a `.env.local` file **inside the `frontend/` folder** (next to `package.json`). You can copy the provided template and edit it:
 
 ```bash
-echo "VITE_USE_MOCK=false" > .env.local
+# from DotFlag/frontend
+cp .env.example .env.local
 ```
 
-Then start the dev server:
+Then set `VITE_USE_MOCK=false` in that file:
+
+```env
+VITE_USE_MOCK=false
+```
+
+Now start the dev server:
 
 ```bash
 npm run dev
 ```
 
+> **Note:** `.env.local` is git-ignored and will not be committed. Each developer must create their own copy locally.
+
 | Variable | Default | Description |
 |---|---|---|
-| `VITE_USE_MOCK` | `true` | Set to `false` to use the real API instead of mock data |
+| `VITE_USE_MOCK` | `true` (set in `.env.example`) | Set to `false` in `.env.local` to use the real API instead of mock data |
 
 ### Backend
 
