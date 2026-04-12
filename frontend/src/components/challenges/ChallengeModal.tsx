@@ -35,12 +35,13 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 rounded-xl transition"
+          aria-label="Close challenge modal"
+          className="absolute top-3 right-3 z-20 p-1.5 text-slate-500 hover:text-white hover:bg-white/[0.06] rounded-lg transition"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4.5 h-4.5" />
         </button>
 
-        <div className="space-y-4 p-5 sm:p-6">
+        <div className="space-y-4 p-5 pt-12 sm:p-6 sm:pt-14">
           <ChallengeInfo challenge={challenge} />
           <FileAttachments files={challenge.files} />
           {challenge.dockerImage && <DockerInstance docker={challenge.dockerImage} />}
