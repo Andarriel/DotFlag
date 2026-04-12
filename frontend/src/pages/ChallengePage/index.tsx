@@ -54,8 +54,7 @@ export default function ChallengePage() {
   return (
     <div className="min-h-screen bg-slate-950">
       <PageHeader
-        icon={<img src="/challenges.png" alt="Challenges" className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl" />}
-        rawIcon={true}
+        icon={<img src="/challenges.svg" alt="Challenges" className="w-6 h-6" />}
         title="Challenges"
         description="Test your skills with real-world cybersecurity challenges."
       />

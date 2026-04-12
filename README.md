@@ -28,13 +28,15 @@ DotFlag is designed to be a self-hosted, extensible CTF platform suitable for un
 
 | Feature | Description |
 |---|---|
-| Challenges List | Browse, filter, and access challenges across multiple categories (Web, Pwn, Crypto, Reverse Engineering, etc.) |
-| Challenge Detail | Dedicated page per challenge with a flag submission field and instant feedback |
-| Admin Panel | Full control over challenge creation, user management, and activity logs |
-| Leaderboard | Real-time scoreboard ranked by points and submission time |
-| Virtual Containers | Integrated support for spawning isolated environments per challenge |
-| User Profile | Detailed history of solved challenges, points earned, and performance statistics |
-| Team Chat *(in progress)* | Collaboration tools for team-based competition strategy |
+| Challenges | Browse, filter, and access challenges across multiple categories (Web, Pwn, Crypto, Reverse, Forensics, OSINT, Misc) with dynamic scoring |
+| Flag Submission | Submit flags with instant verification and automatic score calculation |
+| Dynamic Scoring | Challenge points decay as more users solve them (configurable min/max points, decay rate, first-blood bonus) |
+| Leaderboard | Real-time scoreboard ranked by score with last-solve tiebreaker |
+| Teams | Create or join teams via invite code, team management (leave, disband, regenerate invite) |
+| User Profiles | View solved challenges, points earned, and performance statistics |
+| Admin Panel | Challenge CRUD, user management (ban/unban, promote/demote), role-based access |
+| Authentication | JWT-based auth with registration and login |
+| Virtual Containers | Integrated support for spawning isolated Docker environments per challenge |
 
 ---
 
@@ -66,45 +68,66 @@ DotFlag is designed to be a self-hosted, extensible CTF platform suitable for un
 
 The project follows a **layered architecture** with separation of concerns across four layers: Api, BusinessLayer, DataAccessLayer, and Domain.
 
-The system is built around three core entities:
+The system is built around four core entities:
 
 ### User
 
 | Field | Type | Description |
 |---|---|---|
 | Id | int | Primary key (auto-increment) |
-| UserName | string(35) | Display name |
+| Username | string(30) | Display name |
 | Email | string(50) | Login email |
 | PasswordHash | string | Hashed password |
-| Role | enum | `Guest`, `User`, `Admin`, `Owner` |
-| CurrentPoints | int | Accumulated score |
+| Role | UserRole | `Guest` (0), `User` (1), `Admin` (20), `Owner` (30) |
 | IsBanned | bool | Whether the user is banned |
 | RegisteredOn | datetime | Registration date |
+| TeamId | int? | Foreign key to Team (nullable) |
+| TeamRole | TeamRole? | `Member` (0), `Leader` (1) |
 
 ### Challenge
 
 | Field | Type | Description |
 |---|---|---|
 | Id | int | Primary key |
-| Title | string | Challenge name |
-| Description | string | Problem statement |
-| Points | int | Score value |
-| Category | string / enum | e.g. Web, Crypto, Pwn |
-| Flag | string | Correct answer (hidden from users) |
+| Name | string(50) | Challenge name |
+| Description | string(500) | Problem statement |
+| Category | ChallengeCategory | `Web`, `Pwn`, `Crypto`, `Reverse`, `Forensics`, `Misc`, `OSINT` |
+| Difficulty | ChallengeDifficulty | `Easy`, `Medium`, `Hard`, `Impossible` |
+| MinPoints | int | Minimum points after full decay (default: 50) |
+| MaxPoints | int | Starting points before any solves (default: 500) |
+| CurrentPoints | int | Current point value (recalculated on each solve) |
+| DecayRate | int | Controls how fast points decay (default: 30) |
+| FirstBloodBonus | int | Extra points for the first solver (default: 10) |
+| SolveCount | int | Number of correct submissions |
+| FlagHash | string | Hashed flag (never exposed to users) |
 | IsActive | bool | Whether the challenge is visible |
+| CreatedOn | datetime | Creation date |
 
 ### Submission
 
 | Field | Type | Description |
 |---|---|---|
 | Id | int | Primary key |
-| UserId | int | Reference to User |
-| ChallengeId | int | Reference to Challenge |
-| SubmittedFlag | string | The flag the user submitted |
+| UserId | int | Foreign key to User |
+| ChallengeId | int | Foreign key to Challenge |
+| Flag | string | The flag the user submitted |
 | IsCorrect | bool | Whether the submission was correct |
-| Timestamp | datetime | Time of submission (used for tiebreaking) |
+| CreatedOn | datetime | Time of submission (used for tiebreaking) |
 
-The core relationship: one **User** can have many **Submissions**, and one **Challenge** can have many **Submissions** (1 — *(N)* — 1).
+### Team
+
+| Field | Type | Description |
+|---|---|---|
+| Id | int | Primary key |
+| Name | string(25) | Team name (min 3 characters) |
+| InviteCode | string(12) | Auto-generated invite code |
+| CreatedOn | datetime | Creation date |
+| IsActive | bool | Whether the team is active |
+
+### Relationships
+
+- One **User** can have many **Submissions**, one **Challenge** can have many **Submissions**
+- One **Team** has many **Users** (members), a **User** belongs to at most one **Team**
 
 ---
 
@@ -125,7 +148,53 @@ The diagram below illustrates the three actor types and their allowed interactio
 
 ## UML Diagrams
 
-<!-- Insert your UML / class diagrams here -->
+### Component Diagram
+
+High-level view of the system's layered architecture and external dependencies.
+
+![Component Diagram](./images/Component_Arhitecture_UML.png)
+
+### Class Diagrams
+
+**Domain Entities** — core data models and their relationships.
+
+![Class Diagram — Entities](./images/Class_Entities_UML.png)
+
+**Data Access Layer** — EF Core context hierarchy and session management.
+
+![Class Diagram — DataAccessLayer](./images/Class_DataAccessLayer_UML.png)
+
+### Activity Diagrams
+
+**Challenge Submission Flow** — user journey from browsing to solving a challenge.
+
+![Activity — Challenge Submission](./images/Activity_Challenge_Submission_UML.png)
+
+**Admin Panel Flow** — admin authentication, role check, and management operations.
+
+![Activity — Admin Flow](./images/Activity_Admin_Flow_UML.png)
+
+### Sequence Diagrams
+
+**User Registration**
+
+![Sequence — Register](./images/Register_UML.png)
+
+**User Login**
+
+![Sequence — Login](./images/Login_UML.png)
+
+**Flag Submission**
+
+![Sequence — Send Flag](./images/Send_Flag_UML.png)
+
+**Admin Panel Operations**
+
+![Sequence — Admin Panel](./images/Sequence_Admin_Panel_UML.png)
+
+**Docker Container Startup**
+
+![Sequence — Start Docker](./images/Start_Docker_UML.png)
 
 ---
 
@@ -164,21 +233,31 @@ npm install
 ```
 
 By default the frontend runs with **mock data** so you can explore the UI without a backend.
-To connect to a real backend, create a `.env.local` file:
+
+To connect to a real backend, create a `.env.local` file **inside the `frontend/` folder** (next to `package.json`). You can copy the provided template and edit it:
 
 ```bash
-echo "VITE_USE_MOCK=false" > .env.local
+# from DotFlag/frontend
+cp .env.example .env.local
 ```
 
-Then start the dev server:
+Then set `VITE_USE_MOCK=false` in that file:
+
+```env
+VITE_USE_MOCK=false
+```
+
+Now start the dev server:
 
 ```bash
 npm run dev
 ```
 
+> **Note:** `.env.local` is git-ignored and will not be committed. Each developer must create their own copy locally.
+
 | Variable | Default | Description |
 |---|---|---|
-| `VITE_USE_MOCK` | `true` | Set to `false` to use the real API instead of mock data |
+| `VITE_USE_MOCK` | `true` (set in `.env.example`) | Set to `false` in `.env.local` to use the real API instead of mock data |
 
 ### Backend
 

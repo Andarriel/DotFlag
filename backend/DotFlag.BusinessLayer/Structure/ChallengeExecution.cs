@@ -11,14 +11,14 @@ public class ChallengeExecution : ChallengeActions, IChallengeActions
 {
     public ChallengeExecution(IMapper mapper) : base(mapper) { }
 
-    public ChallengeDto GetById(int id, UserRole role)
+    public ChallengeDto GetById(int id, UserRole role, int? userId = null)
     {
-        return GetByIdExecution(id, role);
+        return GetByIdExecution(id, role, userId);
     }
 
-    public List<ChallengeDto> GetAll(UserRole role)
+    public List<ChallengeDto> GetAll(UserRole role, int? userId = null)
     {
-        return GetAllExecution(role);
+        return GetAllExecution(role, userId);
     }
 
     public ActionResponse Create(CreateChallengeDto dto)

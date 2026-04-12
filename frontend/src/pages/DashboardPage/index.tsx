@@ -3,12 +3,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useAxios } from '../../context/AxiosContext';
 import { useChallenges } from '../../hooks/useChallenges';
 import { useLeaderboard } from '../../hooks/useLeaderboard';
-import { submissionService } from '../../services/submissionService';
-import { USE_MOCK } from '../../config';
 import { MOCK_RECENT_ACTIVITY } from '../../data/mockData';
 import StatsCards from './StatsCards';
 import RecommendedChallenges from './RecommendedChallenges';
 import RecentActivity from './RecentActivity';
+import { submissionService } from '../../services/submissionService';
+import { USE_MOCK } from '../../config';
 
 function timeAgo(timestamp: string) {
   const diff = Date.now() - new Date(timestamp).getTime();
@@ -25,10 +25,10 @@ export default function DashboardPage() {
   const api = useAxios();
   const { challenges } = useChallenges();
   const { currentUserRank } = useLeaderboard();
-  const [activities, setActivities] = useState(MOCK_RECENT_ACTIVITY);
-  const solvedChallenges = challenges.filter(c => c.isSolved);
   const recommendedChallenges = challenges.filter(c => !c.isSolved && c.isActive).slice(0, 3);
-
+  const solvedChallenges = challenges.filter(c => c.isSolved);
+  const [activities, setActivities] = useState(MOCK_RECENT_ACTIVITY);
+  
   useEffect(() => {
     if (USE_MOCK) return;
     submissionService.getMy(api).then(subs => {

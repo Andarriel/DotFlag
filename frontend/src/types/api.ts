@@ -83,6 +83,7 @@ export interface ApiChallenge {
   decayRate: number;
   firstBloodBonus: number;
   isActive: boolean;
+  isSolved: boolean;
   solveCount: number;
   createdOn: string;
 }

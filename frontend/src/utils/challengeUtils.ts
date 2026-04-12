@@ -1,4 +1,5 @@
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../types';
+import type { ComponentType, SVGProps } from 'react';
 import { Code, Lock, Globe, Shield, Search, FileText, Eye } from 'lucide-react';
 
 export const getDifficultyColor = (difficulty: ChallengeDifficulty): string => {
@@ -12,7 +13,7 @@ export const getDifficultyColor = (difficulty: ChallengeDifficulty): string => {
 };
 
 export const getCategoryIcon = (category: ChallengeCategory) => {
-  const icons: Record<ChallengeCategory, typeof Globe> = {
+  const icons: Record<ChallengeCategory, ComponentType<SVGProps<SVGSVGElement>>> = {
     Web: Globe,
     Crypto: Lock,
     Pwn: Code,
