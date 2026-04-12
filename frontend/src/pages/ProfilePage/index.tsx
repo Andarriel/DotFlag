@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { UserCircle, BarChart3, Flag, Users, Settings, type LucideIcon } from 'lucide-react';
+import { UserCircle, BarChart3, Flag, Users, Settings, type LucideIcon, ScrollText } from 'lucide-react';
 import EmptyState from '../../components/common/EmptyState';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileOverview from '../../components/profile/ProfileOverview';
@@ -18,16 +18,16 @@ interface TabConfig {
   ownerOnly?: boolean;
 }
 
-const TABS: TabConfig[] = [
-  { id: 'overview', label: 'Overview', icon: BarChart3 },
-  { id: 'flags', label: 'Flag History', icon: Flag },
-  { id: 'team', label: 'Team', icon: Users, ownerOnly: true },
-  { id: 'settings', label: 'Settings', icon: Settings, ownerOnly: true },
-];
-
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { profile, isOwnProfile, loading } = useProfile(Number(id));
+
+  const TABS: TabConfig[] = [
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
+    { id: 'flags', label: isOwnProfile ? 'Submissions' : 'Flag History', icon: isOwnProfile ? ScrollText : Flag },
+    { id: 'team', label: 'Team', icon: Users, ownerOnly: true },
+    { id: 'settings', label: 'Settings', icon: Settings, ownerOnly: true },
+  ];
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
 
   if (loading) {

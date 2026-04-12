@@ -180,25 +180,26 @@ export const MOCK_PROFILES: Profile[] = [
     id: 1, username: "Pavel_Admin", email: "admin@dotflag.md", role: "Admin", currentPoints: 1337, teamId: 1, teamName: "Cyber Elite",
     bio: "CTF enthusiast and platform administrator.", joinedAt: "2026-01-15T10:00:00Z",
     flagHistory: [
-      { challengeId: 1, challengeTitle: "Hello World", points: 100, solvedAt: "2026-02-01T12:00:00Z", category: "Web" },
-      { challengeId: 4, challengeTitle: "SQL Injection Lab", points: 250, solvedAt: "2026-02-03T15:30:00Z", category: "Web" },
-      { challengeId: 5, challengeTitle: "Caesar Cipher", points: 100, solvedAt: "2026-02-05T09:00:00Z", category: "Crypto" },
-      { challengeId: 2, challengeTitle: "Base64 Madness", points: 200, solvedAt: "2026-02-07T18:45:00Z", category: "Crypto" },
+      { challengeId: 1, challengeTitle: "Hello World", points: 100, solvedAt: "2026-02-01T12:00:00Z", category: "Web", isCorrect: true },
+      { challengeId: 4, challengeTitle: "SQL Injection Lab", points: 250, solvedAt: "2026-02-03T15:30:00Z", category: "Web", isCorrect: true },
+      { challengeId: 5, challengeTitle: "Caesar Cipher", points: 100, solvedAt: "2026-02-05T09:00:00Z", category: "Crypto", isCorrect: true },
+      { challengeId: 2, challengeTitle: "Base64 Madness", points: 0, solvedAt: "2026-02-06T14:20:00Z", category: "Crypto", isCorrect: false },
+      { challengeId: 2, challengeTitle: "Base64 Madness", points: 200, solvedAt: "2026-02-07T18:45:00Z", category: "Crypto", isCorrect: true },
     ],
   },
   {
     id: 2, username: "h4ck3r_pro", email: "hacker@dotflag.md", role: "User", currentPoints: 1200, teamId: 1, teamName: "Cyber Elite",
     bio: "Pwn all the things.", joinedAt: "2026-01-16T14:30:00Z",
     flagHistory: [
-      { challengeId: 3, challengeTitle: "Buffer Overflow 101", points: 300, solvedAt: "2026-02-02T20:00:00Z", category: "Pwn" },
-      { challengeId: 1, challengeTitle: "Hello World", points: 100, solvedAt: "2026-02-01T14:00:00Z", category: "Web" },
+      { challengeId: 3, challengeTitle: "Buffer Overflow 101", points: 300, solvedAt: "2026-02-02T20:00:00Z", category: "Pwn", isCorrect: true },
+      { challengeId: 1, challengeTitle: "Hello World", points: 100, solvedAt: "2026-02-01T14:00:00Z", category: "Web", isCorrect: true },
     ],
   },
   {
     id: 3, username: "cyber_ninja", email: "ninja@dotflag.md", role: "User", currentPoints: 1050, teamId: 2, teamName: "Script Kiddies",
     bio: "Stealthy pentester.", joinedAt: "2026-01-20T08:00:00Z",
     flagHistory: [
-      { challengeId: 5, challengeTitle: "Caesar Cipher", points: 100, solvedAt: "2026-02-04T11:00:00Z", category: "Crypto" },
+      { challengeId: 5, challengeTitle: "Caesar Cipher", points: 100, solvedAt: "2026-02-04T11:00:00Z", category: "Crypto", isCorrect: true },
     ],
   },
 ];

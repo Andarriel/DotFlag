@@ -24,4 +24,7 @@ export const challengeService = {
 
   submitFlag: (api: AxiosInstance, challengeId: number, flag: string) =>
     api.post<ActionResponse>(`/challenges/${challengeId}/submit`, { flag }).then(res => res.data),
+
+  getSubmissions: (api: AxiosInstance, challengeId: number) =>
+    api.get<{ id: number; userId: number; challengeId: number; isCorrect: boolean; timestamp: string }[]>(`/challenges/${challengeId}/submissions`).then(res => res.data),
 };

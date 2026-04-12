@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { MOCK_PROFILES } from '../data/mockData';
 import { userService } from '../services/userService';
+import { submissionService } from '../services/submissionService';
+import { challengeService } from '../services/challengeService';
 import { useAxios } from '../context/AxiosContext';
 import { useAuth } from '../context/AuthContext';
 import { USE_MOCK } from '../config';
-import type { Profile } from '../types';
+import type { Profile, FlagEntry } from '../types';
 
 function authToProfile(user: { id: number; email: string; username: string; role: string; currentPoints?: number }): Profile {
   return {
@@ -34,9 +36,32 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
   useEffect(() => {
     if (USE_MOCK) return;
 
+    const fetchFlagHistory = async (): Promise<FlagEntry[]> => {
+      try {
+        const [subs, challenges] = await Promise.all([
+          submissionService.getMy(api),
+          challengeService.getAll(api),
+        ]);
+        const challengeMap = new Map(challenges.map(c => [c.id, c]));
+        return subs.map(s => {
+            const ch = challengeMap.get(s.challengeId);
+            return {
+              challengeId: s.challengeId,
+              challengeTitle: s.challengeName,
+              points: s.isCorrect ? (ch?.currentPoints ?? 0) : 0,
+              solvedAt: s.timestamp,
+              category: (ch?.category as unknown as string ?? 'Misc') as FlagEntry['category'],
+              isCorrect: s.isCorrect,
+            };
+          });
+      } catch {
+        return [];
+      }
+    };
+
     if (isOwnProfile) {
-      userService.getMyProfile(api)
-        .then(apiUser => {
+      Promise.all([userService.getMyProfile(api), fetchFlagHistory()])
+        .then(([apiUser, flagHistory]) => {
           setProfile({
             id: apiUser.id,
             username: apiUser.username,
@@ -45,14 +70,19 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
             currentPoints: apiUser.currentPoints,
             bio: '',
             joinedAt: apiUser.registeredOn || new Date().toISOString(),
-            flagHistory: [],
+            flagHistory,
           });
         })
         .catch(() => {})
         .finally(() => setLoading(false));
     } else {
-      userService.getById(api, userId)
-        .then(publicUser => {
+      Promise.all([
+        userService.getById(api, userId),
+        submissionService.getByUser(api, userId).catch(() => []),
+        challengeService.getAll(api).catch(() => []),
+      ])
+        .then(([publicUser, subs, challenges]) => {
+          const challengeMap = new Map(challenges.map(c => [c.id, c]));
           setProfile({
             id: publicUser.id,
             username: publicUser.username,
@@ -61,7 +91,17 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
             currentPoints: publicUser.currentPoints,
             bio: '',
             joinedAt: publicUser.registeredOn || new Date().toISOString(),
-            flagHistory: [],
+            flagHistory: subs.map(s => {
+              const ch = challengeMap.get(s.challengeId);
+              return {
+                challengeId: s.challengeId,
+                challengeTitle: s.challengeName,
+                points: s.isCorrect ? (ch?.currentPoints ?? 0) : 0,
+                solvedAt: s.timestamp,
+                category: (ch?.category as unknown as string ?? 'Misc') as FlagEntry['category'],
+                isCorrect: s.isCorrect,
+              };
+            }),
           });
         })
         .catch(() => setProfile(null))

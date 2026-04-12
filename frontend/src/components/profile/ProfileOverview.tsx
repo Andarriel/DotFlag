@@ -14,23 +14,24 @@ function OverviewCard({ icon: Icon, color, bg, label, value }: { icon: typeof Tr
 }
 
 export default function ProfileOverview({ profile }: { profile: Profile }) {
-  const totalPoints = profile.flagHistory.reduce((sum, f) => sum + f.points, 0);
-  const categories = [...new Set(profile.flagHistory.map(f => f.category))];
+  const solves = profile.flagHistory.filter(f => f.isCorrect);
+  const totalPoints = solves.reduce((sum, f) => sum + f.points, 0);
+  const categories = [...new Set(solves.map(f => f.category))];
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <OverviewCard icon={Trophy} color="text-yellow-400" bg="bg-yellow-400/10" label="Rank" value="#1" />
         <OverviewCard icon={Zap} color="text-indigo-400" bg="bg-indigo-400/10" label="Total Points" value={totalPoints} />
-        <OverviewCard icon={Target} color="text-green-400" bg="bg-green-400/10" label="Flags Captured" value={profile.flagHistory.length} />
+        <OverviewCard icon={Target} color="text-green-400" bg="bg-green-400/10" label="Flags Captured" value={solves.length} />
         <OverviewCard icon={TrendingUp} color="text-purple-400" bg="bg-purple-400/10" label="Categories" value={categories.length} />
       </div>
 
       <div className="glass rounded-xl p-5 gradient-border">
         <h3 className="text-sm font-semibold text-slate-300 mb-4">Recent Solves</h3>
-        {profile.flagHistory.length > 0 ? (
+        {solves.length > 0 ? (
           <div className="space-y-2">
-            {profile.flagHistory.slice(0, 3).map(flag => (
+            {solves.slice(0, 5).map(flag => (
               <div key={flag.challengeId} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-green-400" />
