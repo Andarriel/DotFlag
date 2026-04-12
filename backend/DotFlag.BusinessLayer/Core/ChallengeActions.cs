@@ -16,7 +16,7 @@ namespace DotFlag.BusinessLayer.Core
             _mapper = mapper;
         }
 
-        protected ChallengeDto GetByIdExecution(int id, UserRole role)
+        protected ChallengeDto GetByIdExecution(int id, UserRole role, int? userId = null)
         {
             using var context = new AppDbContext();
 
@@ -28,10 +28,18 @@ namespace DotFlag.BusinessLayer.Core
             if (challenge == null)
                 return null;
 
-            return _mapper.Map<ChallengeDto>(challenge);
+            var dto =  _mapper.Map<ChallengeDto>(challenge);
+
+            if (userId.HasValue)
+            {
+                dto.IsSolved = context.Submissions
+                    .Any(s => s.UserId == userId.Value && s.ChallengeId == id && s.IsCorrect);
+            }
+
+            return dto;
         }
 
-        protected List<ChallengeDto> GetAllExecution(UserRole role)
+        protected List<ChallengeDto> GetAllExecution(UserRole role, int? userId = null)
         {
             using var context = new AppDbContext();
 
@@ -41,7 +49,19 @@ namespace DotFlag.BusinessLayer.Core
                 .Where(c => includeInactive || c.IsActive)
                 .ToList();
 
-            return _mapper.Map<List<ChallengeDto>>(challenges);
+            var dtos = _mapper.Map<List<ChallengeDto>>(challenges);
+
+            if (userId.HasValue)
+            {
+                var solvedIds = context.Submissions
+                    .Where(s => s.UserId == userId.Value && s.IsCorrect)
+                    .Select(s => s.ChallengeId)
+                    .ToHashSet();
+                foreach (var dto in dtos)
+                    dto.IsSolved = solvedIds.Contains(dto.Id);
+            }
+
+            return dtos;
         }
 
         protected ActionResponse CreateExecution(CreateChallengeDto dto) 

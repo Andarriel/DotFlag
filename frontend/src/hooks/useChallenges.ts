@@ -21,7 +21,7 @@ function mapChallenge(api: ApiChallenge): Challenge {
     category: (api.category as unknown as string) as ChallengeCategory,
     difficulty: DIFFICULTY_MAP[api.difficulty as unknown as string] ?? 'Medium',
     isActive: api.isActive,
-    isSolved: false,
+    isSolved: api.isSolved,
   };
 }
 
