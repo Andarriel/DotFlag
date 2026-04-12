@@ -1,5 +1,6 @@
 import { ShieldCheck, ShieldOff, Ban, LogOut, UserPlus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import StatusBadge from '../common/StatusBadge';
 import Modal from '../common/Modal';
 import { useAdminContext } from '../../context/AdminContext';
@@ -14,15 +15,15 @@ function UserRow({ user, onToggleBan, onKick, onPromote, onDemote, onDelete }: {
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
-        <div className="flex items-center gap-3">
+        <Link to={`/profile/${user.id}`} className="flex items-center gap-3 group">
           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xs">{user.username.charAt(0).toUpperCase()}</span>
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">{user.username}</p>
+            <p className="text-sm font-semibold text-white group-hover:text-indigo-400 transition">{user.username}</p>
             <p className="text-[11px] text-slate-600">{user.email}</p>
           </div>
-        </div>
+        </Link>
       </td>
       <td className="px-4 py-3">
         <span className="text-[11px] font-medium text-slate-400 bg-slate-800/50 border border-white/[0.04] px-2 py-0.5 rounded-md">{user.role}</span>
