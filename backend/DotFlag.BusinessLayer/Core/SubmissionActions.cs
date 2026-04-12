@@ -2,6 +2,7 @@
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Models.Responses;
+using DotFlag.Domain.Models.Submission;
 
 namespace DotFlag.BusinessLayer.Core
 {
@@ -58,6 +59,26 @@ namespace DotFlag.BusinessLayer.Core
 
             return new ActionResponse { IsSuccess = isCorrect, Message = isCorrect ? "Correct flag!" : "Incorrect Flag!" };
 
+        }
+
+        protected List<SubmissionDto> GetByChallengeExecution(int challengeId, int userId)
+        {
+            using var context = new AppDbContext();
+
+            var submissions = context.Submissions
+                .Where(s => s.ChallengeId == challengeId && s.UserId == userId)
+                .OrderByDescending(s => s.CreatedOn)
+                .Select(s => new SubmissionDto
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    ChallengeId = s.ChallengeId,
+                    IsCorrect = s.IsCorrect,
+                    Timestamp = s.CreatedOn
+                })
+                .ToList();
+
+            return submissions;
         }
 
     }
