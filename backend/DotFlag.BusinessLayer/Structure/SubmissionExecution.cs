@@ -19,4 +19,14 @@ public class SubmissionExecution : SubmissionActions, ISubmissionActions
     {
         return GetByChallengeExecution(challengeId, userId);
     }
+
+    public List<SubmissionDto> GetRecent(int count)
+    {
+        return GetRecentExecution(count);
+    }
+
+    public List<SubmissionDto> GetByUser(int userId)
+    {
+        return GetByUserExecution(userId);
+    }
 }

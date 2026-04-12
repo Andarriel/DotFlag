@@ -7,5 +7,7 @@ namespace DotFlag.BusinessLayer.Interfaces
     {
         ActionResponse SubmitFlag(int challengeId, int userId, string flag);
         List<SubmissionDto> GetByChallenge(int challengeId, int userId);
+        List<SubmissionDto> GetRecent(int count);
+        List<SubmissionDto> GetByUser(int userId);
     }
 }
