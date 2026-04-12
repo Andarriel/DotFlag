@@ -4,7 +4,7 @@ import { ROUTES } from '../../router/paths';
 
 export default function HeroSection() {
   return (
-    <div className="relative isolate overflow-x-hidden pt-16 sm:pt-20 pb-20 sm:pb-28">
+    <div className="relative isolate overflow-hidden pt-16 sm:pt-20 pb-20 sm:pb-28">
       <div className="absolute top-0 left-1/2 -z-10 w-[80rem] -translate-x-1/2 -translate-y-1/3 opacity-15 pointer-events-none">
         <div className="aspect-square w-full bg-gradient-to-tr from-indigo-600 via-purple-500 to-indigo-400 rounded-full blur-3xl" />
       </div>

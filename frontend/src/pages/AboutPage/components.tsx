@@ -1,63 +1,49 @@
 import { useState, useEffect } from 'react';
-import { Server, Database, Shield, Activity, Github, Layout, Code, Cpu, Palette } from 'lucide-react';
+import { Server, Database, Activity, Github, Layout, Code, Palette, Container } from 'lucide-react';
+
+interface SystemInfo {
+  name: string;
+  icon: typeof Server;
+  ping: string;
+  online: boolean;
+}
 
 export function SystemStatus() {
-  const [heartbeat, setHeartbeat] = useState<number | null>(null);
-  const [isOnline, setIsOnline] = useState(false);
-  const [dbeat, setDbHeartbeat] = useState<number | null>(null);
-  const [dBstatus, setDbOnline] = useState(false);
+  const [systems, setSystems] = useState<SystemInfo[]>([
+    { name: 'API Server', icon: Server, ping: '-', online: false },
+    { name: 'Database', icon: Database, ping: '-', online: false },
+    { name: 'Containers', icon: Container, ping: '-', online: false },
+  ]);
 
   useEffect(() => {
-    const checkHeartbeat = async () => {
-      const start = performance.now();
+    const check = async () => {
+      const results: SystemInfo[] = [];
+
+      const apiStart = performance.now();
       try {
-        const res = await fetch('/api/auth/heartbeat', { cache: 'no-store' });
-        const res2 = await fetch('/api/auth/heartbeat-db', { cache: 'no-store' });
-
-        if (res.ok || res.status === 401) {
-          const end = performance.now();
-          setHeartbeat(Math.round(end - start));
-          setIsOnline(true);
-        } else {
-          setHeartbeat(null);
-          setIsOnline(false);
-        }
-
-        if (res2.ok || res2.status === 401) {
-          const end2 = performance.now();
-          setDbHeartbeat(Math.round(end2 - start));
-          setDbOnline(true);
-        } else {
-          setDbHeartbeat(null);
-          setDbOnline(false);
-        }
+        const res = await fetch('/api/health', { cache: 'no-store' });
+        const apiPing = Math.round(performance.now() - apiStart);
+        results.push({ name: 'API Server', icon: Server, ping: `${apiPing}ms`, online: res.ok });
       } catch {
-        setHeartbeat(null);
-        setIsOnline(false);
-        setDbHeartbeat(null);
-        setDbOnline(false);
+        results.push({ name: 'API Server', icon: Server, ping: '-', online: false });
       }
+
+      const dbStart = performance.now();
+      try {
+        const res = await fetch('/api/health/db', { cache: 'no-store' });
+        const dbPing = Math.round(performance.now() - dbStart);
+        results.push({ name: 'Database', icon: Database, ping: `${dbPing}ms`, online: res.ok });
+      } catch {
+        results.push({ name: 'Database', icon: Database, ping: '-', online: false });
+      }
+
+      results.push({ name: 'Containers', icon: Container, ping: '-', online: false });
+
+      setSystems(results);
     };
 
-    checkHeartbeat();
-    const interval = setInterval(checkHeartbeat, 10000);
-    return () => clearInterval(interval);
+    check();
   }, []);
-
-  const pingText = heartbeat ? `${heartbeat}ms` : '-';
-  const dbText = dbeat ? `${dbeat}ms` : '-';
-  const statusText = isOnline ? 'Operational' : 'Offline';
-  const statusColor = isOnline
-    ? 'bg-green-400/10 text-green-400 border-green-500/15'
-    : 'bg-red-400/10 text-red-400 border-red-500/15';
-  const randText = Math.floor(Math.random() * 51);
-
-  const systems = [
-    { name: 'API Gateway', ping: pingText, icon: Server },
-    { name: 'Database', ping: dbText, icon: Database },
-    { name: 'Containers', ping: `${randText} Active`, icon: Shield },
-    { name: 'Core Engine', ping: pingText, icon: Activity },
-  ];
 
   return (
     <div className="glass rounded-2xl p-6 sm:p-8 mb-8 gradient-border noise animate-fade-in-up">
@@ -65,20 +51,25 @@ export function SystemStatus() {
         <Activity className="w-5 h-5 text-green-400" /> System Status
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {systems.map((sys) => (
-          <div key={sys.name} className="flex items-center justify-between p-3.5 glass rounded-xl">
-            <div className="flex items-center gap-3">
-              <sys.icon className="h-4 w-4 text-indigo-400" />
-              <span className="text-sm text-slate-300 font-medium">{sys.name}</span>
+        {systems.map((sys) => {
+          const statusColor = sys.online
+            ? 'bg-green-400/10 text-green-400 border-green-500/15'
+            : 'bg-red-400/10 text-red-400 border-red-500/15';
+          return (
+            <div key={sys.name} className="flex items-center justify-between p-3.5 glass rounded-xl">
+              <div className="flex items-center gap-3">
+                <sys.icon className="h-4 w-4 text-indigo-400" />
+                <span className="text-sm text-slate-300 font-medium">{sys.name}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] text-slate-600">{sys.ping}</span>
+                <span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md border ${statusColor}`}>
+                  {sys.online ? 'Operational' : 'Offline'}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] text-slate-600">{sys.ping}</span>
-              <span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md border ${statusColor}`}>
-                {statusText}
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
