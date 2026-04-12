@@ -180,10 +180,11 @@ export const MOCK_PROFILES: Profile[] = [
     id: 1, username: "Pavel_Admin", email: "admin@dotflag.md", role: "Admin", currentPoints: 1337, teamId: 1, teamName: "Cyber Elite",
     bio: "CTF enthusiast and platform administrator.", joinedAt: "2026-01-15T10:00:00Z",
     flagHistory: [
-      { challengeId: 1, challengeTitle: "Hello World", points: 100, solvedAt: "2026-02-01T12:00:00Z", category: "Web", isCorrect: true },
+      { challengeId: 1, challengeTitle: "Hello World", points: 100, solvedAt: "2026-02-01T12:00:00Z", category: "Web", isCorrect: true, isFirstBlood: true },
       { challengeId: 4, challengeTitle: "SQL Injection Lab", points: 250, solvedAt: "2026-02-03T15:30:00Z", category: "Web", isCorrect: true },
-      { challengeId: 5, challengeTitle: "Caesar Cipher", points: 100, solvedAt: "2026-02-05T09:00:00Z", category: "Crypto", isCorrect: true },
+      { challengeId: 5, challengeTitle: "Caesar Cipher", points: 100, solvedAt: "2026-02-05T09:00:00Z", category: "Crypto", isCorrect: true, isFirstBlood: true },
       { challengeId: 2, challengeTitle: "Base64 Madness", points: 0, solvedAt: "2026-02-06T14:20:00Z", category: "Crypto", isCorrect: false },
+      { challengeId: 2, challengeTitle: "Base64 Madness", points: 0, solvedAt: "2026-02-06T16:45:00Z", category: "Crypto", isCorrect: false },
       { challengeId: 2, challengeTitle: "Base64 Madness", points: 200, solvedAt: "2026-02-07T18:45:00Z", category: "Crypto", isCorrect: true },
     ],
   },
@@ -191,7 +192,7 @@ export const MOCK_PROFILES: Profile[] = [
     id: 2, username: "h4ck3r_pro", email: "hacker@dotflag.md", role: "User", currentPoints: 1200, teamId: 1, teamName: "Cyber Elite",
     bio: "Pwn all the things.", joinedAt: "2026-01-16T14:30:00Z",
     flagHistory: [
-      { challengeId: 3, challengeTitle: "Buffer Overflow 101", points: 300, solvedAt: "2026-02-02T20:00:00Z", category: "Pwn", isCorrect: true },
+      { challengeId: 3, challengeTitle: "Buffer Overflow 101", points: 300, solvedAt: "2026-02-02T20:00:00Z", category: "Pwn", isCorrect: true, isFirstBlood: true },
       { challengeId: 1, challengeTitle: "Hello World", points: 100, solvedAt: "2026-02-01T14:00:00Z", category: "Web", isCorrect: true },
     ],
   },
@@ -207,9 +208,12 @@ export const MOCK_PROFILES: Profile[] = [
 // ── Recent Activity (for Dashboard) ──
 
 export const MOCK_RECENT_ACTIVITY = [
-  { action: 'Solved' as const, challenge: 'SQL Injection Lab', points: 250, time: '2h ago' },
-  { action: 'Solved' as const, challenge: 'Caesar Cipher', points: 100, time: '1d ago' },
-  { action: 'Attempted' as const, challenge: 'Buffer Overflow 101', points: 0, time: '2d ago' },
+  { username: 'h4ck3r_pro', challenge: 'Buffer Overflow 101', points: 300, time: '12m ago', isFirstBlood: true, category: 'Pwn' as const },
+  { username: 'Pavel_Admin', challenge: 'SQL Injection Lab', points: 250, time: '2h ago', isFirstBlood: false, category: 'Web' as const },
+  { username: 'cyber_ninja', challenge: 'Caesar Cipher', points: 100, time: '3h ago', isFirstBlood: false, category: 'Crypto' as const },
+  { username: 'pwn_master', challenge: 'Docker Escape', points: 400, time: '5h ago', isFirstBlood: true, category: 'Pwn' as const },
+  { username: 'web_wizard', challenge: 'Hello World', points: 100, time: '8h ago', isFirstBlood: false, category: 'Web' as const },
+  { username: 'forensic_fox', challenge: 'Packet Capture', points: 150, time: '1d ago', isFirstBlood: false, category: 'Forensics' as const },
 ];
 
 // ── Team Progress (for Chart) ──

@@ -7,6 +7,7 @@ import { MOCK_RECENT_ACTIVITY } from '../../data/mockData';
 import StatsCards from './StatsCards';
 import RecommendedChallenges from './RecommendedChallenges';
 import RecentActivity from './RecentActivity';
+import type { GlobalActivityItem } from './RecentActivity';
 import { submissionService } from '../../services/submissionService';
 import { USE_MOCK } from '../../config';
 
@@ -27,17 +28,23 @@ export default function DashboardPage() {
   const { currentUserRank } = useLeaderboard();
   const recommendedChallenges = challenges.filter(c => !c.isSolved && c.isActive).slice(0, 3);
   const solvedChallenges = challenges.filter(c => c.isSolved);
-  const [activities, setActivities] = useState(MOCK_RECENT_ACTIVITY);
-  
+  const activeChallenges = challenges.filter(c => c.isActive);
+  const [activities, setActivities] = useState<GlobalActivityItem[]>(MOCK_RECENT_ACTIVITY);
+
   useEffect(() => {
     if (USE_MOCK) return;
-    submissionService.getMy(api).then(subs => {
-      setActivities(subs.slice(0, 10).map(s => ({
-        action: (s.isCorrect ? 'Solved' : 'Attempted') as 'Solved' | 'Attempted',
-        challenge: s.challengeName,
-        points: s.isCorrect ? (challenges.find(c => c.id === s.challengeId)?.points ?? 0) : 0,
-        time: timeAgo(s.timestamp),
-      })));
+    submissionService.getRecent(api, 10).then(subs => {
+      setActivities(subs.map(s => {
+        const ch = challenges.find(c => c.id === s.challengeId);
+        return {
+          username: s.username,
+          challenge: s.challengeName,
+          points: ch?.points ?? 0,
+          time: timeAgo(s.timestamp),
+          isFirstBlood: false, // TODO: backend needs to provide this
+          category: (ch?.category as string) ?? 'Misc',
+        };
+      }));
     }).catch(() => {});
   }, [api, challenges]);
 
@@ -55,7 +62,7 @@ export default function DashboardPage() {
           rank={currentUserRank?.rank || 0}
           points={solvedChallenges.reduce((sum, c) => sum + c.points, 0)}
           solved={solvedChallenges.length}
-          weeklyProgress={0}
+          totalChallenges={activeChallenges.length}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

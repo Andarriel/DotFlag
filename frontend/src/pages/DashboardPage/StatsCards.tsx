@@ -1,4 +1,4 @@
-import { Trophy, Zap, Target, TrendingUp, type LucideIcon } from 'lucide-react';
+import { Trophy, Zap, Target, Swords, type LucideIcon } from 'lucide-react';
 
 interface StatCardConfig {
   icon: LucideIcon;
@@ -24,15 +24,15 @@ interface StatsCardsProps {
   rank: number;
   points: number;
   solved: number;
-  weeklyProgress: number;
+  totalChallenges: number;
 }
 
-export default function StatsCards({ rank, points, solved, weeklyProgress }: StatsCardsProps) {
+export default function StatsCards({ rank, points, solved, totalChallenges }: StatsCardsProps) {
   const cards: StatCardConfig[] = [
-    { icon: Trophy, color: 'text-yellow-400', bg: 'bg-yellow-400/10', label: 'Your Rank', value: `#${rank}` },
+    { icon: Trophy, color: 'text-yellow-400', bg: 'bg-yellow-400/10', label: 'Your Rank', value: rank > 0 ? `#${rank}` : '—' },
     { icon: Zap, color: 'text-indigo-400', bg: 'bg-indigo-400/10', label: 'Total Points', value: points },
-    { icon: Target, color: 'text-green-400', bg: 'bg-green-400/10', label: 'Challenges Solved', value: solved },
-    { icon: TrendingUp, color: 'text-purple-400', bg: 'bg-purple-400/10', label: 'This Week', value: `+${weeklyProgress}` },
+    { icon: Target, color: 'text-green-400', bg: 'bg-green-400/10', label: 'Solved', value: `${solved}/${totalChallenges}` },
+    { icon: Swords, color: 'text-purple-400', bg: 'bg-purple-400/10', label: 'Completion', value: totalChallenges > 0 ? `${Math.round((solved / totalChallenges) * 100)}%` : '0%' },
   ];
 
   return (

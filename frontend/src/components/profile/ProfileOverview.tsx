@@ -1,7 +1,19 @@
-import { Trophy, Target, Zap, TrendingUp } from 'lucide-react';
-import type { Profile } from '../../types';
+import { Trophy, Target, Zap, Flame, Flag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { formatTimeAgo } from '../../utils/leaderboardUtils';
+import type { Profile, ChallengeCategory } from '../../types';
 
-function OverviewCard({ icon: Icon, color, bg, label, value }: { icon: typeof Trophy; color: string; bg: string; label: string; value: string | number }) {
+const CATEGORY_COLORS: Record<string, { bg: string; text: string; bar: string }> = {
+  Web:       { bg: 'bg-blue-500/10',   text: 'text-blue-400',   bar: 'bg-blue-500' },
+  Crypto:    { bg: 'bg-yellow-500/10',  text: 'text-yellow-400', bar: 'bg-yellow-500' },
+  Pwn:       { bg: 'bg-red-500/10',     text: 'text-red-400',    bar: 'bg-red-500' },
+  Reverse:   { bg: 'bg-purple-500/10',  text: 'text-purple-400', bar: 'bg-purple-500' },
+  Forensics: { bg: 'bg-emerald-500/10', text: 'text-emerald-400',bar: 'bg-emerald-500' },
+  Misc:      { bg: 'bg-slate-500/10',   text: 'text-slate-400',  bar: 'bg-slate-500' },
+  OSINT:     { bg: 'bg-cyan-500/10',    text: 'text-cyan-400',   bar: 'bg-cyan-500' },
+};
+
+function StatCard({ icon: Icon, color, bg, label, value }: { icon: typeof Trophy; color: string; bg: string; label: string; value: string | number }) {
   return (
     <div className="glass rounded-xl p-4 gradient-border group hover:bg-slate-800/40 transition-all">
       <div className={`w-9 h-9 ${bg} rounded-lg flex items-center justify-center mb-3`}>
@@ -14,33 +26,95 @@ function OverviewCard({ icon: Icon, color, bg, label, value }: { icon: typeof Tr
 }
 
 export default function ProfileOverview({ profile }: { profile: Profile }) {
+  const navigate = useNavigate();
   const solves = profile.flagHistory.filter(f => f.isCorrect);
   const totalPoints = solves.reduce((sum, f) => sum + f.points, 0);
-  const categories = [...new Set(solves.map(f => f.category))];
+  const firstBloods = solves.filter(f => f.isFirstBlood);
+
+  // Category breakdown
+  const categoryMap = new Map<ChallengeCategory, { count: number; points: number }>();
+  for (const s of solves) {
+    const existing = categoryMap.get(s.category) ?? { count: 0, points: 0 };
+    categoryMap.set(s.category, { count: existing.count + 1, points: existing.points + s.points });
+  }
+  const categories = [...categoryMap.entries()]
+    .sort((a, b) => b[1].points - a[1].points);
+  const maxCategoryPoints = categories.length > 0 ? categories[0][1].points : 1;
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <OverviewCard icon={Trophy} color="text-yellow-400" bg="bg-yellow-400/10" label="Rank" value="#1" />
-        <OverviewCard icon={Zap} color="text-indigo-400" bg="bg-indigo-400/10" label="Total Points" value={totalPoints} />
-        <OverviewCard icon={Target} color="text-green-400" bg="bg-green-400/10" label="Flags Captured" value={solves.length} />
-        <OverviewCard icon={TrendingUp} color="text-purple-400" bg="bg-purple-400/10" label="Categories" value={categories.length} />
+        <StatCard icon={Trophy} color="text-yellow-400" bg="bg-yellow-400/10" label="Total Points" value={totalPoints} />
+        <StatCard icon={Target} color="text-green-400" bg="bg-green-400/10" label="Flags Captured" value={solves.length} />
+        <StatCard icon={Flame} color="text-red-400" bg="bg-red-400/10" label="First Bloods" value={firstBloods.length} />
+        <StatCard icon={Zap} color="text-purple-400" bg="bg-purple-400/10" label="Categories" value={categories.length} />
       </div>
 
-      <div className="glass rounded-xl p-5 gradient-border">
-        <h3 className="text-sm font-semibold text-slate-300 mb-4">Recent Solves</h3>
-        {solves.length > 0 ? (
-          <div className="space-y-2">
-            {solves.slice(0, 5).map(flag => (
-              <div key={flag.challengeId} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-green-400" />
-                  <span className="text-sm text-white">{flag.challengeTitle}</span>
-                  <span className="text-[11px] text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded">{flag.category}</span>
+      {/* Category breakdown */}
+      {categories.length > 0 && (
+        <div className="glass rounded-xl p-5 gradient-border">
+          <h3 className="text-sm font-semibold text-slate-300 mb-4">Category Breakdown</h3>
+          <div className="space-y-3">
+            {categories.map(([cat, data]) => {
+              const colors = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Misc;
+              const pct = Math.round((data.points / maxCategoryPoints) * 100);
+              return (
+                <div key={cat}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-medium ${colors.text}`}>{cat}</span>
+                      <span className="text-[11px] text-slate-600">{data.count} solve{data.count !== 1 ? 's' : ''}</span>
+                    </div>
+                    <span className="text-xs font-semibold text-slate-400">{data.points} pts</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden">
+                    <div className={`h-full ${colors.bar} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
+                  </div>
                 </div>
-                <span className="text-sm font-semibold text-indigo-400">+{flag.points}</span>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Recent solves */}
+      <div className="glass rounded-xl p-5 gradient-border">
+        <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+          <Flag className="w-3.5 h-3.5" />
+          Recent Solves
+        </h3>
+        {solves.length > 0 ? (
+          <div className="space-y-1">
+            {solves.slice(0, 5).map(flag => {
+              const colors = CATEGORY_COLORS[flag.category] ?? CATEGORY_COLORS.Misc;
+              return (
+                <div
+                  key={flag.challengeId + flag.solvedAt}
+                  onClick={() => navigate(`/challenges?open=${flag.challengeId}`)}
+                  className={`relative flex items-center justify-between py-2.5 px-3 rounded-lg cursor-pointer transition-all ${
+                    flag.isFirstBlood
+                      ? 'bg-gradient-to-r from-red-500/10 via-orange-500/5 to-transparent border border-red-500/10 hover:border-red-500/25'
+                      : 'hover:bg-slate-800/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-sm text-white font-medium truncate">{flag.challengeTitle}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${colors.bg} ${colors.text}`}>{flag.category}</span>
+                    {flag.isFirstBlood && (
+                      <span className="flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-wider text-red-400">
+                        <Flame className="w-3 h-3" />
+                        1st
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 ml-3">
+                    <span className="text-[11px] text-slate-600">{formatTimeAgo(flag.solvedAt)}</span>
+                    <span className="text-sm font-semibold text-indigo-400">+{flag.points}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p className="text-sm text-slate-500 text-center py-4">No challenges solved yet</p>

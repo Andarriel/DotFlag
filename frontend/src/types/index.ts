@@ -94,6 +94,7 @@ export interface FlagEntry {
   solvedAt: string;
   category: ChallengeCategory;
   isCorrect: boolean;
+  isFirstBlood?: boolean;
 }
 
 export interface Profile extends User {

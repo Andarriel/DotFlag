@@ -4,12 +4,13 @@ import { UserCircle, BarChart3, Flag, Users, Settings, type LucideIcon, ScrollTe
 import EmptyState from '../../components/common/EmptyState';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileOverview from '../../components/profile/ProfileOverview';
+import SolvesList from '../../components/profile/SolvesList';
 import FlagHistory from '../../components/profile/FlagHistory';
 import ProfileTeamTab from '../../components/profile/ProfileTeamTab';
 import ProfileSettings from '../../components/profile/ProfileSettings';
 import { useProfile } from '../../hooks/useProfile';
 
-type ProfileTab = 'overview' | 'flags' | 'submissions' | 'team' | 'settings';
+type ProfileTab = 'overview' | 'solves' | 'submissions' | 'team' | 'settings';
 
 interface TabConfig {
   id: ProfileTab;
@@ -24,10 +25,10 @@ export default function ProfilePage() {
 
   const TABS: TabConfig[] = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'flags', label: 'Flag History', icon: Flag },
+    { id: 'solves', label: 'Solves', icon: Flag },
     ...(isOwnProfile ? [{ id: 'submissions' as ProfileTab, label: 'Submissions', icon: ScrollText, ownerOnly: true }] : []),
-    { id: 'team', label: 'Team', icon: Users, ownerOnly: true },
-    { id: 'settings', label: 'Settings', icon: Settings, ownerOnly: true },
+    { id: 'team', label: 'Team', icon: Users },
+    ...(isOwnProfile ? [{ id: 'settings' as ProfileTab, label: 'Settings', icon: Settings, ownerOnly: true }] : []),
   ];
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
 
@@ -80,8 +81,8 @@ export default function ProfilePage() {
         </div>
 
         {activeTab === 'overview' && <ProfileOverview profile={profile} />}
-        {activeTab === 'flags' && <FlagHistory history={profile.flagHistory.filter(f => f.isCorrect)} />}
-        {activeTab === 'submissions' && <FlagHistory history={profile.flagHistory} />}
+        {activeTab === 'solves' && <SolvesList history={profile.flagHistory} />}
+        {activeTab === 'submissions' && isOwnProfile && <FlagHistory history={profile.flagHistory} />}
         {activeTab === 'team' && <ProfileTeamTab />}
         {activeTab === 'settings' && isOwnProfile && <ProfileSettings />}
       </div>
