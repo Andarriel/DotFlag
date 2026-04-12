@@ -13,12 +13,12 @@ public class ChallengeExecution : ChallengeActions, IChallengeActions
 
     public ChallengeDto GetById(int id, UserRole role, int? userId = null)
     {
-        return GetByIdExecution(id, role);
+        return GetByIdExecution(id, role, userId);
     }
 
     public List<ChallengeDto> GetAll(UserRole role, int? userId = null)
     {
-        return GetAllExecution(role);
+        return GetAllExecution(role, userId);
     }
 
     public ActionResponse Create(CreateChallengeDto dto)

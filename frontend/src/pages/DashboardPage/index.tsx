@@ -1,5 +1,6 @@
 import { useAuth } from '../../context/AuthContext';
 import { useChallenges } from '../../hooks/useChallenges';
+import { useLeaderboard } from '../../hooks/useLeaderboard';
 import { MOCK_RECENT_ACTIVITY } from '../../data/mockData';
 import StatsCards from './StatsCards';
 import RecommendedChallenges from './RecommendedChallenges';
@@ -8,7 +9,9 @@ import RecentActivity from './RecentActivity';
 export default function DashboardPage() {
   const { user } = useAuth();
   const { challenges } = useChallenges();
+  const { currentUserRank } = useLeaderboard();
   const recommendedChallenges = challenges.filter(c => !c.isSolved && c.isActive).slice(0, 3);
+  const solvedChallenges = challenges.filter(c => c.isSolved);
 
   return (
     <div className="min-h-screen bg-slate-950 pt-24 pb-12">
@@ -21,9 +24,9 @@ export default function DashboardPage() {
         </div>
 
         <StatsCards
-          rank={0}
-          points={user?.currentPoints || 0}
-          solved={challenges.filter(c => c.isSolved).length}
+          rank={currentUserRank?.rank || 0}
+          points={solvedChallenges.reduce((sum, c) => sum + c.points, 0)}
+          solved={solvedChallenges.length}
           weeklyProgress={0}
         />
 

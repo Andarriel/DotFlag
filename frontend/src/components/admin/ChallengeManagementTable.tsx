@@ -53,17 +53,17 @@ type FormState = {
   description: string;
   category: ChallengeCategory;
   difficulty: ChallengeDifficulty;
-  minPoints: number;
-  maxPoints: number;
-  decayRate: number;
-  firstBloodBonus: number;
+  minPoints: string;
+  maxPoints: string;
+  decayRate: string;
+  firstBloodBonus: string;
   flag: string;
 };
 
 const INITIAL_FORM: FormState = {
   name: '', description: '', category: 'Web',
   difficulty: 'Easy',
-  minPoints: 50, maxPoints: 500, decayRate: 30, firstBloodBonus: 10, flag: '',
+  minPoints: '50', maxPoints: '500', decayRate: '30', firstBloodBonus: '10', flag: '',
 };
 
 export default function ChallengeManagementTable() {
@@ -87,10 +87,10 @@ export default function ChallengeManagementTable() {
       description: challenge.description,
       category: challenge.category,
       difficulty: challenge.difficulty,
-      minPoints: 0,
-      maxPoints: 0,
-      decayRate: 0,
-      firstBloodBonus: 0,
+      minPoints: '',
+      maxPoints: '',
+      decayRate: '',
+      firstBloodBonus: '',
       flag: '',
     });
     setShowModal(true);
@@ -99,10 +99,10 @@ export default function ChallengeManagementTable() {
       const full = await challengeService.getById(api, challenge.id);
       setForm(f => ({
         ...f,
-        minPoints: full.minPoints,
-        maxPoints: full.maxPoints,
-        decayRate: full.decayRate,
-        firstBloodBonus: full.firstBloodBonus,
+        minPoints: String(full.minPoints),
+        maxPoints: String(full.maxPoints),
+        decayRate: String(full.decayRate),
+        firstBloodBonus: String(full.firstBloodBonus),
       }));
     } catch {}
     setLoadingEdit(false);
@@ -116,10 +116,10 @@ export default function ChallengeManagementTable() {
         description: form.description,
         category: CATEGORIES.indexOf(form.category),
         difficulty: DIFFICULTIES.indexOf(form.difficulty),
-        minPoints: form.minPoints,
-        maxPoints: form.maxPoints,
-        decayRate: form.decayRate,
-        firstBloodBonus: form.firstBloodBonus,
+        minPoints: +form.minPoints || 0,
+        maxPoints: +form.maxPoints || 0,
+        decayRate: +form.decayRate || 0,
+        firstBloodBonus: +form.firstBloodBonus || 0,
         flag: form.flag,
         isActive: challenges.find(c => c.id === editingId)?.isActive ?? true,
       });
@@ -130,10 +130,10 @@ export default function ChallengeManagementTable() {
         description: form.description,
         category: CATEGORIES.indexOf(form.category),
         difficulty: DIFFICULTIES.indexOf(form.difficulty),
-        minPoints: form.minPoints,
-        maxPoints: form.maxPoints,
-        decayRate: form.decayRate,
-        firstBloodBonus: form.firstBloodBonus,
+        minPoints: +form.minPoints || 0,
+        maxPoints: +form.maxPoints || 0,
+        decayRate: +form.decayRate || 0,
+        firstBloodBonus: +form.firstBloodBonus || 0,
         flag: form.flag,
       });
     }
@@ -205,24 +205,24 @@ export default function ChallengeManagementTable() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Min Points</label>
-              <input type="number" value={form.minPoints} onChange={e => setForm(f => ({ ...f, minPoints: +e.target.value }))} className={inputClass} />
+              <input type="number" value={form.minPoints} onChange={e => setForm(f => ({ ...f, minPoints: e.target.value }))} min={0} className={inputClass} />
             </div>
             <div>
               <label className={labelClass}>Max Points</label>
-              <input type="number" value={form.maxPoints} onChange={e => setForm(f => ({ ...f, maxPoints: +e.target.value }))} className={inputClass} />
+              <input type="number" value={form.maxPoints} onChange={e => setForm(f => ({ ...f, maxPoints: e.target.value }))} min={0} className={inputClass} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Decay Rate</label>
-              <input type="number" value={form.decayRate} onChange={e => setForm(f => ({ ...f, decayRate: +e.target.value }))} className={inputClass} />
+              <input type="number" value={form.decayRate} onChange={e => setForm(f => ({ ...f, decayRate: e.target.value }))} min={0} className={inputClass} />
               <p className="text-[10px] text-slate-600 mt-1 leading-relaxed">
                 Solves until points hit the floor. Lower = faster decay.
               </p>
             </div>
             <div>
               <label className={labelClass}>First Blood Bonus</label>
-              <input type="number" value={form.firstBloodBonus} onChange={e => setForm(f => ({ ...f, firstBloodBonus: +e.target.value }))} className={inputClass} />
+              <input type="number" value={form.firstBloodBonus} onChange={e => setForm(f => ({ ...f, firstBloodBonus: e.target.value }))} min={0} className={inputClass} />
             </div>
           </div>
           <div>
