@@ -80,6 +80,65 @@ namespace DotFlag.BusinessLayer.Core
 
             return submissions;
         }
+        
+        protected List<SubmissionDto> GetByUserExecution(int userId)
+        {
+            using var context = new AppDbContext();
+
+            return context.Submissions
+                .Where(s => s.UserId == userId)
+                .OrderByDescending(s => s.CreatedOn)
+                .Select(s => new SubmissionDto
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    ChallengeId = s.ChallengeId,
+                    ChallengeName = s.Challenge.Name,
+                    IsCorrect = s.IsCorrect,
+                    Timestamp = s.CreatedOn
+                })
+                .ToList();
+        }
+        
+        protected List<SubmissionDto> GetRecentExecution(int count)
+        {
+            using var context = new AppDbContext();
+
+            return context.Submissions
+                .Where(s => s.IsCorrect && s.Challenge.IsActive && !s.User.IsBanned)
+                .OrderByDescending(s => s.CreatedOn)
+                .Take(count)
+                .Select(s => new SubmissionDto
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    Username = s.User.Username,
+                    ChallengeId = s.ChallengeId,
+                    ChallengeName = s.Challenge.Name,
+                    IsCorrect = s.IsCorrect,
+                    Timestamp = s.CreatedOn
+                })
+                .ToList();
+        }
+        
+        protected List<SubmissionDto> GetByUserIdExecution(int userId)
+        {
+            using var context = new AppDbContext();
+
+            return context.Submissions
+                .Where(s => s.UserId == userId && s.IsCorrect && s.Challenge.IsActive)
+                .OrderByDescending(s => s.CreatedOn)
+                .Select(s => new SubmissionDto
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    ChallengeId = s.ChallengeId,
+                    ChallengeName = s.Challenge.Name,
+                    IsCorrect = s.IsCorrect,
+                    Timestamp = s.CreatedOn
+                })
+                .ToList();
+        }
 
     }
 }

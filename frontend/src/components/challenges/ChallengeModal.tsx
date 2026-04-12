@@ -1,11 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import ChallengeInfo from '../../pages/ChallengeDetailPage/ChallengeInfo';
 import FileAttachments from '../../pages/ChallengeDetailPage/FileAttachments';
 import DockerInstance from '../../pages/ChallengeDetailPage/DockerInstance';
 import SubmissionHistory from '../../pages/ChallengeDetailPage/SubmissionHistory';
 import { MOCK_SUBMISSIONS } from '../../data/mockData';
-import type { ChallengeDetail } from '../../types';
+import { challengeService } from '../../services/challengeService';
+import { useAxios } from '../../context/AxiosContext';
+import { USE_MOCK } from '../../config';
+import type { ChallengeDetail, Submission } from '../../types';
 
 interface ChallengeModalProps {
   challenge: ChallengeDetail | null;
@@ -13,6 +16,17 @@ interface ChallengeModalProps {
 }
 
 export default function ChallengeModal({ challenge, onClose }: ChallengeModalProps) {
+  const api = useAxios();
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+
+  useEffect(() => {
+    if (!challenge || USE_MOCK) {
+      if (challenge && USE_MOCK) setSubmissions(MOCK_SUBMISSIONS.filter(s => s.challengeId === challenge.id));
+      return;
+    }
+    challengeService.getSubmissions(api, challenge.id).then(setSubmissions).catch(() => {});
+  }, [api, challenge]);
+
   useEffect(() => {
     if (!challenge) return;
     document.body.style.overflow = 'hidden';
@@ -45,7 +59,7 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
           <ChallengeInfo challenge={challenge} />
           <FileAttachments files={challenge.files} />
           {challenge.dockerImage && <DockerInstance docker={challenge.dockerImage} />}
-          <SubmissionHistory submissions={MOCK_SUBMISSIONS.filter(s => s.challengeId === challenge.id)} />
+          <SubmissionHistory submissions={submissions} />
         </div>
       </div>
     </div>

@@ -93,6 +93,7 @@ export interface FlagEntry {
   points: number;
   solvedAt: string;
   category: ChallengeCategory;
+  isCorrect: boolean;
 }
 
 export interface Profile extends User {

@@ -1,14 +1,13 @@
 ﻿using DotFlag.BusinessLayer.Interfaces;
-using DotFlag.Domain.Models.Challenge;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DotFlag.Api.Extensions;
 
 namespace DotFlag.Api.Controller
 {
-    [Route("api/challenges/{id}/submit")]
     [ApiController]
     [Authorize]
+    [Route("api/submissions")]
     public class SubmissionController : ControllerBase
     {
         private readonly ISubmissionActions _submissionActions;
@@ -19,25 +18,32 @@ namespace DotFlag.Api.Controller
             _submissionActions = bl.GetSubmissionActions();
         }
 
-        [HttpPost]
-        public IActionResult SubmitFlag(int id, [FromBody] SubmitFlagDto dto)
+        [HttpGet]
+        [Route("recent")]
+        public IActionResult GetRecentSubmissions([FromQuery] int count = 20)
         {
-            int userId = User.GetId();
-
-            var result = _submissionActions.SubmitFlag(id, userId, dto.Flag);
-
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
+            var result = _submissionActions.GetRecent(count);
+            
             return Ok(result);
         }
         
         [HttpGet]
-        public IActionResult GetSubmissions(int id)
+        [Route("my")]
+        public IActionResult GetSubmissions()
         {
             int userId = User.GetId();
-            var result = _submissionActions.GetByChallenge(id, userId);
+            
+            var result = _submissionActions.GetByUser(userId);
+            
             return Ok(result);
         }
+
+        [HttpGet("user/{userId}")]
+        public IActionResult GetByUserId(int userId)
+        {
+            var result = _submissionActions.GetByUserId(userId);
+            return Ok(result);
+        }
+
     }
 }

@@ -6,5 +6,7 @@ public class SubmissionDto
     public int UserId { get; set; }
     public int ChallengeId {get; set;}
     public bool IsCorrect {get; set;}
+    public string Username { get; set; } = string.Empty;
+    public string ChallengeName { get; set; } = string.Empty;
     public DateTime Timestamp {get; set;}
 }
