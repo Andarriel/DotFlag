@@ -112,9 +112,9 @@ export function TechStack() {
 
 export function TeamSection() {
   const team = [
-    { name: 'Pavel', role: 'Developer Member 1', github: 'https://github.com/Pabblusansky' },
-    { name: 'Ivan', role: 'Developer Member 2', github: 'https://github.com/IvanGazul' },
-    { name: 'Marius', role: 'Developer Member 3', github: 'https://github.com/Vlanatex' },
+    { name: 'Pavel', role: 'Developer Member 1', github: 'https://github.com/Pabblusansky', avatar: 'https://github.com/Pabblusansky.png' },
+    { name: 'Ivan', role: 'Developer Member 2', github: 'https://github.com/Andarriel', avatar: 'https://github.com/Andarriel.png' },
+    { name: 'Marius', role: 'Developer Member 3', github: 'https://github.com/Vlanatex', avatar: 'https://github.com/Vlanatex.png' },
   ];
 
   return (
@@ -123,9 +123,11 @@ export function TeamSection() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {team.map((member, i) => (
           <div key={member.name} className={`glass rounded-2xl p-6 text-center gradient-border hover:bg-slate-800/30 transition-all animate-fade-in-up opacity-0 stagger-${i + 1}`}>
-            <div className="mx-auto h-16 w-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mb-4 text-xl font-bold text-white">
-              {member.name[0]}
-            </div>
+            <img
+              src={member.avatar}
+              alt={member.name}
+              className="mx-auto h-16 w-16 rounded-xl object-cover mb-4"
+            />
             <h3 className="text-base font-bold text-white">{member.name}</h3>
             <p className="text-xs text-slate-500 mb-4">{member.role}</p>
             <a
