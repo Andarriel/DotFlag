@@ -48,6 +48,9 @@ namespace DotFlag.Api.Controller
 
             var result = _userActions.GetMyProfile(currentUserId);
 
+            if (result == null)
+                return NotFound();
+            
             return Ok(result);
         }
 
@@ -139,8 +142,9 @@ namespace DotFlag.Api.Controller
         public IActionResult Promote(int id)
         {
             var currentUserId = User.GetId();
-
-            var result = _userActions.Promote(id, currentUserId);
+            var currentUserRole = User.GetRole();
+            
+            var result = _userActions.Promote(id, currentUserId,currentUserRole);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -153,8 +157,9 @@ namespace DotFlag.Api.Controller
         public IActionResult Demote(int id)
         {
             var currentUserId = User.GetId();
-
-            var result = _userActions.Demote(id, currentUserId);
+            var currentUserRole = User.GetRole();
+            
+            var result = _userActions.Demote(id, currentUserId,currentUserRole);
 
             if (!result.IsSuccess)
                 return BadRequest(result);

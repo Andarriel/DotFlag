@@ -11,7 +11,7 @@ public class UserExecution : UserActions, IUserActions
 {
     public UserExecution(IMapper mapper) : base(mapper) {}
 
-    public UserProfileDto GetById(int id)
+    public UserProfileDto? GetById(int id)
     {
         return GetByIdExecution(id);
     }
@@ -21,7 +21,7 @@ public class UserExecution : UserActions, IUserActions
         return GetAllExecution();
     }
 
-    public UserDto GetMyProfile(int userId)
+    public UserDto? GetMyProfile(int userId)
     {
         return GetMyProfileExecution(userId);
     }
@@ -56,13 +56,13 @@ public class UserExecution : UserActions, IUserActions
         return  UnbanExecution(id, currentUserId, currentUserRole);
     }
 
-    public ActionResponse Promote(int id, int currentUserId)
+    public ActionResponse Promote(int id, int currentUserId, UserRole currentUserRole)
     {
-        return PromoteExecution(id, currentUserId);
+        return PromoteExecution(id, currentUserId, currentUserRole);
     }
 
-    public ActionResponse Demote(int id, int currentUserId)
+    public ActionResponse Demote(int id, int currentUserId, UserRole currentUserRole)
     {
-        return DemoteExecution(id, currentUserId);
+        return DemoteExecution(id, currentUserId, currentUserRole);
     }
 }

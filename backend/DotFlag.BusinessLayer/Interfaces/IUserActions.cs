@@ -6,9 +6,9 @@ namespace DotFlag.BusinessLayer.Interfaces
 {
     public interface IUserActions
     {
-        UserProfileDto GetById(int id);
+        UserProfileDto? GetById(int id);
         List<UserDto> GetAll();
-        UserDto GetMyProfile(int userId);
+        UserDto? GetMyProfile(int userId);
 
         ActionResponse Create(CreateUserDto dto);
         ActionResponse Update(int id, UpdateUserDto dto);
@@ -16,7 +16,7 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse Delete (int id);
         ActionResponse Ban(int id, int currentUserId, UserRole currentUserRole);
         ActionResponse Unban(int id, int currentUserId, UserRole currentUserRole);
-        ActionResponse Promote(int id, int currentUserId);
-        ActionResponse Demote(int id, int currentUserId);
+        ActionResponse Promote(int id, int currentUserId, UserRole currentUserRole);
+        ActionResponse Demote(int id, int currentUserId, UserRole currentUserRole);
     }
 }
