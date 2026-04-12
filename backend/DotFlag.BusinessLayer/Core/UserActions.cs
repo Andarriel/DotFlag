@@ -17,7 +17,7 @@ namespace DotFlag.BusinessLayer.Core
             _mapper = mapper;
         }
 
-        protected UserProfileDto GetByIdExecution(int id)
+        protected UserProfileDto? GetByIdExecution(int id)
         {
             using var context = new AppDbContext();
 
@@ -36,7 +36,7 @@ namespace DotFlag.BusinessLayer.Core
             return dto;
         }
 
-        protected UserDto GetMyProfileExecution(int userId)
+        protected UserDto? GetMyProfileExecution(int userId)
         {
             using var context = new AppDbContext();
 
@@ -199,10 +199,13 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User unbanned successfully." };
         }
 
-        protected ActionResponse PromoteExecution(int id, int currentUserId)
+        protected ActionResponse PromoteExecution(int id, int currentUserId, UserRole currentUserRole)
         {
+            if(currentUserRole != UserRole.Owner)
+                return new ActionResponse { IsSuccess = false, Message = "Insufficient rights." };
+            
             using var context = new AppDbContext();
-
+            
             var user = context.Users.FirstOrDefault(u => u.Id == id);
 
             if (user == null)
@@ -223,8 +226,11 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "User promoted to Admin successfully." };
         }
 
-        protected ActionResponse DemoteExecution(int id, int currentUserId)
+        protected ActionResponse DemoteExecution(int id, int currentUserId, UserRole currentUserRole)
         {
+            if(currentUserRole != UserRole.Owner)
+                return new ActionResponse { IsSuccess = false, Message = "Insufficient rights." };
+            
             using var context = new AppDbContext();
 
             var user = context.Users.FirstOrDefault(u => u.Id == id);
