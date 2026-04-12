@@ -6,7 +6,7 @@ using DotFlag.Api.Extensions;
 
 namespace DotFlag.Api.Controller
 {
-    [Route("api/challenges/{id}/submit")]
+    [Route("api/challenges")]
     [ApiController]
     [Authorize]
     public class SubmissionController : ControllerBase
@@ -20,6 +20,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost]
+        [Route("{id}/submit")]
         public IActionResult SubmitFlag(int id, [FromBody] SubmitFlagDto dto)
         {
             int userId = User.GetId();
@@ -33,6 +34,7 @@ namespace DotFlag.Api.Controller
         }
         
         [HttpGet]
+        [Route("{id}/submissions")]
         public IActionResult GetSubmissions(int id)
         {
             int userId = User.GetId();
