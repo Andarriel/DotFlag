@@ -37,5 +37,13 @@ namespace DotFlag.Api.Controller
             
             return Ok(result);
         }
+
+        [HttpGet("user/{userId}")]
+        public IActionResult GetByUserId(int userId)
+        {
+            var result = _submissionActions.GetByUserId(userId);
+            return Ok(result);
+        }
+
     }
 }

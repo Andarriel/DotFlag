@@ -29,4 +29,9 @@ public class SubmissionExecution : SubmissionActions, ISubmissionActions
     {
         return GetByUserExecution(userId);
     }
+    
+    public List<SubmissionDto> GetByUserId(int userId)
+    {
+        return GetByUserIdExecution(userId);
+    }
 }

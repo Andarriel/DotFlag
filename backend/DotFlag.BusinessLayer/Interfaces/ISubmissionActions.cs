@@ -9,5 +9,6 @@ namespace DotFlag.BusinessLayer.Interfaces
         List<SubmissionDto> GetByChallenge(int challengeId, int userId);
         List<SubmissionDto> GetRecent(int count);
         List<SubmissionDto> GetByUser(int userId);
+        List<SubmissionDto> GetByUserId(int userId);
     }
 }

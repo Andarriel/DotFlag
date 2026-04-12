@@ -120,6 +120,25 @@ namespace DotFlag.BusinessLayer.Core
                 })
                 .ToList();
         }
+        
+        protected List<SubmissionDto> GetByUserIdExecution(int userId)
+        {
+            using var context = new AppDbContext();
+
+            return context.Submissions
+                .Where(s => s.UserId == userId && s.IsCorrect && s.Challenge.IsActive)
+                .OrderByDescending(s => s.CreatedOn)
+                .Select(s => new SubmissionDto
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    ChallengeId = s.ChallengeId,
+                    ChallengeName = s.Challenge.Name,
+                    IsCorrect = s.IsCorrect,
+                    Timestamp = s.CreatedOn
+                })
+                .ToList();
+        }
 
     }
 }
