@@ -28,8 +28,7 @@ namespace DotFlag.BusinessLayer.Core
 
             int score = context.Submissions
                 .Where(s => s.UserId == id && s.IsCorrect && s.Challenge.IsActive)
-                .Select(s => s.Challenge.CurrentPoints)
-                .Sum();
+                .Sum(s => s.Challenge.CurrentPoints + s.BonusPoints);
 
             var dto = _mapper.Map<UserProfileDto>(user);
             dto.CurrentPoints = score;
@@ -47,8 +46,7 @@ namespace DotFlag.BusinessLayer.Core
 
             int score = context.Submissions
                 .Where(s => s.UserId == userId && s.IsCorrect && s.Challenge.IsActive)
-                .Select(s => s.Challenge.CurrentPoints)
-                .Sum();
+                .Sum(s => s.Challenge.CurrentPoints + s.BonusPoints);
 
             var dto = _mapper.Map<UserDto>(user);
             dto.CurrentPoints = score;
@@ -64,7 +62,7 @@ namespace DotFlag.BusinessLayer.Core
             var scores = context.Submissions
                 .Where(s => s.IsCorrect && s.Challenge.IsActive)
                 .GroupBy(s => s.UserId)
-                .Select(g => new { UserId = g.Key, Score = g.Sum(s => s.Challenge.CurrentPoints) })
+                .Select(g => new { UserId = g.Key, Score = g.Sum(s => s.Challenge.CurrentPoints + s.BonusPoints) })
                 .ToDictionary(x => x.UserId, x => x.Score);
 
             return users.Select(u =>

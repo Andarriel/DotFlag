@@ -60,8 +60,7 @@ namespace DotFlag.BusinessLayer.Core
 
             int score = context.Submissions
                 .Where(s => s.UserId == user.Id && s.IsCorrect && s.Challenge.IsActive)
-                .Select(s => s.Challenge.CurrentPoints)
-                .Sum();
+                .Sum(s => s.Challenge.CurrentPoints + s.BonusPoints);
 
             var userDto = _mapper.Map<UserDto>(user);
             userDto.CurrentPoints = score;
