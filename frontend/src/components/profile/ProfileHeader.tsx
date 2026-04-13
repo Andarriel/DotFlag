@@ -40,7 +40,7 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
 
             <div className="flex flex-wrap gap-2">
               <StatPill icon={Zap} color="text-indigo-400" value={profile.currentPoints} label="Points" />
-              <StatPill icon={Target} color="text-green-400" value={profile.flagHistory.length} label="Solves" />
+              <StatPill icon={Target} color="text-green-400" value={profile.flagHistory.filter(f => f.isCorrect).length} label="Solves" />
               {profile.teamName && (
                 <StatPill icon={Users} color="text-purple-400" value={profile.teamName} label="Team" />
               )}

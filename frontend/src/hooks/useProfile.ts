@@ -45,13 +45,15 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
         const challengeMap = new Map(challenges.map(c => [c.id, c]));
         return subs.map(s => {
             const ch = challengeMap.get(s.challengeId);
+            const basePoints = ch?.currentPoints ?? 0;
             return {
               challengeId: s.challengeId,
               challengeTitle: s.challengeName,
-              points: s.isCorrect ? (ch?.currentPoints ?? 0) : 0,
+              points: s.isCorrect ? basePoints + (s.bonusPoints || 0) : 0,
               solvedAt: s.timestamp,
               category: (ch?.category as unknown as string ?? 'Misc') as FlagEntry['category'],
               isCorrect: s.isCorrect,
+              isFirstBlood: s.bonusPoints > 0,
             };
           });
       } catch {
@@ -93,13 +95,15 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
             joinedAt: publicUser.registeredOn || new Date().toISOString(),
             flagHistory: subs.map(s => {
               const ch = challengeMap.get(s.challengeId);
+              const basePoints = ch?.currentPoints ?? 0;
               return {
                 challengeId: s.challengeId,
                 challengeTitle: s.challengeName,
-                points: s.isCorrect ? (ch?.currentPoints ?? 0) : 0,
+                points: s.isCorrect ? basePoints + (s.bonusPoints || 0) : 0,
                 solvedAt: s.timestamp,
                 category: (ch?.category as unknown as string ?? 'Misc') as FlagEntry['category'],
                 isCorrect: s.isCorrect,
+                isFirstBlood: s.bonusPoints > 0,
               };
             }),
           });

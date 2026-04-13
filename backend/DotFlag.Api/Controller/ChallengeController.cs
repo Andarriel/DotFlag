@@ -21,11 +21,12 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpGet]
-        [Authorize]
+        [AllowAnonymous]
         public IActionResult GetAll()
         {
-            var role = User.GetRole();
-            var userId = User.GetId();
+            var isAuthenticated = User.Identity?.IsAuthenticated == true;
+            var role = isAuthenticated ? User.GetRole() : DotFlag.Domain.Enums.UserRole.User;
+            int? userId = isAuthenticated ? User.GetId() : null;
 
             var result = _challengeActions.GetAll(role, userId);
 

@@ -1,4 +1,4 @@
-import { CheckCircle, ChevronRight } from 'lucide-react';
+import { CheckCircle, ChevronRight, Users, Flame } from 'lucide-react';
 import { getDifficultyColor, getCategoryIcon } from '../../utils/challengeUtils';
 import type { Challenge } from '../../types';
 
@@ -46,6 +46,16 @@ export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps
 
       <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
         <span className="text-sm font-bold text-indigo-400">{challenge.points} pts</span>
+        <div className="flex items-center gap-2.5">
+          {challenge.solveCount === 0 && challenge.firstBloodBonus > 0 && (
+            <span className="flex items-center gap-1 text-[10px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/15 px-1.5 py-0.5 rounded-md">
+              <Flame className="w-3 h-3" /> Blood
+            </span>
+          )}
+          <span className="flex items-center gap-1 text-[11px] text-slate-600">
+            <Users className="w-3 h-3" /> {challenge.solveCount}
+          </span>
+        </div>
       </div>
     </button>
   );

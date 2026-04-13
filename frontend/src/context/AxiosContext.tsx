@@ -37,7 +37,7 @@ export const AxiosProvider = ({ children }: { children: ReactNode }) => {
       (error) => {
         const url = error.config?.url || '';
         const isAuthEndpoint = url.includes('/auth/');
-        if (error.response?.status === 401 && !isAuthEndpoint) {
+        if (error.response?.status === 401 && !isAuthEndpoint && localStorage.getItem('token')) {
           localStorage.removeItem('token');
           window.location.href = ROUTES.LOGIN;
           return Promise.reject(error);

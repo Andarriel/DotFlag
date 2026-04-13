@@ -22,6 +22,8 @@ export interface Challenge {
   difficulty: ChallengeDifficulty;
   isActive: boolean;
   isSolved?: boolean;
+  solveCount: number;
+  firstBloodBonus: number;
 }
 
 export interface ChallengeFile {
@@ -94,6 +96,7 @@ export interface FlagEntry {
   solvedAt: string;
   category: ChallengeCategory;
   isCorrect: boolean;
+  isFirstBlood?: boolean;
 }
 
 export interface Profile extends User {

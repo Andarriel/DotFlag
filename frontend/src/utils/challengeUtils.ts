@@ -28,7 +28,7 @@ export const getCategoryIcon = (category: ChallengeCategory) => {
 export const calculateChallengeStats = (challenges: Challenge[]) => {
   const solvedCount = challenges.filter(c => c.isSolved).length;
   const availableCount = challenges.filter(c => !c.isSolved && c.isActive).length;
-  const totalPoints = challenges.filter(c => c.isSolved).reduce((sum, c) => sum + c.points, 0);
+  const totalPoints = challenges.filter(c => !c.isSolved && c.isActive).reduce((sum, c) => sum + c.points, 0);
 
   return {
     solvedCount,
