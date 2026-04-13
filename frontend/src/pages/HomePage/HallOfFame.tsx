@@ -52,7 +52,7 @@ export default function HallOfFame() {
   const { leaderboard } = useLeaderboard();
   const top3 = leaderboard.slice(0, 3);
 
-  if (top3.length < 3) {
+  if (top3.length < 2) {
     return (
       <div id="arena" className="relative py-20 sm:py-28 bg-slate-950">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
@@ -69,11 +69,12 @@ export default function HallOfFame() {
     'bg-amber-600/20',
   ];
 
-  const players = [
-    { player: top3[0], rank: 1, side: 'right' as const },
-    { player: top3[1], rank: 2, side: 'left' as const },
-    { player: top3[2], rank: 3, side: 'right' as const },
-  ];
+  const sides = ['right', 'left', 'right'] as const;
+  const players = top3.map((player, i) => ({
+    player,
+    rank: i + 1,
+    side: sides[i],
+  }));
 
   return (
     <div id="arena" className="relative py-16 sm:py-24 bg-slate-950 overflow-hidden">

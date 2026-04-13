@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { X, CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react';
+import { X, CheckCircle, AlertTriangle, Info, XCircle, Flame } from 'lucide-react';
 
-type ToastType = 'success' | 'error' | 'warning' | 'info';
+type ToastType = 'success' | 'error' | 'warning' | 'info' | 'firstBlood';
 
 interface Toast {
   id: number;
@@ -15,6 +15,7 @@ interface ToastContextType {
     error: (message: string) => void;
     warning: (message: string) => void;
     info: (message: string) => void;
+    firstBlood: (message: string) => void;
   };
 }
 
@@ -27,6 +28,7 @@ const ICONS = {
   error: XCircle,
   warning: AlertTriangle,
   info: Info,
+  firstBlood: Flame,
 };
 
 const STYLES = {
@@ -34,6 +36,7 @@ const STYLES = {
   error: 'bg-red-500/90 border-red-400',
   warning: 'bg-amber-500/90 border-amber-400',
   info: 'bg-indigo-500/90 border-indigo-400',
+  firstBlood: 'bg-gradient-to-r from-red-600/95 via-orange-500/95 to-amber-500/95 border-orange-400 shadow-orange-500/30',
 };
 
 function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
@@ -68,6 +71,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     error: (message: string) => addToast(message, 'error'),
     warning: (message: string) => addToast(message, 'warning'),
     info: (message: string) => addToast(message, 'info'),
+    firstBlood: (message: string) => addToast(message, 'firstBlood'),
   };
 
   return (

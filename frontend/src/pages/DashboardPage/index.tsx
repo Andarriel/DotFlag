@@ -36,12 +36,13 @@ export default function DashboardPage() {
     submissionService.getRecent(api, 10).then(subs => {
       setActivities(subs.map(s => {
         const ch = challenges.find(c => c.id === s.challengeId);
+        const basePoints = ch?.points ?? 0;
         return {
           username: s.username,
           challenge: s.challengeName,
-          points: ch?.points ?? 0,
+          points: basePoints + (s.bonusPoints || 0),
           time: timeAgo(s.timestamp),
-          isFirstBlood: false, // TODO: backend needs to provide this
+          isFirstBlood: s.bonusPoints > 0,
           category: (ch?.category as string) ?? 'Misc',
         };
       }));

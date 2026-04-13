@@ -76,9 +76,13 @@ export default function ChallengeInfo({ challenge, onSubmit }: { challenge: Chal
 
     try {
       const res = await challengeService.submitFlag(api, challenge.id, flag);
-      res.isSuccess ? toast.success(res.message) : toast.error(res.message);
+      if (res.isSuccess) {
+        res.message.includes('First blood') ? toast.firstBlood(res.message) : toast.success(res.message);
+        setFlag('');
+      } else {
+        toast.error(res.message);
+      }
       onSubmit?.();
-      if (res.isSuccess) setFlag('');
     } catch {
       toast.error('Failed to submit flag.');
     } finally {

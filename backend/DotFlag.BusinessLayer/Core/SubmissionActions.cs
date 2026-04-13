@@ -38,12 +38,14 @@ namespace DotFlag.BusinessLayer.Core
                 return new ActionResponse { IsSuccess = false, Message = "User not found." };
 
             bool isCorrect = BCrypt.Net.BCrypt.Verify(flag, challenge.FlagHash);
-            
+            bool isFirstBlood = false;
+
             if (isCorrect)
             {
                 challenge.SolveCount += 1;
                 challenge.CurrentPoints = challenge.CalculateCurrentPoints(
                     challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, challenge.SolveCount);
+                isFirstBlood = challenge.SolveCount == 1;
             }
 
             context.Submissions.Add(new SubmissionData
@@ -52,12 +54,17 @@ namespace DotFlag.BusinessLayer.Core
                 ChallengeId = challengeId,
                 Flag = BCrypt.Net.BCrypt.HashPassword(flag),
                 IsCorrect = isCorrect,
+                BonusPoints = isFirstBlood ? challenge.FirstBloodBonus : 0,
                 CreatedOn = DateTime.UtcNow
             });
 
             context.SaveChanges();
 
-            return new ActionResponse { IsSuccess = isCorrect, Message = isCorrect ? "Correct flag!" : "Incorrect Flag!" };
+            var message = isCorrect
+                ? isFirstBlood ? $"First blood! +{challenge.FirstBloodBonus} bonus points!" : "Correct flag!"
+                : "Incorrect Flag!";
+
+            return new ActionResponse { IsSuccess = isCorrect, Message = message };
 
         }
 
@@ -74,13 +81,14 @@ namespace DotFlag.BusinessLayer.Core
                     UserId = s.UserId,
                     ChallengeId = s.ChallengeId,
                     IsCorrect = s.IsCorrect,
+                    BonusPoints = s.BonusPoints,
                     Timestamp = s.CreatedOn
                 })
                 .ToList();
 
             return submissions;
         }
-        
+
         protected List<SubmissionDto> GetByUserExecution(int userId)
         {
             using var context = new AppDbContext();
@@ -95,11 +103,12 @@ namespace DotFlag.BusinessLayer.Core
                     ChallengeId = s.ChallengeId,
                     ChallengeName = s.Challenge.Name,
                     IsCorrect = s.IsCorrect,
+                    BonusPoints = s.BonusPoints,
                     Timestamp = s.CreatedOn
                 })
                 .ToList();
         }
-        
+
         protected List<SubmissionDto> GetRecentExecution(int count)
         {
             using var context = new AppDbContext();
@@ -116,6 +125,7 @@ namespace DotFlag.BusinessLayer.Core
                     ChallengeId = s.ChallengeId,
                     ChallengeName = s.Challenge.Name,
                     IsCorrect = s.IsCorrect,
+                    BonusPoints = s.BonusPoints,
                     Timestamp = s.CreatedOn
                 })
                 .ToList();
@@ -135,6 +145,7 @@ namespace DotFlag.BusinessLayer.Core
                     ChallengeId = s.ChallengeId,
                     ChallengeName = s.Challenge.Name,
                     IsCorrect = s.IsCorrect,
+                    BonusPoints = s.BonusPoints,
                     Timestamp = s.CreatedOn
                 })
                 .ToList();

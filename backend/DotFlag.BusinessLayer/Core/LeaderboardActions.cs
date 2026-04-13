@@ -16,7 +16,7 @@ namespace DotFlag.BusinessLayer.Core
                 {
                     UserId = g.Key,
                     Username = g.First().User.Username,
-                    Score = g.Sum(s => s.Challenge.CurrentPoints),
+                    Score = g.Sum(s => s.Challenge.CurrentPoints + s.BonusPoints),
                     SolvesCount = g.Count(),
                     LastSolveAt = g.Max(s => s.CreatedOn)
                 })

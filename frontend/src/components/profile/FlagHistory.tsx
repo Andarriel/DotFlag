@@ -22,6 +22,9 @@ function SubmissionRow({ entry, index, onClick }: { entry: FlagEntry; index: num
             <span className={`text-[11px] px-2 py-0.5 rounded ${entry.isCorrect ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'}`}>
               {entry.isCorrect ? 'Solved' : 'Attempted'}
             </span>
+            {entry.isFirstBlood && (
+              <span className="text-[11px] px-2 py-0.5 rounded text-yellow-400 bg-yellow-500/10 font-semibold">First Blood</span>
+            )}
             <span className="text-[11px] text-slate-600">{formatTimeAgo(entry.solvedAt)}</span>
           </div>
         </div>

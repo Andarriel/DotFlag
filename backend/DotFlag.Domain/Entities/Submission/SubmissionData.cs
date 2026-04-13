@@ -27,6 +27,8 @@ public class SubmissionData
     public string Flag { get; set; } = string.Empty;
     
     public bool IsCorrect { get; set; }
-    
+
+    public int BonusPoints { get; set; }
+
     public DateTime CreatedOn { get; set; }
 }

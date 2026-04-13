@@ -7,6 +7,7 @@ export interface ApiSubmission {
   challengeName: string;
   username: string;
   isCorrect: boolean;
+  bonusPoints: number;
   timestamp: string;
 }
 
