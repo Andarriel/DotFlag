@@ -22,6 +22,8 @@ function mapChallenge(api: ApiChallenge): Challenge {
     difficulty: DIFFICULTY_MAP[api.difficulty as unknown as string] ?? 'Medium',
     isActive: api.isActive,
     isSolved: api.isSolved,
+    solveCount: api.solveCount,
+    firstBloodBonus: api.firstBloodBonus,
   };
 }
 

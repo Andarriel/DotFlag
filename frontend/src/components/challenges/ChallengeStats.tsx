@@ -9,7 +9,7 @@ interface ChallengeStatsProps {
 const STATS_CONFIG = [
   { key: 'solved', icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-400/10 border-green-500/20', label: 'Solved' },
   { key: 'available', icon: Clock, color: 'text-indigo-400', bg: 'bg-indigo-400/10 border-indigo-500/20', label: 'Available' },
-  { key: 'points', icon: Zap, color: 'text-purple-400', bg: 'bg-purple-400/10 border-purple-500/20', label: 'Total Points' },
+  { key: 'points', icon: Zap, color: 'text-purple-400', bg: 'bg-purple-400/10 border-purple-500/20', label: 'Available Points' },
 ] as const;
 
 export default function ChallengeStats({ solvedCount, availableCount, totalPoints }: ChallengeStatsProps) {

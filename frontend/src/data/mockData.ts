@@ -18,14 +18,14 @@ export const MOCK_USER: User = {
 // ── Challenges ──
 
 export const MOCK_CHALLENGES: Challenge[] = [
-  { id: 1, title: "Hello World", description: "Find the flag in this simple web challenge.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isSolved: false },
-  { id: 2, title: "Base64 Madness", description: "Decode the Base64 string to find the flag.", points: 200, category: "Crypto", difficulty: "Medium", isActive: true, isSolved: false },
-  { id: 3, title: "Buffer Overflow 101", description: "Exploit the buffer overflow vulnerability to get the flag.", points: 300, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false },
-  { id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isSolved: true },
-  { id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isSolved: true },
-  { id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isSolved: false },
-  { id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isSolved: false },
-  { id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false },
+  { id: 1, title: "Hello World", description: "Find the flag in this simple web challenge.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isSolved: false, solveCount: 12, firstBloodBonus: 50 },
+  { id: 2, title: "Base64 Madness", description: "Decode the Base64 string to find the flag.", points: 200, category: "Crypto", difficulty: "Medium", isActive: true, isSolved: false, solveCount: 0, firstBloodBonus: 100 },
+  { id: 3, title: "Buffer Overflow 101", description: "Exploit the buffer overflow vulnerability to get the flag.", points: 300, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false, solveCount: 3, firstBloodBonus: 150 },
+  { id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isSolved: true, solveCount: 8, firstBloodBonus: 100 },
+  { id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isSolved: true, solveCount: 20, firstBloodBonus: 50 },
+  { id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isSolved: false, solveCount: 0, firstBloodBonus: 100 },
+  { id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isSolved: false, solveCount: 5, firstBloodBonus: 50 },
+  { id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false, solveCount: 0, firstBloodBonus: 200 },
 ];
 
 // ── Challenge Details ──
