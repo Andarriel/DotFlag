@@ -74,6 +74,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<DotFlag.Api.Extensions.GlobalExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
