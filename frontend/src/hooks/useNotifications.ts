@@ -4,6 +4,12 @@ import { useAxios } from '../context/AxiosContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
+const TOAST_FN: Record<string, 'firstBlood' | 'info' | 'warning'> = {
+  firstBlood: 'firstBlood',
+  announcement: 'info',
+  system: 'warning',
+};
+
 export function useNotifications() {
   const api = useAxios();
   const { isAuthenticated } = useAuth();
@@ -11,17 +17,39 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const prevCount = useRef(0);
+  const knownIds = useRef<Set<number>>(new Set());
+  const initialized = useRef(false);
 
-  const fetchUnreadCount = useCallback(() => {
+  const pollForNew = useCallback(() => {
     if (!isAuthenticated) return;
     notificationService.getUnreadCount(api).then(count => {
-      if (count > prevCount.current && prevCount.current > 0) {
-        const diff = count - prevCount.current;
-        toast.info(`${diff} new notification${diff > 1 ? 's' : ''}`);
-      }
-      prevCount.current = count;
       setUnreadCount(count);
+
+      // First poll — just seed the known IDs, don't toast
+      if (!initialized.current) {
+        if (count > 0) {
+          notificationService.getAll(api).then(data => {
+            knownIds.current = new Set(data.map(n => n.id));
+            setNotifications(data);
+          }).catch(() => {});
+        }
+        initialized.current = true;
+        return;
+      }
+
+      // If count went up, fetch and toast new ones
+      if (count > 0) {
+        notificationService.getAll(api).then(data => {
+          const newOnes = data.filter(n => !n.isRead && !knownIds.current.has(n.id));
+          newOnes.forEach(n => {
+            const fn = TOAST_FN[n.type] ?? 'info';
+            toast[fn](n.message);
+          });
+          knownIds.current = new Set(data.map(n => n.id));
+          setNotifications(data);
+          setUnreadCount(data.filter(n => !n.isRead).length);
+        }).catch(() => {});
+      }
     }).catch(() => {});
   }, [api, isAuthenticated, toast]);
 
@@ -30,10 +58,9 @@ export function useNotifications() {
     setLoading(true);
     notificationService.getAll(api)
       .then(data => {
+        knownIds.current = new Set(data.map(n => n.id));
         setNotifications(data);
-        const count = data.filter(n => !n.isRead).length;
-        setUnreadCount(count);
-        prevCount.current = count;
+        setUnreadCount(data.filter(n => !n.isRead).length);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -43,15 +70,14 @@ export function useNotifications() {
     await notificationService.markAllAsRead(api).catch(() => {});
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);
-    prevCount.current = 0;
   }, [api]);
 
-  // Poll unread count every 30s
+  // Poll every 60s
   useEffect(() => {
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000);
+    pollForNew();
+    const interval = setInterval(pollForNew, 60000);
     return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+  }, [pollForNew]);
 
   return { notifications, unreadCount, loading, fetchAll, markAllAsRead };
 }
