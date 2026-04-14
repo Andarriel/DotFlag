@@ -8,7 +8,7 @@ import { USE_MOCK } from '../config';
 import type { ApiUser, ApiChallenge, CreateChallengePayload, UpdateChallengePayload, UserRole } from '../types/api';
 import type { AdminUser, Challenge, DockerImage, ChallengeCategory, ChallengeDifficulty } from '../types';
 
-export type AdminTab = 'users' | 'challenges' | 'docker';
+export type AdminTab = 'users' | 'challenges' | 'notifications' | 'docker';
 
 const CATEGORY_MAP: Record<string, ChallengeCategory> = {
   Web: 'Web', Pwn: 'Pwn', Crypto: 'Crypto', Reverse: 'Reverse',
