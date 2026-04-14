@@ -25,5 +25,29 @@ namespace DotFlag.Api.Controller
             var result = _leaderboardActions.GetLeaderboard();
             return Ok(result);
         }
+
+        [HttpGet("progress")]
+        [AllowAnonymous]
+        public IActionResult GetProgress()
+        {
+            var result = _leaderboardActions.GetProgress();
+            return Ok(result);
+        }
+
+        [HttpGet("teams/progress")]
+        [AllowAnonymous]
+        public IActionResult GetTeamProgress()
+        {
+            var result = _leaderboardActions.GetTeamProgress();
+            return Ok(result);
+        }
+
+        [HttpGet("teams")]
+        [AllowAnonymous]
+        public IActionResult GetTeamLeaderboard()
+        {
+            var result = _leaderboardActions.GetTeamLeaderboard();
+            return Ok(result);
+        }
     }
 }
