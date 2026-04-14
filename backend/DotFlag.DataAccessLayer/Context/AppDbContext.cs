@@ -1,4 +1,5 @@
 ﻿using DotFlag.Domain.Entities.Challenge;
+using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Entities.Team;
 using DotFlag.Domain.Entities.User;
@@ -12,6 +13,8 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<TeamData> Teams { get; set; }
         public DbSet<ChallengeData> Challenges { get; set; }
         public DbSet<SubmissionData> Submissions { get; set; }
+        public DbSet<NotificationData> Notifications { get; set; }
+        public DbSet<UserNotificationData> UserNotifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -25,5 +28,6 @@ namespace DotFlag.DataAccessLayer.Context
                 .HasIndex(t => t.InviteCode)
                 .IsUnique();
         }
+
     }
 }
