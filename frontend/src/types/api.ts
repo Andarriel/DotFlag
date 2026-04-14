@@ -130,3 +130,26 @@ export interface ApiLeaderboardEntry {
   solvesCount: number;
   lastSolveAt: string;
 }
+
+export interface ApiProgressPoint {
+  timestamp: string;
+  points: number;
+  challengeName: string;
+  challengePoints: number;
+}
+
+export interface ApiLeaderboardProgress {
+  userId: number;
+  username: string;
+  progress: ApiProgressPoint[];
+}
+
+export interface ApiTeamLeaderboardEntry {
+  rank: number;
+  teamId: number;
+  teamName: string;
+  score: number;
+  solvesCount: number;
+  memberCount: number;
+  lastSolveAt: string;
+}

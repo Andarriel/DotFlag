@@ -10,4 +10,19 @@ public class LeaderboardExecution : LeaderboardActions, ILeaderboardActions
     {
         return GetLeaderboardExecution();
     }
+
+    public List<LeaderboardProgressDto> GetProgress()
+    {
+        return GetProgressExecution();
+    }
+
+    public List<LeaderboardProgressDto> GetTeamProgress()
+    {
+        return GetTeamProgressExecution();
+    }
+
+    public List<TeamLeaderboardEntryDto> GetTeamLeaderboard()
+    {
+        return GetTeamLeaderboardExecution();
+    }
 }

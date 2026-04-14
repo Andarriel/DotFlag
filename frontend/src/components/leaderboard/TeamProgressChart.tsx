@@ -81,7 +81,7 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
   return (
     <div className="mb-8 glass rounded-2xl p-5 sm:p-6 gradient-border noise">
       <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-        <h2 className="text-lg font-bold text-white">Team Progress</h2>
+        <h2 className="text-lg font-bold text-white">Score Progress</h2>
         <div className="flex gap-1.5 flex-wrap">
           {teamProgress.map(team => {
             const hidden = hiddenTeams.has(team.teamId);

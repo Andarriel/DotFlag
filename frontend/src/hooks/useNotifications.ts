@@ -19,21 +19,27 @@ export function useNotifications() {
   const [loading, setLoading] = useState(false);
   const knownIds = useRef<Set<number>>(new Set());
   const initialized = useRef(false);
+  const polling = useRef(false);
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
 
   const pollForNew = useCallback(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || polling.current) return;
+    polling.current = true;
     notificationService.getUnreadCount(api).then(count => {
       setUnreadCount(count);
 
       // First poll — just seed the known IDs, don't toast
       if (!initialized.current) {
+        initialized.current = true;
         if (count > 0) {
           notificationService.getAll(api).then(data => {
             knownIds.current = new Set(data.map(n => n.id));
             setNotifications(data);
-          }).catch(() => {});
+          }).catch(() => {}).finally(() => { polling.current = false; });
+        } else {
+          polling.current = false;
         }
-        initialized.current = true;
         return;
       }
 
@@ -43,15 +49,17 @@ export function useNotifications() {
           const newOnes = data.filter(n => !n.isRead && !knownIds.current.has(n.id));
           newOnes.forEach(n => {
             const fn = TOAST_FN[n.type] ?? 'info';
-            toast[fn](n.message);
+            toastRef.current[fn](n.message);
           });
           knownIds.current = new Set(data.map(n => n.id));
           setNotifications(data);
           setUnreadCount(data.filter(n => !n.isRead).length);
-        }).catch(() => {});
+        }).catch(() => {}).finally(() => { polling.current = false; });
+      } else {
+        polling.current = false;
       }
-    }).catch(() => {});
-  }, [api, isAuthenticated, toast]);
+    }).catch(() => { polling.current = false; });
+  }, [api, isAuthenticated]);
 
   const fetchAll = useCallback(() => {
     if (!isAuthenticated) return;
