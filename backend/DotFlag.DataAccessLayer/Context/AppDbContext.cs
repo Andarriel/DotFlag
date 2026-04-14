@@ -14,7 +14,6 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<ChallengeData> Challenges { get; set; }
         public DbSet<SubmissionData> Submissions { get; set; }
         public DbSet<NotificationData> Notifications { get; set; }
-        public DbSet<UserNotificationData> UserNotifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -35,14 +35,6 @@ namespace DotFlag.Api.Controller
             return Ok(new { count });
         }
 
-        [HttpPut("{id}/read")]
-        public IActionResult MarkAsRead(int id)
-        {
-            int userId = User.GetId();
-            var result = _notificationActions.MarkAsRead(id, userId);
-            return Ok(result);
-        }
-
         [HttpPut("read-all")]
         public IActionResult MarkAllAsRead()
         {

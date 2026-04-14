@@ -17,11 +17,6 @@ public class NotificationExecution : NotificationActions, INotificationActions
         return GetUnreadCountExecution(userId);
     }
 
-    public ActionResponse MarkAsRead(int notificationId, int userId)
-    {
-        return MarkAsReadExecution(notificationId, userId);
-    }
-
     public ActionResponse MarkAllAsRead(int userId)
     {
         return MarkAllAsReadExecution(userId);

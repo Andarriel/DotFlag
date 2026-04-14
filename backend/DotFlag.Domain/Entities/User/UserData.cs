@@ -38,6 +38,8 @@ namespace DotFlag.Domain.Entities.User
 
         public TeamRole? TeamRole { get; set; }
 
+        public DateTime? NotificationsReadAt { get; set; }
+
         [InverseProperty("User")]
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
     }

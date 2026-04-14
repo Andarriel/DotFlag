@@ -1,10 +1,11 @@
-import { Users, Flag, Container } from 'lucide-react';
+import { Users, Flag, Container, Megaphone } from 'lucide-react';
 import { useAdminContext } from '../../context/AdminContext';
 import type { AdminTab } from '../../hooks/useAdmin';
 
 const TABS: { id: AdminTab; label: string; icon: typeof Users }[] = [
   { id: 'users', label: 'Users', icon: Users },
   { id: 'challenges', label: 'Challenges', icon: Flag },
+  { id: 'notifications', label: 'Notifications', icon: Megaphone },
   { id: 'docker', label: 'Docker', icon: Container },
 ];
 

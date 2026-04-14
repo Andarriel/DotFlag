@@ -6,6 +6,7 @@ import { AdminProvider, useAdminContext } from '../../context/AdminContext';
 
 const UserManagementTable = lazy(() => import('../../components/admin/UserManagementTable'));
 const ChallengeManagementTable = lazy(() => import('../../components/admin/ChallengeManagementTable'));
+const NotificationBroadcast = lazy(() => import('../../components/admin/NotificationBroadcast'));
 const DockerMonitor = lazy(() => import('../../components/admin/DockerMonitor'));
 
 const Spinner = () => (
@@ -28,6 +29,7 @@ function AdminContent() {
               <>
                 {activeTab === 'users' && <UserManagementTable />}
                 {activeTab === 'challenges' && <ChallengeManagementTable />}
+                {activeTab === 'notifications' && <NotificationBroadcast />}
                 {activeTab === 'docker' && <DockerMonitor />}
               </>
             )}

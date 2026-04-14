@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Terminal, Shield, LogOut, ChevronRight } from 'lucide-react';
 import { ROUTES } from '../../router/paths';
 import { useAuth } from '../../context/AuthContext';
+import NotificationDropdown from './NotificationDropdown';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +55,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <>
+                <NotificationDropdown />
                 <Link to={`/profile/${user?.id}`} className="flex items-center gap-2 group">
                   <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-xs">{user?.username?.charAt(0).toUpperCase()}</span>

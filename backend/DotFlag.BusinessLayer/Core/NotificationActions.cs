@@ -1,4 +1,4 @@
-﻿using DotFlag.DataAccessLayer.Context;
+using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Models.Notification;
 using DotFlag.Domain.Models.Responses;
@@ -7,21 +7,18 @@ namespace DotFlag.BusinessLayer.Core
 {
     public class NotificationActions
     {
-
         protected List<NotificationDto> GetByUserExecution(int userId)
         {
             using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null) return new List<NotificationDto>();
 
             var notifications = context.Notifications
                 .Where(n => n.UserId == null || n.UserId == userId)
                 .OrderByDescending(n => n.CreatedOn)
                 .Take(50)
                 .ToList();
-
-            var readIds = context.UserNotifications
-                .Where(un => un.UserId == userId && un.IsRead)
-                .Select(un => un.NotificationId)
-                .ToHashSet();
 
             return notifications.Select(n => new NotificationDto
             {
@@ -30,7 +27,7 @@ namespace DotFlag.BusinessLayer.Core
                 Message = n.Message,
                 Type = n.Type,
                 CreatedOn = n.CreatedOn,
-                IsRead = readIds.Contains(n.Id)
+                IsRead = user.NotificationsReadAt.HasValue && n.CreatedOn <= user.NotificationsReadAt.Value
             }).ToList();
         }
 
@@ -38,78 +35,27 @@ namespace DotFlag.BusinessLayer.Core
         {
             using var context = new AppDbContext();
 
-            var readIds = context.UserNotifications
-                .Where(un => un.UserId == userId && un.IsRead)
-                .Select(un => un.NotificationId)
-                .ToHashSet();
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null) return 0;
 
-            return context.Notifications
-                .Where(n => n.UserId == null || n.UserId == userId)
-                .Count(n => !readIds.Contains(n.Id));
-        }
+            var query = context.Notifications
+                .Where(n => n.UserId == null || n.UserId == userId);
 
-        protected ActionResponse MarkAsReadExecution(int notificationId, int userId)
-        {
-            using var context = new AppDbContext();
+            if (user.NotificationsReadAt.HasValue)
+                query = query.Where(n => n.CreatedOn > user.NotificationsReadAt.Value);
 
-            var userNotification = context.UserNotifications
-                .FirstOrDefault(un => un.UserId == userId && un.NotificationId == notificationId);
-
-            if (userNotification == null)
-            {
-                userNotification = new UserNotificationData
-                {
-                    UserId = userId,
-                    NotificationId = notificationId,
-                    IsRead = true
-                };
-                context.UserNotifications.Add(userNotification);
-            }
-            else
-            {
-                userNotification.IsRead = true;
-            }
-
-            context.SaveChanges();
-
-            return new ActionResponse { IsSuccess = true, Message = "Notification marked as read." };
+            return query.Count();
         }
 
         protected ActionResponse MarkAllAsReadExecution(int userId)
         {
             using var context = new AppDbContext();
 
-            var notifications = context.Notifications
-                .Where(n => n.UserId == null || n.UserId == userId)
-                .Select(n => n.Id)
-                .ToList();
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
 
-            var existingUserNotifications = context.UserNotifications
-                .Where(un => un.UserId == userId && notifications.Contains(un.NotificationId))
-                .ToList();
-
-            var existingNotificationIds = existingUserNotifications
-                .Select(un => un.NotificationId)
-                .ToHashSet();
-
-            foreach (var notificationId in notifications)
-            {
-                if (!existingNotificationIds.Contains(notificationId))
-                {
-                    context.UserNotifications.Add(new UserNotificationData
-                    {
-                        UserId = userId,
-                        NotificationId = notificationId,
-                        IsRead = true
-                    });
-                }
-                else
-                {
-                    var userNotification = existingUserNotifications.First(un => un.NotificationId == notificationId);
-                    userNotification.IsRead = true;
-                }
-            }
-
+            user.NotificationsReadAt = DateTime.UtcNow;
             context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "All notifications marked as read." };
