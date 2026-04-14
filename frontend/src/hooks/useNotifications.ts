@@ -45,7 +45,6 @@ export function useNotifications() {
         return;
       }
 
-      // Only fetch full list when count INCREASED (new notifications arrived)
       if (count > lastCount.current) {
         notificationService.getAll(api).then(data => {
           const newOnes = data.filter(n => !n.isRead && !knownIds.current.has(n.id));
@@ -53,6 +52,9 @@ export function useNotifications() {
             const fn = TOAST_FN[n.type] ?? 'info';
             toastRef.current[fn](n.message);
           });
+          if (newOnes.some(n => n.type === 'firstBlood')) {
+            window.dispatchEvent(new CustomEvent('dotflag:first-blood'));
+          }
           knownIds.current = new Set(data.map(n => n.id));
           setNotifications(data);
           setUnreadCount(data.filter(n => !n.isRead).length);
