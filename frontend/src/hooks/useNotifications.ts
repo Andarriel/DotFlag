@@ -20,6 +20,7 @@ export function useNotifications() {
   const knownIds = useRef<Set<number>>(new Set());
   const initialized = useRef(false);
   const polling = useRef(false);
+  const lastCount = useRef(0);
   const toastRef = useRef(toast);
   toastRef.current = toast;
 
@@ -29,9 +30,10 @@ export function useNotifications() {
     notificationService.getUnreadCount(api).then(count => {
       setUnreadCount(count);
 
-      // First poll — just seed the known IDs, don't toast
+      // First poll — seed known IDs once, don't toast
       if (!initialized.current) {
         initialized.current = true;
+        lastCount.current = count;
         if (count > 0) {
           notificationService.getAll(api).then(data => {
             knownIds.current = new Set(data.map(n => n.id));
@@ -43,8 +45,8 @@ export function useNotifications() {
         return;
       }
 
-      // If count went up, fetch and toast new ones
-      if (count > 0) {
+      // Only fetch full list when count INCREASED (new notifications arrived)
+      if (count > lastCount.current) {
         notificationService.getAll(api).then(data => {
           const newOnes = data.filter(n => !n.isRead && !knownIds.current.has(n.id));
           newOnes.forEach(n => {
@@ -54,8 +56,10 @@ export function useNotifications() {
           knownIds.current = new Set(data.map(n => n.id));
           setNotifications(data);
           setUnreadCount(data.filter(n => !n.isRead).length);
+          lastCount.current = count;
         }).catch(() => {}).finally(() => { polling.current = false; });
       } else {
+        lastCount.current = count;
         polling.current = false;
       }
     }).catch(() => { polling.current = false; });
