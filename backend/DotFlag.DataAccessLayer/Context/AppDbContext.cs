@@ -15,6 +15,7 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<SubmissionData> Submissions { get; set; }
         public DbSet<NotificationData> Notifications { get; set; }
         public DbSet<HintData> Hints { get; set; }
+        public DbSet<ChallengeFileData> ChallengeFiles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -62,6 +63,14 @@ namespace DotFlag.DataAccessLayer.Context
                 .WithMany()
                 .HasForeignKey(n => n.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Challenge -> Files
+            modelBuilder.Entity<ChallengeFileData>()
+                .HasOne(f => f.Challenge)
+                .WithMany(c => c.Files)
+                .HasForeignKey(f => f.ChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
 
     }
