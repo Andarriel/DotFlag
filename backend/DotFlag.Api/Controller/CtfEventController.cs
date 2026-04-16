@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using DotFlag.BusinessLayer;
+using DotFlag.BusinessLayer.Interfaces;
+using DotFlag.Domain.Models.CtfEvent;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DotFlag.Api.Controller
 {
@@ -6,6 +10,32 @@ namespace DotFlag.Api.Controller
     [ApiController]
     public class CtfEventController : ControllerBase
     {
+        private ICtfEventActions _ctfEventActions;
 
+        public CtfEventController()
+        {
+            var bl = new BusinessLogic();
+            _ctfEventActions = bl.GetCtfEventActions();
+        }
+
+        [HttpGet("status")]
+        [AllowAnonymous]
+        public IActionResult GetStatus()
+        {
+            var result = _ctfEventActions.Get();
+            return Ok(result);
+        }
+
+        [HttpPut("event")]
+        [Authorize(Roles = "Owner")]
+        public IActionResult Update([FromBody] UpdateCtfEventDto dto)
+        {
+            var result = _ctfEventActions.Update(dto);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }
