@@ -20,7 +20,7 @@ function timeAgo(timestamp: string) {
 }
 
 export default function NotificationDropdown() {
-  const { notifications, unreadCount, loading, fetchAll, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, loading, markAllAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -28,14 +28,13 @@ export default function NotificationDropdown() {
 
   useEffect(() => {
     if (!open || !btnRef.current) return;
-    fetchAll();
     const rect = btnRef.current.getBoundingClientRect();
     const panelWidth = 288;
     let left = rect.left + rect.width / 2 - panelWidth / 2;
     left = Math.min(left, window.innerWidth - panelWidth - 12);
     left = Math.max(12, left);
     setPos({ top: rect.bottom + 8, left });
-  }, [open, fetchAll]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

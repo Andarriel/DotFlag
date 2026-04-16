@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DotFlag.DataAccessLayer.Context;
+using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.Submission;
@@ -57,6 +58,20 @@ namespace DotFlag.BusinessLayer.Core
                 BonusPoints = isFirstBlood ? challenge.FirstBloodBonus : 0,
                 CreatedOn = DateTime.UtcNow
             });
+
+            if (isFirstBlood)
+            {
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "First Blood!",
+                    Message = $"{user.Username} was the first to solve {challenge.Name}!",
+                    Type = "firstBlood",
+                    UserId = null,
+                    CreatedOn = DateTime.UtcNow
+                });
+
+                user.NotificationsReadAt = DateTime.UtcNow;
+            }
 
             context.SaveChanges();
 

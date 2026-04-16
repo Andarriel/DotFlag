@@ -28,10 +28,9 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
 
   const [profile, setProfile] = useState<Profile | null>(() => {
     if (USE_MOCK) return MOCK_PROFILES.find(p => p.id === userId) ?? null;
-    if (isOwnProfile && user) return authToProfile(user);
     return null;
   });
-  const [loading, setLoading] = useState(!USE_MOCK && !isOwnProfile);
+  const [loading, setLoading] = useState(!USE_MOCK);
 
   useEffect(() => {
     if (USE_MOCK) return;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MOCK_CHALLENGES } from '../data/mockData';
 import { filterChallenges, calculateChallengeStats } from '../utils/challengeUtils';
 import { challengeService } from '../services/challengeService';
@@ -37,14 +37,29 @@ export function useChallenges() {
   const [selectedCategory, setSelectedCategory] = useState<'All' | ChallengeCategory>('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState<'All' | ChallengeDifficulty>('All');
 
-  useEffect(() => {
+  const fetchChallenges = useCallback((showLoader: boolean) => {
     if (USE_MOCK) return;
-    setLoading(true);
+    if (showLoader) setLoading(true);
     challengeService.getAll(api)
       .then(data => setChallenges(data.map(mapChallenge)))
       .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
+      .finally(() => { if (showLoader) setLoading(false); });
   }, [api]);
+
+  useEffect(() => {
+    fetchChallenges(true);
+  }, [fetchChallenges]);
+
+  useEffect(() => {
+    if (USE_MOCK) return;
+    const refetch = () => fetchChallenges(false);
+    window.addEventListener('focus', refetch);
+    window.addEventListener('dotflag:first-blood', refetch);
+    return () => {
+      window.removeEventListener('focus', refetch);
+      window.removeEventListener('dotflag:first-blood', refetch);
+    };
+  }, [fetchChallenges]);
 
   const visibleChallenges = isAdmin ? challenges : challenges.filter(c => c.isActive);
   const filteredChallenges = filterChallenges(visibleChallenges, selectedCategory, selectedDifficulty);
