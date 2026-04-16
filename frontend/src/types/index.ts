@@ -28,8 +28,7 @@ export interface Challenge {
 
 export interface ChallengeFile {
   id: number;
-  name: string;
-  size: string;
+  fileName: string;
 }
 
 export interface DockerImage {
@@ -45,9 +44,8 @@ export interface DockerImage {
 
 export interface ChallengeHint {
   id: number;
-  text: string;
-  isUnlocked: boolean;
-  cost: number;
+  content: string;
+  order: number;
 }
 
 export interface ChallengeDetail extends Challenge {

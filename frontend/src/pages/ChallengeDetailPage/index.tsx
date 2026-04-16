@@ -1,14 +1,59 @@
 import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { MOCK_CHALLENGE_DETAILS } from '../../data/mockData';
+import { challengeService } from '../../services/challengeService';
+import { useAxios } from '../../context/AxiosContext';
+import { USE_MOCK } from '../../config';
 import EmptyState from '../../components/common/EmptyState';
 import ChallengeInfo from './ChallengeInfo';
 import FileAttachments from './FileAttachments';
 import DockerInstance from './DockerInstance';
+import type { ChallengeDetail } from '../../types';
 
 export default function ChallengeDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const challenge = MOCK_CHALLENGE_DETAILS.find(c => c.id === Number(id));
+  const api = useAxios();
+  const [challenge, setChallenge] = useState<ChallengeDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+    if (USE_MOCK) {
+      setChallenge(MOCK_CHALLENGE_DETAILS.find(c => c.id === Number(id)) ?? null);
+      setLoading(false);
+      return;
+    }
+    challengeService.getById(api, Number(id)).then(apiChallenge => {
+      const hints = (apiChallenge.hints ?? []).map(h => ({ id: h.id, content: h.content, order: h.order }));
+      const files = (apiChallenge.files ?? []).map(f => ({ id: f.id, fileName: f.fileName }));
+      setChallenge({
+        id: apiChallenge.id,
+        title: apiChallenge.name,
+        description: apiChallenge.description,
+        points: apiChallenge.currentPoints,
+        category: apiChallenge.category as unknown as ChallengeDetail['category'],
+        difficulty: apiChallenge.difficulty as unknown as ChallengeDetail['difficulty'],
+        isActive: apiChallenge.isActive,
+        isSolved: apiChallenge.isSolved,
+        solveCount: apiChallenge.solveCount,
+        firstBloodBonus: apiChallenge.firstBloodBonus,
+        files,
+        hints,
+        author: '',
+      });
+    }).catch(() => setChallenge(null)).finally(() => setLoading(false));
+  }, [api, id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 pt-24">
+        <div className="flex justify-center py-20">
+          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   if (!challenge) {
     return (
@@ -29,7 +74,7 @@ export default function ChallengeDetailPage() {
 
         <div className="space-y-4">
           <ChallengeInfo challenge={challenge} />
-          <FileAttachments files={challenge.files} />
+          <FileAttachments files={challenge.files} challengeId={challenge.id} />
           {challenge.dockerImage && <DockerInstance docker={challenge.dockerImage} />}
         </div>
       </div>

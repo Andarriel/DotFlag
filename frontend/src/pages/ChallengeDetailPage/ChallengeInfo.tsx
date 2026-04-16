@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, User, Lock, Unlock, Coins } from 'lucide-react';
+import { Users, User, Lightbulb, Coins } from 'lucide-react';
 import { getCategoryIcon, getDifficultyColor } from '../../utils/challengeUtils';
 import { challengeService } from '../../services/challengeService';
 import { useAxios } from '../../context/AxiosContext';
@@ -7,36 +7,15 @@ import { useToast } from '../../context/ToastContext';
 import { USE_MOCK } from '../../config';
 import type { ChallengeDetail, ChallengeHint } from '../../types';
 
-function HintItem({ hint, index, onUnlock }: { hint: ChallengeHint; index: number; onUnlock: (id: number) => void }) {
-  if (hint.isUnlocked) {
-    return (
-      <div className="bg-amber-500/[0.06] border border-amber-500/15 rounded-xl p-3.5">
-        <div className="flex items-center gap-2 mb-1">
-          <Unlock className="w-3.5 h-3.5 text-amber-400" />
-          <p className="text-[11px] text-amber-400 font-semibold uppercase tracking-wider">Hint {index + 1}</p>
-        </div>
-        <p className="text-sm text-amber-200/70">{hint.text}</p>
-      </div>
-    );
-  }
-
+function HintItem({ hint, index }: { hint: ChallengeHint; index: number }) {
   return (
-    <button
-      onClick={() => onUnlock(hint.id)}
-      className="w-full bg-slate-800/30 border border-white/[0.04] rounded-xl p-3.5 flex items-center justify-between group hover:bg-slate-800/50 hover:border-white/[0.08] transition-all"
-    >
-      <div className="flex items-center gap-2">
-        <Lock className="w-3.5 h-3.5 text-slate-600 group-hover:text-slate-400 transition" />
-        <p className="text-sm text-slate-500 group-hover:text-slate-400 transition">Hint {index + 1}</p>
+    <div className="bg-amber-500/[0.06] border border-amber-500/15 rounded-xl p-3.5">
+      <div className="flex items-center gap-2 mb-1">
+        <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+        <p className="text-[11px] text-amber-400 font-semibold uppercase tracking-wider">Hint {index + 1}</p>
       </div>
-      {hint.cost > 0 ? (
-        <span className="flex items-center gap-1 text-[11px] font-semibold text-amber-400/70 bg-amber-500/[0.08] px-2 py-0.5 rounded-md border border-amber-500/10">
-          <Coins className="w-3 h-3" /> {hint.cost} pts
-        </span>
-      ) : (
-        <span className="text-[11px] text-slate-600">Locked by admin</span>
-      )}
-    </button>
+      <p className="text-sm text-amber-200/70">{hint.content}</p>
+    </div>
   );
 }
 
@@ -44,21 +23,8 @@ export default function ChallengeInfo({ challenge, onSubmit }: { challenge: Chal
   const api = useAxios();
   const toast = useToast();
   const Icon = getCategoryIcon(challenge.category);
-  const [hints, setHints] = useState(challenge.hints);
   const [flag, setFlag] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
-  const handleUnlock = (hintId: number) => {
-    const hint = hints.find(h => h.id === hintId);
-    if (!hint || hint.isUnlocked) return;
-
-    if (hint.cost > 0) {
-      // TODO: call API to deduct points and unlock
-      // For now, just unlock locally for demo
-    }
-
-    setHints(prev => prev.map(h => h.id === hintId ? { ...h, isUnlocked: true } : h));
-  };
 
   const handleSubmitFlag = async () => {
     if (!flag.trim() || submitting) return;
@@ -90,6 +56,8 @@ export default function ChallengeInfo({ challenge, onSubmit }: { challenge: Chal
     }
   };
 
+  const sortedHints = [...challenge.hints].sort((a, b) => a.order - b.order);
+
   return (
     <div className="glass rounded-2xl gradient-border noise overflow-hidden">
       <div className="relative p-5 sm:p-6">
@@ -117,13 +85,12 @@ export default function ChallengeInfo({ challenge, onSubmit }: { challenge: Chal
 
         <div className="flex items-center gap-5 text-sm text-slate-500">
           <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {challenge.solveCount} solves</span>
-          <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> {challenge.author}</span>
         </div>
 
-        {hints.length > 0 && (
+        {sortedHints.length > 0 && (
           <div className="mt-4 space-y-2">
-            {hints.map((hint, i) => (
-              <HintItem key={hint.id} hint={hint} index={i} onUnlock={handleUnlock} />
+            {sortedHints.map((hint, i) => (
+              <HintItem key={hint.id} hint={hint} index={i} />
             ))}
           </div>
         )}
