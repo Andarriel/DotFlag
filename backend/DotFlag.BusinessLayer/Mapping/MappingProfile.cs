@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using DotFlag.Domain.Entities.Challenge;
+using DotFlag.Domain.Entities.CtfEvent;
 using DotFlag.Domain.Entities.Team;
 using DotFlag.Domain.Entities.User;
 using DotFlag.Domain.Models.Challenge;
+using DotFlag.Domain.Models.CtfEvent;
 using DotFlag.Domain.Models.Team;
 using DotFlag.Domain.Models.User;
 
@@ -43,14 +45,19 @@ namespace DotFlag.BusinessLayer.Mapping
             CreateMap<UserData, TeamMemberDto>();
 
             // Hint mapping
-
             CreateMap<HintData, HintDto>();
 
             CreateMap<CreateHintDto, HintData>();
 
             // File Mapping
-
             CreateMap<ChallengeFileData, ChallengeFileDto>();
+            
+            // CtfEvents
+            CreateMap<CtfEventData, CtfEventDto>()
+                .ForMember(d => d.State, opt => opt.Ignore());
+
+            CreateMap<UpdateCtfEventDto, CtfEventData>();
+        
         }
     }
 }

@@ -28,5 +28,6 @@ namespace DotFlag.BusinessLayer
         public ITeamActions GetTeamActions() => new TeamExecution(_mapper);
         public ILeaderboardActions GetLeaderboardActions() => new LeaderboardExecution();
         public INotificationActions GetNotificationActions() => new NotificationExecution();
+        public ICtfEventActions GetCtfEventActions() => new CtfEventExecution(_mapper);
     }
 }
