@@ -29,6 +29,10 @@ namespace DotFlag.Domain.Models.Challenge
 
         public int SolveCount { get; set; }
 
+        public List<HintDto> Hints { get; set; }
+        
+        public List<ChallengeFileDto> Files { get; set; }
+
         public DateTime CreatedOn { get; set; }
     }
 }

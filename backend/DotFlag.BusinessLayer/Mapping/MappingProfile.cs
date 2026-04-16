@@ -42,6 +42,15 @@ namespace DotFlag.BusinessLayer.Mapping
 
             CreateMap<UserData, TeamMemberDto>();
 
+            // Hint mapping
+
+            CreateMap<HintData, HintDto>();
+
+            CreateMap<CreateHintDto, HintData>();
+
+            // File Mapping
+
+            CreateMap<ChallengeFileData, ChallengeFileDto>();
         }
     }
 }

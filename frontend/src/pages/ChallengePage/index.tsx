@@ -14,8 +14,8 @@ import { USE_MOCK } from '../../config';
 import { MOCK_CHALLENGE_DETAILS } from '../../data/mockData';
 import type { ChallengeDetail, Challenge } from '../../types';
 
-function challengeToDetail(c: Challenge, solveCount?: number): ChallengeDetail {
-  return { ...c, files: [], hints: [], solveCount: solveCount ?? 0, author: '' };
+function challengeToDetail(c: Challenge, solveCount?: number, hints?: ChallengeDetail['hints'], files?: ChallengeDetail['files']): ChallengeDetail {
+  return { ...c, files: files ?? [], hints: hints ?? [], solveCount: solveCount ?? 0, author: '' };
 }
 
 export default function ChallengePage() {
@@ -33,9 +33,13 @@ export default function ChallengePage() {
     if (local) setSelectedChallenge(challengeToDetail(local));
     try {
       const apiChallenge = await challengeService.getById(api, id);
+      const hints = (apiChallenge.hints ?? []).map(h => ({ id: h.id, content: h.content, order: h.order }));
+      const files = (apiChallenge.files ?? []).map(f => ({ id: f.id, fileName: f.fileName }));
       const detail = challengeToDetail(
-        { id: apiChallenge.id, title: apiChallenge.name, description: apiChallenge.description, points: apiChallenge.currentPoints, category: (apiChallenge.category as unknown as string) as Challenge['category'], difficulty: (apiChallenge.difficulty as unknown as string) as Challenge['difficulty'], isActive: apiChallenge.isActive },
+        { id: apiChallenge.id, title: apiChallenge.name, description: apiChallenge.description, points: apiChallenge.currentPoints, category: (apiChallenge.category as unknown as string) as Challenge['category'], difficulty: (apiChallenge.difficulty as unknown as string) as Challenge['difficulty'], isActive: apiChallenge.isActive, isSolved: apiChallenge.isSolved, solveCount: apiChallenge.solveCount, firstBloodBonus: apiChallenge.firstBloodBonus },
         apiChallenge.solveCount,
+        hints,
+        files,
       );
       setSelectedChallenge(detail);
     } catch { /* keep local data if fetch fails */ }

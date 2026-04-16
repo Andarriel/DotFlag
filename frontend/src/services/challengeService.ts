@@ -27,4 +27,26 @@ export const challengeService = {
 
   getSubmissions: (api: AxiosInstance, challengeId: number) =>
     api.get<{ id: number; userId: number; challengeId: number; isCorrect: boolean; timestamp: string }[]>(`/challenges/${challengeId}/submissions`).then(res => res.data),
+
+  // Hints
+  addHint: (api: AxiosInstance, challengeId: number, data: { content: string; order: number }) =>
+    api.post<ActionResponse>(`/challenges/${challengeId}/hints`, data).then(res => res.data),
+
+  removeHint: (api: AxiosInstance, challengeId: number, hintId: number) =>
+    api.delete<ActionResponse>(`/challenges/${challengeId}/hints/${hintId}`).then(res => res.data),
+
+  // Files
+  uploadFile: (api: AxiosInstance, challengeId: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<ActionResponse>(`/challenges/${challengeId}/files`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(res => res.data);
+  },
+
+  removeFile: (api: AxiosInstance, challengeId: number, fileId: number) =>
+    api.delete<ActionResponse>(`/challenges/${challengeId}/files/${fileId}`).then(res => res.data),
+
+  getFileDownloadUrl: (challengeId: number, fileId: number) =>
+    `/api/challenges/${challengeId}/files/${fileId}/download`,
 };

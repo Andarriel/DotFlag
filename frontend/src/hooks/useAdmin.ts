@@ -32,6 +32,8 @@ function mapApiChallenge(c: ApiChallenge): Challenge {
     category: CATEGORY_MAP[c.category] ?? 'Misc',
     difficulty: DIFFICULTY_MAP[c.difficulty] ?? 'Medium',
     isActive: c.isActive,
+    solveCount: c.solveCount ?? 0,
+    firstBloodBonus: c.firstBloodBonus ?? 0,
   };
 }
 

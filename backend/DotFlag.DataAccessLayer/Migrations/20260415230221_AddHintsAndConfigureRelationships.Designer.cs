@@ -3,6 +3,7 @@ using System;
 using DotFlag.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotFlag.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260415230221_AddHintsAndConfigureRelationships")]
+    partial class AddHintsAndConfigureRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,32 +80,6 @@ namespace DotFlag.DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Challenges");
-                });
-
-            modelBuilder.Entity("DotFlag.Domain.Entities.Challenge.ChallengeFileData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChallengeId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("StoredPath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.ToTable("ChallengeFiles");
                 });
 
             modelBuilder.Entity("DotFlag.Domain.Entities.Challenge.HintData", b =>
@@ -279,17 +256,6 @@ namespace DotFlag.DataAccessLayer.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DotFlag.Domain.Entities.Challenge.ChallengeFileData", b =>
-                {
-                    b.HasOne("DotFlag.Domain.Entities.Challenge.ChallengeData", "Challenge")
-                        .WithMany("Files")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Challenge");
-                });
-
             modelBuilder.Entity("DotFlag.Domain.Entities.Challenge.HintData", b =>
                 {
                     b.HasOne("DotFlag.Domain.Entities.Challenge.ChallengeData", "Challenge")
@@ -342,8 +308,6 @@ namespace DotFlag.DataAccessLayer.Migrations
 
             modelBuilder.Entity("DotFlag.Domain.Entities.Challenge.ChallengeData", b =>
                 {
-                    b.Navigation("Files");
-
                     b.Navigation("Hints");
 
                     b.Navigation("Submissions");

@@ -1,16 +1,18 @@
-import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil } from 'lucide-react';
+import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File } from 'lucide-react';
 import { useState } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
 import { useAdminContext } from '../../context/AdminContext';
 import { challengeService } from '../../services/challengeService';
 import { useAxios } from '../../context/AxiosContext';
+import { useToast } from '../../context/ToastContext';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../../types';
+import type { ApiHint, ApiChallengeFile } from '../../types/api';
 
 const CATEGORIES: ChallengeCategory[] = ['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics', 'OSINT'];
 const DIFFICULTIES: ChallengeDifficulty[] = ['Easy', 'Medium', 'Hard', 'Impossible'];
 
-function ChallengeRow({ challenge, onToggleActive, onDelete, onEdit }: { challenge: Challenge; onToggleActive: () => void; onDelete: () => void; onEdit: () => void }) {
+function ChallengeRow({ challenge, onToggleActive, onDelete, onEdit, onManage }: { challenge: Challenge; onToggleActive: () => void; onDelete: () => void; onEdit: () => void; onManage: () => void }) {
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
@@ -28,6 +30,9 @@ function ChallengeRow({ challenge, onToggleActive, onDelete, onEdit }: { challen
       <td className="px-4 py-3 text-sm font-bold text-indigo-400">{challenge.points}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-0.5">
+          <button onClick={onManage} title="Manage Hints & Files" className="p-1.5 text-slate-500 hover:text-amber-400 hover:bg-amber-400/10 rounded-lg transition">
+            <Settings2 className="w-3.5 h-3.5" />
+          </button>
           <button onClick={onEdit} title="Edit" className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-400/10 rounded-lg transition">
             <Pencil className="w-3.5 h-3.5" />
           </button>
@@ -69,10 +74,18 @@ const INITIAL_FORM: FormState = {
 export default function ChallengeManagementTable() {
   const { challenges, toggleChallengeActive, createChallenge, updateChallenge, deleteChallenge } = useAdminContext();
   const api = useAxios();
+  const toast = useToast();
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
+
+  // Manage modal state
+  const [manageId, setManageId] = useState<number | null>(null);
+  const [manageHints, setManageHints] = useState<ApiHint[]>([]);
+  const [manageFiles, setManageFiles] = useState<ApiChallengeFile[]>([]);
+  const [manageLoading, setManageLoading] = useState(false);
+  const [newHintContent, setNewHintContent] = useState('');
 
   const openCreate = () => {
     setEditingId(null);
@@ -106,6 +119,88 @@ export default function ChallengeManagementTable() {
       }));
     } catch {}
     setLoadingEdit(false);
+  };
+
+  const openManage = async (challenge: Challenge) => {
+    setManageId(challenge.id);
+    setManageLoading(true);
+    setManageHints([]);
+    setManageFiles([]);
+    setNewHintContent('');
+    try {
+      const full = await challengeService.getById(api, challenge.id);
+      setManageHints(full.hints ?? []);
+      setManageFiles(full.files ?? []);
+    } catch {
+      toast.error('Failed to load challenge details');
+    }
+    setManageLoading(false);
+  };
+
+  const handleAddHint = async () => {
+    if (!manageId || !newHintContent.trim()) return;
+    const nextOrder = manageHints.length > 0 ? Math.max(...manageHints.map(h => h.order)) + 1 : 1;
+    try {
+      const res = await challengeService.addHint(api, manageId, { content: newHintContent.trim(), order: nextOrder });
+      if (res.isSuccess) {
+        toast.success('Hint added');
+        setNewHintContent('');
+        const full = await challengeService.getById(api, manageId);
+        setManageHints(full.hints ?? []);
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to add hint');
+    }
+  };
+
+  const handleRemoveHint = async (hintId: number) => {
+    if (!manageId) return;
+    try {
+      const res = await challengeService.removeHint(api, manageId, hintId);
+      if (res.isSuccess) {
+        toast.success('Hint removed');
+        setManageHints(prev => prev.filter(h => h.id !== hintId));
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to remove hint');
+    }
+  };
+
+  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!manageId || !e.target.files?.length) return;
+    const file = e.target.files[0];
+    try {
+      const res = await challengeService.uploadFile(api, manageId, file);
+      if (res.isSuccess) {
+        toast.success('File uploaded');
+        const full = await challengeService.getById(api, manageId);
+        setManageFiles(full.files ?? []);
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to upload file');
+    }
+    e.target.value = '';
+  };
+
+  const handleRemoveFile = async (fileId: number) => {
+    if (!manageId) return;
+    try {
+      const res = await challengeService.removeFile(api, manageId, fileId);
+      if (res.isSuccess) {
+        toast.success('File removed');
+        setManageFiles(prev => prev.filter(f => f.id !== fileId));
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to remove file');
+    }
   };
 
   const handleSubmit = () => {
@@ -150,6 +245,8 @@ export default function ChallengeManagementTable() {
     { label: 'Actions', className: '' },
   ];
 
+  const sortedManageHints = [...manageHints].sort((a, b) => a.order - b.order);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
@@ -171,13 +268,14 @@ export default function ChallengeManagementTable() {
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
               {challenges.map(c => (
-                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => toggleChallengeActive(c.id)} onDelete={() => deleteChallenge(c.id)} onEdit={() => openEdit(c)} />
+                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => toggleChallengeActive(c.id)} onDelete={() => deleteChallenge(c.id)} onEdit={() => openEdit(c)} onManage={() => openManage(c)} />
               ))}
             </tbody>
           </table>
         </div>
       </div>
 
+      {/* Create/Edit Modal */}
       <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingId(null); }} title={editingId !== null ? 'Edit Challenge' : 'Create New Challenge'} onConfirm={handleSubmit} confirmLabel={editingId !== null ? 'Save' : 'Create'}>
         <div className="space-y-4">
           <div>
@@ -230,6 +328,89 @@ export default function ChallengeManagementTable() {
             <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder={editingId !== null ? 'Leave empty to keep current flag' : 'dotflag{your_flag_here}'} />
           </div>
         </div>
+      </Modal>
+
+      {/* Manage Hints & Files Modal */}
+      <Modal isOpen={manageId !== null} onClose={() => setManageId(null)} title="Manage Hints & Files">
+        {manageLoading ? (
+          <div className="flex justify-center py-8">
+            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="space-y-6 max-h-[60vh] overflow-y-auto">
+            {/* Hints Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="w-4 h-4 text-amber-400" />
+                <h4 className="text-sm font-semibold text-white">Hints</h4>
+              </div>
+
+              {sortedManageHints.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {sortedManageHints.map((hint, i) => (
+                    <div key={hint.id} className="flex items-start gap-2 bg-amber-500/[0.06] border border-amber-500/15 rounded-xl p-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] text-amber-400 font-semibold mb-0.5">Hint #{hint.order}</p>
+                        <p className="text-sm text-amber-200/70">{hint.content}</p>
+                      </div>
+                      <button onClick={() => handleRemoveHint(hint.id)} className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition shrink-0">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newHintContent}
+                  onChange={e => setNewHintContent(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddHint()}
+                  className={`${inputClass} flex-1`}
+                  placeholder="Enter hint text..."
+                />
+                <button
+                  onClick={handleAddHint}
+                  disabled={!newHintContent.trim()}
+                  className="px-3 py-2 bg-amber-600 text-white rounded-xl text-sm font-medium hover:bg-amber-500 transition disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Files Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <File className="w-4 h-4 text-indigo-400" />
+                <h4 className="text-sm font-semibold text-white">Files</h4>
+              </div>
+
+              {manageFiles.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {manageFiles.map(file => (
+                    <div key={file.id} className="flex items-center justify-between bg-slate-800/30 border border-white/[0.04] rounded-xl p-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <File className="w-4 h-4 text-slate-400 shrink-0" />
+                        <p className="text-sm text-white truncate">{file.fileName}</p>
+                      </div>
+                      <button onClick={() => handleRemoveFile(file.id)} className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition shrink-0">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <label className="flex items-center gap-2 px-3 py-2.5 bg-slate-800/50 border border-dashed border-white/[0.08] rounded-xl cursor-pointer hover:border-indigo-500/30 hover:bg-slate-800/70 transition">
+                <Upload className="w-4 h-4 text-slate-400" />
+                <span className="text-sm text-slate-400">Upload file...</span>
+                <input type="file" className="hidden" onChange={handleUploadFile} />
+              </label>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

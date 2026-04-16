@@ -71,6 +71,17 @@ export interface LoginResponse {
   user: ApiUser;
 }
 
+export interface ApiHint {
+  id: number;
+  content: string;
+  order: number;
+}
+
+export interface ApiChallengeFile {
+  id: number;
+  fileName: string;
+}
+
 export interface ApiChallenge {
   id: number;
   name: string;
@@ -85,6 +96,8 @@ export interface ApiChallenge {
   isActive: boolean;
   isSolved: boolean;
   solveCount: number;
+  hints: ApiHint[];
+  files: ApiChallengeFile[];
   createdOn: string;
 }
 

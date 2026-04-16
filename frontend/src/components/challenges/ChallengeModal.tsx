@@ -62,7 +62,7 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
 
         <div className="space-y-4 p-5 pt-12 sm:p-6 sm:pt-14">
           <ChallengeInfo challenge={challenge} onSubmit={refetchSubmissions} />
-          <FileAttachments files={challenge.files} />
+          <FileAttachments files={challenge.files} challengeId={challenge.id} />
           {challenge.dockerImage && <DockerInstance docker={challenge.dockerImage} />}
           <SubmissionHistory submissions={submissions} />
         </div>
