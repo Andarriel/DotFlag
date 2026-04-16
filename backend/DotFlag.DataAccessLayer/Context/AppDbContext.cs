@@ -1,4 +1,5 @@
 ﻿using DotFlag.Domain.Entities.Challenge;
+using DotFlag.Domain.Entities.CtfEvent;
 using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Entities.Team;
@@ -16,6 +17,7 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<NotificationData> Notifications { get; set; }
         public DbSet<HintData> Hints { get; set; }
         public DbSet<ChallengeFileData> ChallengeFiles { get; set; }
+        public DbSet<CtfEventData> CtfEvents { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -71,6 +73,15 @@ namespace DotFlag.DataAccessLayer.Context
                 .HasForeignKey(f => f.ChallengeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // CtfEventData
+            modelBuilder.Entity<CtfEventData>()
+                .HasData(new CtfEventData
+                {
+                    Id = 1,
+                    Name = "DotFlag CTF",
+                    StartTime = DateTime.UtcNow,
+                    EndTime = DateTime.UtcNow,
+                });
         }
 
     }
