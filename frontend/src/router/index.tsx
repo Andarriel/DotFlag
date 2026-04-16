@@ -15,6 +15,7 @@ import ProfilePage from '../pages/ProfilePage';
 import AboutPage from '../pages/AboutPage';
 import ServerErrorPage from '../pages/ServerErrorPage';
 import { ProtectedRoute } from './ProtectedRoute';
+import CtfGatedLayout from './CtfGatedLayout';
 import { ROUTES, ROUTE_SEGMENTS } from './paths';
 
 export const router = createBrowserRouter([
@@ -26,7 +27,12 @@ export const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
           { index: true, element: <HomePage /> },
-          { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
+          {
+            element: <CtfGatedLayout />,
+            children: [
+              { path: ROUTE_SEGMENTS.LEADERBOARD, element: <LeaderboardPage /> },
+            ],
+          },
           { path: ROUTE_SEGMENTS.ABOUT, element: <AboutPage /> },
           { path: ROUTE_SEGMENTS.PROFILE, element: <ProfilePage /> },
           {
@@ -38,8 +44,13 @@ export const router = createBrowserRouter([
           {
             element: <ProtectedRoute requiredRole="User" />,
             children: [
-              { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
-              { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
+              {
+                element: <CtfGatedLayout />,
+                children: [
+                  { path: ROUTE_SEGMENTS.DASHBOARD, element: <DashboardPage /> },
+                  { path: ROUTE_SEGMENTS.CHALLENGES, element: <ChallengePage /> },
+                ],
+              },
               { path: ROUTE_SEGMENTS.TEAM, element: <TeamPage /> },
             ],
           },

@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { AxiosProvider } from '../context/AxiosContext';
 import { TeamProvider } from '../context/TeamContext';
+import { CtfStatusProvider } from '../context/CtfStatusContext';
 import { useHealthCheck } from '../hooks/useHealthCheck';
 
 function HealthGate({ children }: { children: React.ReactNode }) {
@@ -11,11 +12,13 @@ function HealthGate({ children }: { children: React.ReactNode }) {
 export default function AppProvider() {
   return (
     <AxiosProvider>
-      <TeamProvider>
-        <HealthGate>
-          <Outlet />
-        </HealthGate>
-      </TeamProvider>
+      <CtfStatusProvider>
+        <TeamProvider>
+          <HealthGate>
+            <Outlet />
+          </HealthGate>
+        </TeamProvider>
+      </CtfStatusProvider>
     </AxiosProvider>
   );
 }
