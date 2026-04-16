@@ -1,4 +1,5 @@
 using DotFlag.Api.Extensions;
+using DotFlag.Api.Filters;
 using DotFlag.BusinessLayer;
 using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.Domain.Models.Challenge;
@@ -23,6 +24,7 @@ namespace DotFlag.Api.Controller
 
         [HttpGet]
         [AllowAnonymous]
+        [RequireCtfRunning]
         public IActionResult GetAll()
         {
             var isAuthenticated = User.Identity?.IsAuthenticated == true;
@@ -36,6 +38,7 @@ namespace DotFlag.Api.Controller
 
         [HttpGet("{id}")]
         [Authorize]
+        [RequireCtfRunning]
         public IActionResult GetById(int id)
         {
             var role = User.GetRole();
@@ -126,6 +129,7 @@ namespace DotFlag.Api.Controller
 
         [HttpGet("{id}/files/{fileId}/download")]
         [Authorize]
+        [RequireCtfRunning]
         public IActionResult DownloadFile(int id, int fileId)
         {
             var file = _challengeActions.GetFile(id, fileId);

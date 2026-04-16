@@ -1,0 +1,145 @@
+import { useEffect, useState } from 'react';
+import { Save, CalendarClock, Hourglass, Flag, Swords } from 'lucide-react';
+import { ctfEventService } from '../../services/ctfEventService';
+import { useAxios } from '../../context/AxiosContext';
+import { useToast } from '../../context/ToastContext';
+import { useCtfStatus } from '../../context/CtfStatusContext';
+import type { CtfState } from '../../types/api';
+
+function toLocalInput(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function STATE_STYLE(state: CtfState) {
+  switch (state) {
+    case 'Running':
+      return { color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20', Icon: Swords, label: 'Live' };
+    case 'Upcoming':
+      return { color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', Icon: Hourglass, label: 'Upcoming' };
+    case 'Ended':
+      return { color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20', Icon: Flag, label: 'Ended' };
+  }
+}
+
+export default function CtfEventSettings() {
+  const api = useAxios();
+  const toast = useToast();
+  const { status, refresh } = useCtfStatus();
+
+  const [name, setName] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!status) return;
+    setName(status.name);
+    setStartTime(toLocalInput(status.startTime));
+    setEndTime(toLocalInput(status.endTime));
+  }, [status]);
+
+  const handleSave = async () => {
+    if (!name.trim() || !startTime || !endTime || saving) return;
+    setSaving(true);
+    try {
+      const res = await ctfEventService.update(api, {
+        name,
+        startTime: new Date(startTime).toISOString(),
+        endTime: new Date(endTime).toISOString(),
+      });
+      if (res.isSuccess) {
+        toast.success('CTF event updated');
+        refresh();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to update CTF event');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!status) {
+    return (
+      <div className="glass rounded-2xl p-6 gradient-border">
+        <p className="text-sm text-slate-500">Loading CTF event...</p>
+      </div>
+    );
+  }
+
+  const s = STATE_STYLE(status.state);
+  const Icon = s.Icon;
+
+  return (
+    <div className="space-y-6">
+      <div className="glass rounded-2xl p-6 gradient-border">
+        <div className="flex items-start justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-bold text-white mb-1">CTF Event</h2>
+            <p className="text-sm text-slate-500">Configure the event window. Only the Owner can change these.</p>
+          </div>
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${s.bg}`}>
+            <Icon className={`w-3.5 h-3.5 ${s.color}`} />
+            <span className={`font-mono text-[11px] uppercase tracking-[0.15em] ${s.color}`}>{s.label}</span>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="e.g. DotFlag Spring 2026"
+              className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block flex items-center gap-1.5">
+                <CalendarClock className="w-3.5 h-3.5" />
+                Start
+              </label>
+              <input
+                type="datetime-local"
+                value={startTime}
+                onChange={e => setStartTime(e.target.value)}
+                className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block flex items-center gap-1.5">
+                <CalendarClock className="w-3.5 h-3.5" />
+                End
+              </label>
+              <input
+                type="datetime-local"
+                value={endTime}
+                onChange={e => setEndTime(e.target.value)}
+                className="w-full bg-slate-800/50 border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="text-[11px] text-slate-600 font-mono">
+            Stored in UTC. Input is interpreted in your local time.
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={saving || !name.trim() || !startTime || !endTime}
+            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Save className="w-4 h-4" />
+            {saving ? 'Saving...' : 'Save Event'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
