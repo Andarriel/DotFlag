@@ -28,7 +28,7 @@ export default function DashboardPage() {
   const { currentUserRank, loading: leaderboardLoading } = useLeaderboard();
   const loading = challengesLoading || leaderboardLoading;
   const recommendedChallenges = challenges.filter(c => !c.isSolved && c.isActive).slice(0, 3);
-  const solvedChallenges = challenges.filter(c => c.isSolved);
+  const solvedChallenges = challenges.filter(c => c.isSolved && c.isActive);
   const activeChallenges = challenges.filter(c => c.isActive);
   const [activities, setActivities] = useState<GlobalActivityItem[]>(MOCK_RECENT_ACTIVITY);
 

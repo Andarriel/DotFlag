@@ -169,6 +169,8 @@ namespace DotFlag.BusinessLayer.Core
 
             context.SaveChanges();
 
+            AuditLog.Log(currentUserId, AuditAction.UserBanned, "User", id, $"username={user.Username}");
+
             return new ActionResponse { IsSuccess = true, Message = "User banned successfully." };
         }
 
@@ -193,6 +195,8 @@ namespace DotFlag.BusinessLayer.Core
             user.IsBanned = false;
 
             context.SaveChanges();
+
+            AuditLog.Log(currentUserId, AuditAction.UserUnbanned, "User", id, $"username={user.Username}");
 
             return new ActionResponse { IsSuccess = true, Message = "User unbanned successfully." };
         }
@@ -221,6 +225,8 @@ namespace DotFlag.BusinessLayer.Core
 
             context.SaveChanges();
 
+            AuditLog.Log(currentUserId, AuditAction.UserPromoted, "User", id, $"username={user.Username}");
+
             return new ActionResponse { IsSuccess = true, Message = "User promoted to Admin successfully." };
         }
 
@@ -248,6 +254,8 @@ namespace DotFlag.BusinessLayer.Core
             user.Role = UserRole.User;
 
             context.SaveChanges();
+
+            AuditLog.Log(currentUserId, AuditAction.UserDemoted, "User", id, $"username={user.Username}");
 
             return new ActionResponse { IsSuccess = true, Message = "User demoted to regular User successfully." };
         }

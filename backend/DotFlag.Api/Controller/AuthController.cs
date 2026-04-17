@@ -21,7 +21,8 @@ namespace DotFlag.Api.Controller
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLoginDto dto)
         {
-            var (data, error) = _authActions.Login(dto);
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var (data, error) = _authActions.Login(dto, ip);
 
             if (data == null)
                 return Unauthorized(new ActionResponse

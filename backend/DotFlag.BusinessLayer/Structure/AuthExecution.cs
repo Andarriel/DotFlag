@@ -15,8 +15,8 @@ public class AuthExecution : AuthActions, IAuthActions
         return RegisterExecution(dto);
     }
 
-    public (LoginResponseDto? Data, string? Error) Login(UserLoginDto dto)
+    public (LoginResponseDto? Data, string? Error) Login(UserLoginDto dto, string? ipAddress = null)
     {
-        return LoginExecution(dto);
+        return LoginExecution(dto, ipAddress);
     }
 }

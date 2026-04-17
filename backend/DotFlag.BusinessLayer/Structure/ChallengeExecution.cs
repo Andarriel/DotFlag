@@ -22,34 +22,34 @@ public class ChallengeExecution : ChallengeActions, IChallengeActions
         return GetAllExecution(role, userId);
     }
 
-    public ActionResponse Create(CreateChallengeDto dto)
+    public ActionResponse Create(CreateChallengeDto dto, int actorId)
     {
-        return CreateExecution(dto);
+        return CreateExecution(dto, actorId);
     }
 
-    public ActionResponse Update(int id, UpdateChallengeDto dto)
+    public ActionResponse Update(int id, UpdateChallengeDto dto, int actorId)
     {
-        return UpdateExecution(id, dto);
+        return UpdateExecution(id, dto, actorId);
     }
 
-    public ActionResponse Delete(int id)
+    public ActionResponse Delete(int id, int actorId)
     {
-        return DeleteExecution(id);
+        return DeleteExecution(id, actorId);
     }
 
-    public ActionResponse AddHint(int challengeId, CreateHintDto dto)
+    public ActionResponse AddHint(int challengeId, CreateHintDto dto, int actorId)
     {
-        return AddHintExecution(challengeId,dto);
+        return AddHintExecution(challengeId, dto, actorId);
     }
 
-    public ActionResponse RemoveHint(int challengeId, int hintId)
+    public ActionResponse RemoveHint(int challengeId, int hintId, int actorId)
     {
-        return RemoveHintExecution(challengeId, hintId);
+        return RemoveHintExecution(challengeId, hintId, actorId);
     }
 
-    public Task<ActionResponse> AddFile(int challengeId, string fileName, Stream fileStream)
+    public Task<ActionResponse> AddFile(int challengeId, string fileName, Stream fileStream, int actorId)
     {
-        return AddFileExecution(challengeId, fileName, fileStream);
+        return AddFileExecution(challengeId, fileName, fileStream, actorId);
     }
 
     public ChallengeFileData GetFile(int challengeId, int fileId)
@@ -57,8 +57,8 @@ public class ChallengeExecution : ChallengeActions, IChallengeActions
         return GetFileExecution(challengeId, fileId);
     }
 
-    public ActionResponse RemoveFile(int challengeId, int fileId)
+    public ActionResponse RemoveFile(int challengeId, int fileId, int actorId)
     {
-        return RemoveFileExecution(challengeId, fileId);
+        return RemoveFileExecution(challengeId, fileId, actorId);
     }
 }

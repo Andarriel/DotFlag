@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Challenge;
 using DotFlag.Domain.Enums;
@@ -22,7 +22,7 @@ namespace DotFlag.BusinessLayer.Core
             using var context = new AppDbContext();
 
             bool includeInactive = role == UserRole.Admin || role == UserRole.Owner;
-            
+
             var challenge = context.Challenges
                 .Include(c => c.Hints)
                 .Include(c => c.Files)
@@ -47,7 +47,7 @@ namespace DotFlag.BusinessLayer.Core
             using var context = new AppDbContext();
 
             bool includeInactive = role == UserRole.Admin || role == UserRole.Owner;
-            
+
             var challenges = context.Challenges
                 .Include(c => c.Hints)
                 .Include(c => c.Files)
@@ -69,7 +69,7 @@ namespace DotFlag.BusinessLayer.Core
             return dtos;
         }
 
-        protected ActionResponse CreateExecution(CreateChallengeDto dto) 
+        protected ActionResponse CreateExecution(CreateChallengeDto dto, int actorId)
         {
             using var context = new AppDbContext();
 
@@ -81,9 +81,12 @@ namespace DotFlag.BusinessLayer.Core
             context.Challenges.Add(challenge);
             context.SaveChanges();
 
+            AuditLog.Log(actorId, AuditAction.ChallengeCreated, "Challenge", challenge.Id, $"name={challenge.Name}");
+
             return new ActionResponse { IsSuccess = true, Message = "Challenge created successfully." };
         }
-        protected ActionResponse UpdateExecution(int id, UpdateChallengeDto dto)
+
+        protected ActionResponse UpdateExecution(int id, UpdateChallengeDto dto, int actorId)
         {
             using var context = new AppDbContext();
 
@@ -91,6 +94,9 @@ namespace DotFlag.BusinessLayer.Core
 
             if (challenge == null)
                 return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
+
+            bool wasActive = challenge.IsActive;
+            bool flagChanged = !string.IsNullOrEmpty(dto.Flag);
 
             challenge.Name = dto.Name;
             challenge.Description = dto.Description;
@@ -102,7 +108,7 @@ namespace DotFlag.BusinessLayer.Core
             challenge.DecayRate = dto.DecayRate;
             challenge.FirstBloodBonus = dto.FirstBloodBonus;
 
-            if (!string.IsNullOrEmpty(dto.Flag))
+            if (flagChanged)
                 challenge.FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag);
 
             challenge.CurrentPoints = challenge.CalculateCurrentPoints(
@@ -110,10 +116,20 @@ namespace DotFlag.BusinessLayer.Core
 
             context.SaveChanges();
 
+            if (wasActive && !dto.IsActive)
+                AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name}");
+            else if (!wasActive && dto.IsActive)
+                AuditLog.Log(actorId, AuditAction.ChallengeEnabled, "Challenge", id, $"name={challenge.Name}");
+            else
+                AuditLog.Log(actorId, AuditAction.ChallengeUpdated, "Challenge", id, $"name={challenge.Name}");
+
+            if (flagChanged)
+                AuditLog.Log(actorId, AuditAction.FlagChanged, "Challenge", id, $"name={challenge.Name}");
+
             return new ActionResponse { IsSuccess = true, Message = "Challenge updated successfully." };
         }
 
-        protected ActionResponse DeleteExecution(int id)
+        protected ActionResponse DeleteExecution(int id, int actorId)
         {
             using var context = new AppDbContext();
 
@@ -125,12 +141,12 @@ namespace DotFlag.BusinessLayer.Core
             challenge.IsActive = false;
             context.SaveChanges();
 
+            AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name};reason=delete");
+
             return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };
         }
 
-        // Hints & Files p-tru challenges
-
-        protected ActionResponse AddHintExecution(int challengeId, CreateHintDto dto)
+        protected ActionResponse AddHintExecution(int challengeId, CreateHintDto dto, int actorId)
         {
             using var context = new AppDbContext();
 
@@ -145,10 +161,12 @@ namespace DotFlag.BusinessLayer.Core
             context.Hints.Add(hint);
             context.SaveChanges();
 
+            AuditLog.Log(actorId, AuditAction.HintAdded, "Hint", hint.Id, $"challengeId={challengeId}");
+
             return new ActionResponse { IsSuccess = true, Message = "Hint added to challenge successfully." };
         }
 
-        protected ActionResponse RemoveHintExecution(int challengeId, int hintId)
+        protected ActionResponse RemoveHintExecution(int challengeId, int hintId, int actorId)
         {
             using var context = new AppDbContext();
 
@@ -160,10 +178,12 @@ namespace DotFlag.BusinessLayer.Core
             context.Hints.Remove(hint);
             context.SaveChanges();
 
-            return new ActionResponse() { IsSuccess = true, Message = "Hint was removed from challenge successfully."};
+            AuditLog.Log(actorId, AuditAction.HintRemoved, "Hint", hintId, $"challengeId={challengeId}");
+
+            return new ActionResponse() { IsSuccess = true, Message = "Hint was removed from challenge successfully." };
         }
 
-        protected async Task<ActionResponse> AddFileExecution(int challengeId, string fileName, Stream fileStream)
+        protected async Task<ActionResponse> AddFileExecution(int challengeId, string fileName, Stream fileStream, int actorId)
         {
             using var context = new AppDbContext();
 
@@ -192,6 +212,8 @@ namespace DotFlag.BusinessLayer.Core
             context.ChallengeFiles.Add(challengeFile);
             context.SaveChanges();
 
+            AuditLog.Log(actorId, AuditAction.FileUploaded, "ChallengeFile", challengeFile.Id, $"challengeId={challengeId};name={fileName}");
+
             return new ActionResponse { IsSuccess = true, Message = "File added to challenge successfully." };
         }
 
@@ -201,7 +223,7 @@ namespace DotFlag.BusinessLayer.Core
             return context.ChallengeFiles.FirstOrDefault(f => f.Id == fileId && f.ChallengeId == challengeId);
         }
 
-        protected ActionResponse RemoveFileExecution(int challengeId, int fileId)
+        protected ActionResponse RemoveFileExecution(int challengeId, int fileId, int actorId)
         {
             using var context = new AppDbContext();
             var file = context.ChallengeFiles.FirstOrDefault(f => f.Id == fileId && f.ChallengeId == challengeId);
@@ -213,6 +235,8 @@ namespace DotFlag.BusinessLayer.Core
 
             context.ChallengeFiles.Remove(file);
             context.SaveChanges();
+
+            AuditLog.Log(actorId, AuditAction.FileRemoved, "ChallengeFile", fileId, $"challengeId={challengeId};name={file.FileName}");
 
             return new ActionResponse { IsSuccess = true, Message = "File removed successfully." };
         }
