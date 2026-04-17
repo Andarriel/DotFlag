@@ -33,6 +33,10 @@ namespace DotFlag.BusinessLayer.Core
             if (alreadySolved)
                 return new ActionResponse { IsSuccess = false, Message = "Challenge already solved." };
 
+            var (allowed, retryAfter) = SubmissionRateLimiter.TryRegister(userId, challengeId);
+            if (!allowed)
+                return new ActionResponse { IsSuccess = false, Message = $"Too many attempts. Try again in {retryAfter}s." };
+
             var user = context.Users.FirstOrDefault(u => u.Id == userId);
 
             if (user == null)
@@ -43,6 +47,7 @@ namespace DotFlag.BusinessLayer.Core
 
             if (isCorrect)
             {
+                SubmissionRateLimiter.Clear(userId, challengeId);
                 challenge.SolveCount += 1;
                 challenge.CurrentPoints = challenge.CalculateCurrentPoints(
                     challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, challenge.SolveCount);
