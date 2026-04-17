@@ -39,7 +39,7 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
   }
   const categories = [...categoryMap.entries()]
     .sort((a, b) => b[1].points - a[1].points);
-  const maxCategoryPoints = categories.length > 0 ? categories[0][1].points : 1;
+  const categoryTotalPoints = categories.reduce((sum, [, d]) => sum + d.points, 0) || 1;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -53,7 +53,8 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
 
       {solves.length > 1 && (() => {
         const sorted = [...solves].sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
-        const points: { t: number; cum: number; isFirstBlood: boolean }[] = [];
+        const firstT = new Date(sorted[0].solvedAt).getTime();
+        const points: { t: number; cum: number; isFirstBlood: boolean }[] = [{ t: firstT, cum: 0, isFirstBlood: false }];
         let cum = 0;
         for (const s of sorted) {
           cum += s.points;
@@ -67,8 +68,12 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
         const scaleY = (c: number) => H - PAD - (c / maxCum) * (H - PAD * 2);
         const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${scaleX(p.t).toFixed(1)},${scaleY(p.cum).toFixed(1)}`).join(' ');
         const area = `${path} L${scaleX(maxT).toFixed(1)},${H - PAD} L${scaleX(minT).toFixed(1)},${H - PAD} Z`;
-        const startLabel = new Date(minT).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-        const endLabel = new Date(maxT).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        const sameDay = new Date(minT).toDateString() === new Date(maxT).toDateString();
+        const labelOpts: Intl.DateTimeFormatOptions = sameDay
+          ? { hour: '2-digit', minute: '2-digit' }
+          : { month: 'short', day: 'numeric' };
+        const startLabel = new Date(minT).toLocaleString(undefined, labelOpts);
+        const endLabel = new Date(maxT).toLocaleString(undefined, labelOpts);
         return (
           <div className="glass rounded-xl p-5 gradient-border">
             <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
@@ -84,17 +89,20 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
               </defs>
               <path d={area} fill="url(#solveAreaGradient)" />
               <path d={path} fill="none" stroke="rgb(129 140 248)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
-              {points.map((p, i) => (
-                <circle
-                  key={i}
-                  cx={scaleX(p.t)}
-                  cy={scaleY(p.cum)}
-                  r={p.isFirstBlood ? 3 : 2}
-                  fill={p.isFirstBlood ? 'rgb(248 113 113)' : 'rgb(165 180 252)'}
-                >
-                  <title>{`+${sorted[i].points} · ${sorted[i].challengeTitle} · ${new Date(p.t).toLocaleString()}`}</title>
-                </circle>
-              ))}
+              {sorted.map((s, i) => {
+                const p = points[i + 1];
+                return (
+                  <circle
+                    key={i}
+                    cx={scaleX(p.t)}
+                    cy={scaleY(p.cum)}
+                    r={p.isFirstBlood ? 3 : 2}
+                    fill={p.isFirstBlood ? 'rgb(248 113 113)' : 'rgb(165 180 252)'}
+                  >
+                    <title>{`+${s.points} · ${s.challengeTitle} · ${new Date(p.t).toLocaleString()}`}</title>
+                  </circle>
+                );
+              })}
             </svg>
             <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1">
               <span>{startLabel}</span>
@@ -112,7 +120,7 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
           <div className="space-y-3">
             {categories.map(([cat, data]) => {
               const colors = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.Misc;
-              const pct = Math.round((data.points / maxCategoryPoints) * 100);
+              const pct = Math.round((data.points / categoryTotalPoints) * 100);
               return (
                 <div key={cat}>
                   <div className="flex items-center justify-between mb-1.5">
@@ -120,7 +128,7 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
                       <span className={`text-xs font-medium ${colors.text}`}>{cat}</span>
                       <span className="text-[11px] text-slate-600">{data.count} solve{data.count !== 1 ? 's' : ''}</span>
                     </div>
-                    <span className="text-xs font-semibold text-slate-400">{data.points} pts</span>
+                    <span className="text-xs font-semibold text-slate-400">{data.points} pts <span className="text-slate-600 font-normal">· {pct}%</span></span>
                   </div>
                   <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden">
                     <div className={`h-full ${colors.bar} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
