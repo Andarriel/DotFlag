@@ -89,18 +89,41 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Team disbanded successfully." };
         }
 
+        private Dictionary<int, int> GetMemberScores(AppDbContext context, IEnumerable<int> userIds)
+        {
+            var ids = userIds.ToList();
+            if (ids.Count == 0) return new Dictionary<int, int>();
+
+            return context.Submissions
+                .Where(s => s.IsCorrect && s.Challenge.IsActive && ids.Contains(s.UserId))
+                .GroupBy(s => s.UserId)
+                .Select(g => new { UserId = g.Key, Score = g.Sum(s => s.Challenge.CurrentPoints + s.BonusPoints) })
+                .ToDictionary(x => x.UserId, x => x.Score);
+        }
+
+        private void PopulateMemberPoints(AppDbContext context, IEnumerable<TeamDto> teams)
+        {
+            var allMemberIds = teams.SelectMany(t => t.Members).Select(m => m.Id).Distinct().ToList();
+            var scores = GetMemberScores(context, allMemberIds);
+            foreach (var team in teams)
+                foreach (var member in team.Members)
+                    member.CurrentPoints = scores.GetValueOrDefault(member.Id, 0);
+        }
+
         protected List<TeamDto> GetAllExecution(UserRole role)
         {
             using var context = new AppDbContext();
 
             bool  includeInactive = role == UserRole.Admin || role == UserRole.Owner;
-            
+
             var teams = context.Teams
                 .Include(t => t.Members)
                 .Where(team => includeInactive || team.IsActive)
                 .ToList();
 
-            return _mapper.Map<List<TeamDto>>(teams);
+            var dtos = _mapper.Map<List<TeamDto>>(teams);
+            PopulateMemberPoints(context, dtos);
+            return dtos;
         }
 
         protected TeamDto GetByIdExecution(int id)
@@ -114,7 +137,9 @@ namespace DotFlag.BusinessLayer.Core
             if (team == null)
                 return null;
 
-            return _mapper.Map<TeamDto>(team);
+            var dto = _mapper.Map<TeamDto>(team);
+            PopulateMemberPoints(context, new[] { dto });
+            return dto;
         }
 
         protected ActionResponse JoinExecution(int userId, JoinTeamDto dto)

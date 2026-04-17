@@ -173,6 +173,24 @@ export function useAdmin() {
     }
   };
 
+  const cloneChallenge = async (challengeId: number) => {
+    if (USE_MOCK) {
+      toast.success('Challenge cloned (mock)');
+      return;
+    }
+    try {
+      const res = await challengeService.clone(api, challengeId);
+      if (res.isSuccess) {
+        toast.success('Challenge cloned');
+        refresh();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to clone challenge');
+    }
+  };
+
   const deleteChallenge = async (challengeId: number) => {
     if (!USE_MOCK) {
       try {
@@ -234,7 +252,7 @@ export function useAdmin() {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
     toggleBan, kickSession, promote, demote, deleteUser,
-    createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge,
+    createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge, cloneChallenge,
     registerUser, loading, refresh,
   };
 }

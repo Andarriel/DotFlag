@@ -1,4 +1,4 @@
-import { Trophy, Target, Zap, Flame, Flag } from 'lucide-react';
+import { Trophy, Target, Zap, Flame, Flag, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 import type { Profile, ChallengeCategory } from '../../types';
@@ -50,6 +50,60 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
         <StatCard icon={Flame} color="text-red-400" bg="bg-red-400/10" label="First Bloods" value={firstBloods.length} />
         <StatCard icon={Zap} color="text-purple-400" bg="bg-purple-400/10" label="Categories" value={categories.length} />
       </div>
+
+      {solves.length > 1 && (() => {
+        const sorted = [...solves].sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
+        const points: { t: number; cum: number; isFirstBlood: boolean }[] = [];
+        let cum = 0;
+        for (const s of sorted) {
+          cum += s.points;
+          points.push({ t: new Date(s.solvedAt).getTime(), cum, isFirstBlood: s.isFirstBlood });
+        }
+        const W = 600, H = 120, PAD = 8;
+        const minT = points[0].t, maxT = points[points.length - 1].t;
+        const maxCum = points[points.length - 1].cum;
+        const tSpan = Math.max(1, maxT - minT);
+        const scaleX = (t: number) => PAD + ((t - minT) / tSpan) * (W - PAD * 2);
+        const scaleY = (c: number) => H - PAD - (c / maxCum) * (H - PAD * 2);
+        const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${scaleX(p.t).toFixed(1)},${scaleY(p.cum).toFixed(1)}`).join(' ');
+        const area = `${path} L${scaleX(maxT).toFixed(1)},${H - PAD} L${scaleX(minT).toFixed(1)},${H - PAD} Z`;
+        const startLabel = new Date(minT).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        const endLabel = new Date(maxT).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return (
+          <div className="glass rounded-xl p-5 gradient-border">
+            <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+              <TrendingUp className="w-3.5 h-3.5" />
+              Solve Timeline
+            </h3>
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-32" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="solveAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgb(99 102 241)" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="rgb(99 102 241)" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d={area} fill="url(#solveAreaGradient)" />
+              <path d={path} fill="none" stroke="rgb(129 140 248)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+              {points.map((p, i) => (
+                <circle
+                  key={i}
+                  cx={scaleX(p.t)}
+                  cy={scaleY(p.cum)}
+                  r={p.isFirstBlood ? 3 : 2}
+                  fill={p.isFirstBlood ? 'rgb(248 113 113)' : 'rgb(165 180 252)'}
+                >
+                  <title>{`+${sorted[i].points} · ${sorted[i].challengeTitle} · ${new Date(p.t).toLocaleString()}`}</title>
+                </circle>
+              ))}
+            </svg>
+            <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1">
+              <span>{startLabel}</span>
+              <span className="text-slate-500">{maxCum} pts over {solves.length} solves</span>
+              <span>{endLabel}</span>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Category breakdown */}
       {categories.length > 0 && (

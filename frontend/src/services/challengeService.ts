@@ -22,6 +22,9 @@ export const challengeService = {
   delete: (api: AxiosInstance, id: number) =>
     api.delete<ActionResponse>(`/challenges/${id}`).then(res => res.data),
 
+  clone: (api: AxiosInstance, id: number) =>
+    api.post<ActionResponse>(`/challenges/${id}/clone`).then(res => res.data),
+
   submitFlag: (api: AxiosInstance, challengeId: number, flag: string) =>
     api.post<ActionResponse>(`/challenges/${challengeId}/submit`, { flag }).then(res => res.data),
 

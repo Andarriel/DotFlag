@@ -1,4 +1,4 @@
-import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File } from 'lucide-react';
+import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy } from 'lucide-react';
 import { useState } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
@@ -12,7 +12,7 @@ import type { ApiHint, ApiChallengeFile } from '../../types/api';
 const CATEGORIES: ChallengeCategory[] = ['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics', 'OSINT'];
 const DIFFICULTIES: ChallengeDifficulty[] = ['Easy', 'Medium', 'Hard', 'Impossible'];
 
-function ChallengeRow({ challenge, onToggleActive, onDelete, onEdit, onManage }: { challenge: Challenge; onToggleActive: () => void; onDelete: () => void; onEdit: () => void; onManage: () => void }) {
+function ChallengeRow({ challenge, onToggleActive, onDelete, onEdit, onManage, onClone }: { challenge: Challenge; onToggleActive: () => void; onDelete: () => void; onEdit: () => void; onManage: () => void; onClone: () => void }) {
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
@@ -35,6 +35,9 @@ function ChallengeRow({ challenge, onToggleActive, onDelete, onEdit, onManage }:
           </button>
           <button onClick={onEdit} title="Edit" className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-400/10 rounded-lg transition">
             <Pencil className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onClone} title="Clone" className="p-1.5 text-slate-500 hover:text-cyan-400 hover:bg-cyan-400/10 rounded-lg transition">
+            <Copy className="w-3.5 h-3.5" />
           </button>
           <button onClick={onToggleActive} title={challenge.isActive ? 'Deactivate' : 'Activate'}
             className={`p-1.5 rounded-lg transition ${challenge.isActive ? 'text-green-400 hover:bg-green-400/10' : 'text-slate-600 hover:bg-slate-800/50'}`}>
@@ -72,7 +75,7 @@ const INITIAL_FORM: FormState = {
 };
 
 export default function ChallengeManagementTable() {
-  const { challenges, toggleChallengeActive, createChallenge, updateChallenge, deleteChallenge } = useAdminContext();
+  const { challenges, toggleChallengeActive, createChallenge, updateChallenge, deleteChallenge, cloneChallenge } = useAdminContext();
   const api = useAxios();
   const toast = useToast();
   const [showModal, setShowModal] = useState(false);
@@ -268,7 +271,7 @@ export default function ChallengeManagementTable() {
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
               {challenges.map(c => (
-                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => toggleChallengeActive(c.id)} onDelete={() => deleteChallenge(c.id)} onEdit={() => openEdit(c)} onManage={() => openManage(c)} />
+                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => toggleChallengeActive(c.id)} onDelete={() => deleteChallenge(c.id)} onEdit={() => openEdit(c)} onManage={() => openManage(c)} onClone={() => cloneChallenge(c.id)} />
               ))}
             </tbody>
           </table>

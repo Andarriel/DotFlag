@@ -37,6 +37,11 @@ public class ChallengeExecution : ChallengeActions, IChallengeActions
         return DeleteExecution(id, actorId);
     }
 
+    public ActionResponse Clone(int id, int actorId)
+    {
+        return CloneExecution(id, actorId);
+    }
+
     public ActionResponse AddHint(int challengeId, CreateHintDto dto, int actorId)
     {
         return AddHintExecution(challengeId, dto, actorId);
