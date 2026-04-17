@@ -282,7 +282,9 @@ namespace DotFlag.BusinessLayer.Core
             if (team == null)
                 return null;
 
-            return _mapper.Map<TeamDetailsDto>(team);
+            var dto = _mapper.Map<TeamDetailsDto>(team);
+            PopulateMemberPoints(context, new[] { (TeamDto)dto });
+            return dto;
         }
     }
 }
