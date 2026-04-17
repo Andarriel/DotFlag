@@ -26,6 +26,7 @@ namespace DotFlag.Domain.Enums
         LoginSuccess = 40,
         LoginFailed = 41,
         PasswordChanged = 42,
+        UserRegistered = 43,
 
         // Team
         TeamDisbanded = 50,

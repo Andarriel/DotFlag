@@ -37,7 +37,8 @@ namespace DotFlag.Api.Controller
         [HttpPost("register")]
         public IActionResult Register([FromBody] UserRegisterDto dto)
         {
-            var result = _authActions.Register(dto);
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var result = _authActions.Register(dto, ip);
 
             if (!result.IsSuccess)
                 return BadRequest(result);

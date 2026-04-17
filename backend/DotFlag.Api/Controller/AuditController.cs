@@ -27,6 +27,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Owner")]
         public IActionResult Delete(int id)
         {
             var result = _auditActions.DeleteById(id);
@@ -36,6 +37,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpDelete("older-than")]
+        [Authorize(Roles = "Owner")]
         public IActionResult DeleteOlderThan([FromQuery] DateTime cutoff)
         {
             var result = _auditActions.DeleteOlderThan(cutoff);

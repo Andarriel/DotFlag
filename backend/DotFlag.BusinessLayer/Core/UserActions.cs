@@ -139,10 +139,14 @@ namespace DotFlag.BusinessLayer.Core
             user.Username = dto.Username;
             user.Email = dto.Email;
 
-            if (!string.IsNullOrEmpty(dto.NewPassword))
+            bool passwordChanged = !string.IsNullOrEmpty(dto.NewPassword);
+            if (passwordChanged)
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
             context.SaveChanges();
+
+            if (passwordChanged)
+                AuditLog.Log(id, AuditAction.PasswordChanged, "User", id);
 
             return new ActionResponse { IsSuccess = true, Message = "Profile updated successfully." };
         }

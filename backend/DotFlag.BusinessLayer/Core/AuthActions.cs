@@ -77,7 +77,7 @@ namespace DotFlag.BusinessLayer.Core
             return (new LoginResponseDto { Token = token, User = userDto }, null);
         }
 
-        protected ActionResponse RegisterExecution(UserRegisterDto dto)
+        protected ActionResponse RegisterExecution(UserRegisterDto dto, string? ipAddress = null)
         {
             using var context = new AppDbContext();
 
@@ -93,6 +93,8 @@ namespace DotFlag.BusinessLayer.Core
 
             context.Users.Add(user);
             context.SaveChanges();
+
+            AuditLog.Log(user.Id, AuditAction.UserRegistered, "User", user.Id, $"username={user.Username}", ipAddress);
 
             return new ActionResponse { IsSuccess = true, Message = "Registration successful." };
         }
