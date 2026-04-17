@@ -3,6 +3,7 @@ using System;
 using DotFlag.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotFlag.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260416175944_CreateCtfEvent")]
+    partial class CreateCtfEvent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,49 +24,6 @@ namespace DotFlag.DataAccessLayer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("DotFlag.Domain.Entities.Audit.AuditLogData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Action")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ActorId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)");
-
-                    b.Property<string>("Metadata")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<int?>("TargetId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TargetType")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Action");
-
-                    b.HasIndex("ActorId");
-
-                    b.HasIndex("CreatedOn");
-
-                    b.ToTable("AuditLogs");
-                });
 
             modelBuilder.Entity("DotFlag.Domain.Entities.Challenge.ChallengeData", b =>
                 {
@@ -352,16 +312,6 @@ namespace DotFlag.DataAccessLayer.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DotFlag.Domain.Entities.Audit.AuditLogData", b =>
-                {
-                    b.HasOne("DotFlag.Domain.Entities.User.UserData", "Actor")
-                        .WithMany()
-                        .HasForeignKey("ActorId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Actor");
                 });
 
             modelBuilder.Entity("DotFlag.Domain.Entities.Challenge.ChallengeFileData", b =>

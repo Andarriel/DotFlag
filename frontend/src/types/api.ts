@@ -216,3 +216,19 @@ export interface ApiTeamLeaderboardEntry {
   memberCount: number;
   lastSolveAt: string;
 }
+
+export type CtfState = 'Upcoming' | 'Running' | 'Ended';
+
+export interface ApiCtfStatus {
+  id: number;
+  name: string;
+  startTime: string;
+  endTime: string;
+  state: CtfState;
+}
+
+export interface UpdateCtfEventPayload {
+  name: string;
+  startTime: string;
+  endTime: string;
+}

@@ -27,9 +27,9 @@ export default function DashboardPage() {
   const { challenges, loading: challengesLoading } = useChallenges();
   const { currentUserRank, loading: leaderboardLoading } = useLeaderboard();
   const loading = challengesLoading || leaderboardLoading;
-  const recommendedChallenges = challenges.filter(c => !c.isSolved && c.isActive).slice(0, 3);
-  const solvedChallenges = challenges.filter(c => c.isSolved && c.isActive);
   const activeChallenges = challenges.filter(c => c.isActive);
+  const recommendedChallenges = activeChallenges.filter(c => !c.isSolved).slice(0, 3);
+  const solvedChallenges = activeChallenges.filter(c => c.isSolved);
   const [activities, setActivities] = useState<GlobalActivityItem[]>(MOCK_RECENT_ACTIVITY);
 
   useEffect(() => {

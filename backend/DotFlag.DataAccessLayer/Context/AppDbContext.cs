@@ -1,5 +1,6 @@
 ﻿using DotFlag.Domain.Entities.Audit;
 using DotFlag.Domain.Entities.Challenge;
+using DotFlag.Domain.Entities.CtfEvent;
 using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Entities.Team;
@@ -18,6 +19,7 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<HintData> Hints { get; set; }
         public DbSet<ChallengeFileData> ChallengeFiles { get; set; }
         public DbSet<AuditLogData> AuditLogs { get; set; }
+        public DbSet<CtfEventData> CtfEvents { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -73,19 +75,26 @@ namespace DotFlag.DataAccessLayer.Context
                 .HasForeignKey(f => f.ChallengeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Audit log - keep trail even if actor user is deleted
             modelBuilder.Entity<AuditLogData>()
                 .HasOne(a => a.Actor)
                 .WithMany()
                 .HasForeignKey(a => a.ActorId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Index for efficient pagination / filtering
             modelBuilder.Entity<AuditLogData>()
                 .HasIndex(a => a.CreatedOn);
 
             modelBuilder.Entity<AuditLogData>()
                 .HasIndex(a => a.Action);
+
+            modelBuilder.Entity<CtfEventData>()
+                .HasData(new CtfEventData
+                {
+                    Id = 1,
+                    Name = "DotFlag CTF",
+                    StartTime = DateTime.UtcNow,
+                    EndTime = DateTime.UtcNow,
+                });
         }
 
     }

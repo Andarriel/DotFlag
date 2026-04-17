@@ -1,3 +1,4 @@
+using DotFlag.Api.Filters;
 using DotFlag.BusinessLayer;
 using DotFlag.BusinessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +21,7 @@ namespace DotFlag.Api.Controller
 
         [HttpGet]
         [AllowAnonymous]
+        [RequireCtfRunning]
         public IActionResult GetLeaderboard()
         {
             var result = _leaderboardActions.GetLeaderboard();
@@ -28,6 +30,7 @@ namespace DotFlag.Api.Controller
 
         [HttpGet("progress")]
         [AllowAnonymous]
+        [RequireCtfRunning]
         public IActionResult GetProgress()
         {
             var result = _leaderboardActions.GetProgress();
@@ -36,6 +39,7 @@ namespace DotFlag.Api.Controller
 
         [HttpGet("teams/progress")]
         [AllowAnonymous]
+        [RequireCtfRunning]
         public IActionResult GetTeamProgress()
         {
             var result = _leaderboardActions.GetTeamProgress();
@@ -44,6 +48,7 @@ namespace DotFlag.Api.Controller
 
         [HttpGet("teams")]
         [AllowAnonymous]
+        [RequireCtfRunning]
         public IActionResult GetTeamLeaderboard()
         {
             var result = _leaderboardActions.GetTeamLeaderboard();
