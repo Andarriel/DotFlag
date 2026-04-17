@@ -15,13 +15,18 @@ public class AuditExecution : AuditActions, IAuditActions
         return GetAllExecution(filter);
     }
 
-    public ActionResponse DeleteOlderThan(DateTime cutoff)
+    public List<AuditLogDto> GetForExport(AuditLogFilterDto filter)
     {
-        return DeleteOlderThanExecution(cutoff);
+        return GetForExportExecution(filter);
     }
 
-    public ActionResponse DeleteById(int id)
+    public ActionResponse DeleteOlderThan(DateTime cutoff, int actorId)
     {
-        return DeleteByIdExecution(id);
+        return DeleteOlderThanExecution(cutoff, actorId);
+    }
+
+    public ActionResponse DeleteById(int id, int actorId)
+    {
+        return DeleteByIdExecution(id, actorId);
     }
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, RefreshCw, Trash2, Filter, AlertTriangle, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RefreshCw, Trash2, Filter, AlertTriangle, X, Download } from 'lucide-react';
 import { auditService } from '../../services/auditService';
 import { useAxios } from '../../context/AxiosContext';
 import { useToast } from '../../context/ToastContext';
@@ -79,6 +79,7 @@ export default function AuditLogsTable() {
 
   const [confirmCutoff, setConfirmCutoff] = useState<string | null>(null);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -154,6 +155,38 @@ export default function AuditLogsTable() {
     }
   };
 
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const { page: _p, pageSize: _ps, ...rest } = filter;
+      const blob = await auditService.exportCsv(api, rest);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit-logs-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success('Export ready');
+    } catch {
+      toast.error('Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const filterByActor = (actorId: number) => {
+    setActorIdInput(String(actorId));
+    setActorIdFilter(String(actorId));
+    setPage(1);
+  };
+
+  const filterByAction = (action: AuditAction) => {
+    setActionFilter(action);
+    setPage(1);
+  };
+
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -167,14 +200,25 @@ export default function AuditLogsTable() {
             <h2 className="text-lg font-bold text-white mb-1">Audit Logs</h2>
             <p className="text-sm text-slate-500">Track admin actions, security events, and system changes.</p>
           </div>
-          <button
-            onClick={load}
-            disabled={loading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={exportCsv}
+              disabled={exporting || loading}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all disabled:opacity-50"
+              title="Export current filter to CSV (up to 10,000 rows)"
+            >
+              <Download className="w-4 h-4" />
+              {exporting ? 'Exporting...' : 'Export CSV'}
+            </button>
+            <button
+              onClick={load}
+              disabled={loading}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
@@ -260,16 +304,26 @@ export default function AuditLogsTable() {
                 <tr key={entry.id} className="border-t border-white/[0.04] hover:bg-white/[0.02]">
                   <td className="px-4 py-2.5 text-slate-300 whitespace-nowrap">{formatDate(entry.createdOn)}</td>
                   <td className="px-4 py-2.5 text-slate-300 whitespace-nowrap">
-                    {entry.actorUsername ? (
-                      <span>{entry.actorUsername} <span className="text-slate-600">#{entry.actorId}</span></span>
+                    {entry.actorUsername && entry.actorId != null ? (
+                      <button
+                        onClick={() => filterByActor(entry.actorId!)}
+                        className="hover:text-indigo-300 transition-colors"
+                        title="Filter by this actor"
+                      >
+                        {entry.actorUsername} <span className="text-slate-600">#{entry.actorId}</span>
+                      </button>
                     ) : (
                       <span className="text-slate-600">system</span>
                     )}
                   </td>
                   <td className="px-4 py-2.5 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${actionBadgeClass(entry.action)}`}>
+                    <button
+                      onClick={() => filterByAction(entry.action)}
+                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border hover:brightness-125 transition-all ${actionBadgeClass(entry.action)}`}
+                      title="Filter by this action"
+                    >
                       {ACTION_LABELS[entry.action] ?? entry.action}
-                    </span>
+                    </button>
                   </td>
                   <td className="px-4 py-2.5 text-slate-400 whitespace-nowrap">
                     {entry.targetType ? <span>{entry.targetType}{entry.targetId != null && <span className="text-slate-600"> #{entry.targetId}</span>}</span> : <span className="text-slate-600">—</span>}

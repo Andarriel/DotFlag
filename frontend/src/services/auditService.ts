@@ -14,4 +14,7 @@ export const auditService = {
 
   deleteOlderThan: (api: AxiosInstance, cutoff: string) =>
     api.delete<ActionResponse>('/admin/logs/older-than', { params: { cutoff } }).then(res => res.data),
+
+  exportCsv: (api: AxiosInstance, filter: AuditLogFilter = {}) =>
+    api.get<Blob>('/admin/logs/export', { params: filter, responseType: 'blob' }).then(res => res.data),
 };
