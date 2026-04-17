@@ -88,6 +88,18 @@ namespace DotFlag.Api.Controller
             return Ok(result);
         }
 
+        [HttpPost("{id}/clone")]
+        [Authorize(Roles = "Admin,Owner")]
+        public IActionResult Clone(int id)
+        {
+            var result = _challengeActions.Clone(id, User.GetId());
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpPost("{id}/hints")]
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult AddHint(int id,[FromBody] CreateHintDto dto)

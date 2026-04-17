@@ -274,12 +274,23 @@ export default function AuditLogsTable() {
             <Filter className="w-3.5 h-3.5" />
             <span>{total.toLocaleString()} total entries</span>
           </div>
-          <button
-            onClick={resetFilters}
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            Reset filters
-          </button>
+          <div className="flex items-center gap-3">
+            {user?.id != null && (
+              <button
+                onClick={() => filterByActor(user.id)}
+                className="text-slate-400 hover:text-indigo-300 transition-colors"
+                title="Filter to only your own actions"
+              >
+                My actions
+              </button>
+            )}
+            <button
+              onClick={resetFilters}
+              className="text-slate-400 hover:text-white transition-colors"
+            >
+              Reset filters
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto border border-white/[0.04] rounded-xl">

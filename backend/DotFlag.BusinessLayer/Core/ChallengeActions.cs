@@ -129,6 +129,53 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Challenge updated successfully." };
         }
 
+        protected ActionResponse CloneExecution(int id, int actorId)
+        {
+            using var context = new AppDbContext();
+
+            var source = context.Challenges
+                .Include(c => c.Hints)
+                .Include(c => c.Files)
+                .FirstOrDefault(c => c.Id == id);
+
+            if (source == null)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
+
+            var clone = new ChallengeData
+            {
+                Name = $"Copy of {source.Name}",
+                Description = source.Description,
+                Category = source.Category,
+                Difficulty = source.Difficulty,
+                MinPoints = source.MinPoints,
+                MaxPoints = source.MaxPoints,
+                CurrentPoints = source.MaxPoints,
+                DecayRate = source.DecayRate,
+                FirstBloodBonus = source.FirstBloodBonus,
+                FlagHash = source.FlagHash,
+                IsActive = false,
+                CreatedOn = DateTime.UtcNow
+            };
+
+            context.Challenges.Add(clone);
+            context.SaveChanges();
+
+            foreach (var hint in source.Hints)
+            {
+                context.Hints.Add(new HintData
+                {
+                    ChallengeId = clone.Id,
+                    Content = hint.Content,
+                    Order = hint.Order
+                });
+            }
+            context.SaveChanges();
+
+            AuditLog.Log(actorId, AuditAction.ChallengeCreated, "Challenge", clone.Id, $"name={clone.Name};sourceId={id}");
+
+            return new ActionResponse { IsSuccess = true, Message = "Challenge cloned successfully." };
+        }
+
         protected ActionResponse DeleteExecution(int id, int actorId)
         {
             using var context = new AppDbContext();

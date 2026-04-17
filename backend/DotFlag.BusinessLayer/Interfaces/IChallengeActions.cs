@@ -13,6 +13,7 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse Create(CreateChallengeDto dto, int actorId);
         ActionResponse Update(int id, UpdateChallengeDto dto, int actorId);
         ActionResponse Delete(int id, int actorId);
+        ActionResponse Clone(int id, int actorId);
         ActionResponse AddHint(int challengeId, CreateHintDto dto, int actorId);
         ActionResponse RemoveHint(int challengeId, int hintId, int actorId);
         Task<ActionResponse> AddFile(int challengeId, string fileName, Stream fileStream, int actorId);

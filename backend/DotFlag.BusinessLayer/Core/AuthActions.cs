@@ -65,6 +65,9 @@ namespace DotFlag.BusinessLayer.Core
 
             var token = GenerateToken(user);
 
+            user.LastLoginAt = DateTime.UtcNow;
+            context.SaveChanges();
+
             int score = context.Submissions
                 .Where(s => s.UserId == user.Id && s.IsCorrect && s.Challenge.IsActive)
                 .Sum(s => s.Challenge.CurrentPoints + s.BonusPoints);

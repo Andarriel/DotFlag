@@ -141,12 +141,12 @@ export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
 // ── Admin Users ──
 
 export const MOCK_ADMIN_USERS: AdminUser[] = [
-  { id: 1, username: "Pavel_Admin", email: "admin@dotflag.md", role: "Admin", currentPoints: 1337, teamId: 1, teamName: "Cyber Elite", isBanned: false, lastLogin: "2026-02-17T10:00:00Z", sessionActive: true },
-  { id: 2, username: "h4ck3r_pro", email: "hacker@dotflag.md", role: "User", currentPoints: 1200, teamId: 1, teamName: "Cyber Elite", isBanned: false, lastLogin: "2026-02-17T09:30:00Z", sessionActive: true },
-  { id: 3, username: "cyber_ninja", email: "ninja@dotflag.md", role: "User", currentPoints: 1050, teamId: 2, teamName: "Script Kiddies", isBanned: false, lastLogin: "2026-02-16T22:00:00Z", sessionActive: false },
-  { id: 4, username: "crypto_king", email: "king@dotflag.md", role: "User", currentPoints: 980, isBanned: true, lastLogin: "2026-02-15T14:00:00Z", sessionActive: false },
-  { id: 5, username: "pwn_master", email: "pwn@dotflag.md", role: "User", currentPoints: 875, teamId: 2, teamName: "Script Kiddies", isBanned: false, lastLogin: "2026-02-17T08:15:00Z", sessionActive: true },
-  { id: 6, username: "web_wizard", email: "wizard@dotflag.md", role: "User", currentPoints: 750, teamId: 3, teamName: "Code Breakers", isBanned: false, lastLogin: "2026-02-17T07:45:00Z", sessionActive: false },
+  { id: 1, username: "Pavel_Admin", email: "admin@dotflag.md", role: "Admin", currentPoints: 1337, teamId: 1, teamName: "Cyber Elite", isBanned: false, lastLogin: "2026-02-17T10:00:00Z" },
+  { id: 2, username: "h4ck3r_pro", email: "hacker@dotflag.md", role: "User", currentPoints: 1200, teamId: 1, teamName: "Cyber Elite", isBanned: false, lastLogin: "2026-02-17T09:30:00Z" },
+  { id: 3, username: "cyber_ninja", email: "ninja@dotflag.md", role: "User", currentPoints: 1050, teamId: 2, teamName: "Script Kiddies", isBanned: false, lastLogin: "2026-02-16T22:00:00Z" },
+  { id: 4, username: "crypto_king", email: "king@dotflag.md", role: "User", currentPoints: 980, isBanned: true, lastLogin: "2026-02-15T14:00:00Z" },
+  { id: 5, username: "pwn_master", email: "pwn@dotflag.md", role: "User", currentPoints: 875, teamId: 2, teamName: "Script Kiddies", isBanned: false, lastLogin: "2026-02-17T08:15:00Z" },
+  { id: 6, username: "web_wizard", email: "wizard@dotflag.md", role: "User", currentPoints: 750, teamId: 3, teamName: "Code Breakers", isBanned: false, lastLogin: "2026-02-17T07:45:00Z" },
 ];
 
 // ── Docker Images ──

@@ -20,4 +20,5 @@ public class UserDto
     public UserRole Role { get; set; }
     public bool IsBanned { get; set; }
     public DateTime RegisteredOn { get; set; }
+    public DateTime? LastLoginAt { get; set; }
 }

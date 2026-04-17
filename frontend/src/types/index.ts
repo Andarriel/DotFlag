@@ -105,8 +105,7 @@ export interface Profile extends User {
 
 export interface AdminUser extends User {
   isBanned: boolean;
-  lastLogin: string;
-  sessionActive: boolean;
+  lastLogin: string | null;
 }
 
 export interface TeamProgressPoint {

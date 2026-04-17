@@ -22,7 +22,7 @@ const DIFFICULTY_MAP: Record<string, ChallengeDifficulty> = {
 function mapApiUserToAdmin(u: ApiUser): AdminUser {
   return {
     id: u.id, username: u.username, email: u.email, role: u.role,
-    currentPoints: u.currentPoints, isBanned: u.isBanned, lastLogin: '', sessionActive: false,
+    currentPoints: u.currentPoints, isBanned: u.isBanned, lastLogin: u.lastLoginAt,
   };
 }
 
@@ -173,6 +173,24 @@ export function useAdmin() {
     }
   };
 
+  const cloneChallenge = async (challengeId: number) => {
+    if (USE_MOCK) {
+      toast.success('Challenge cloned (mock)');
+      return;
+    }
+    try {
+      const res = await challengeService.clone(api, challengeId);
+      if (res.isSuccess) {
+        toast.success('Challenge cloned');
+        refresh();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to clone challenge');
+    }
+  };
+
   const deleteChallenge = async (challengeId: number) => {
     if (!USE_MOCK) {
       try {
@@ -208,10 +226,6 @@ export function useAdmin() {
     }
   };
 
-  const kickSession = (userId: number) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, sessionActive: false } : u));
-  };
-
   const registerUser = async (data: { username: string; email: string; password: string; role: UserRole }) => {
     if (USE_MOCK) {
       toast.success('User registered (mock)');
@@ -233,8 +247,8 @@ export function useAdmin() {
   return {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
-    toggleBan, kickSession, promote, demote, deleteUser,
-    createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge,
+    toggleBan, promote, demote, deleteUser,
+    createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge, cloneChallenge,
     registerUser, loading, refresh,
   };
 }
