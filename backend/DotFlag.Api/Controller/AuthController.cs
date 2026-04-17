@@ -22,7 +22,8 @@ namespace DotFlag.Api.Controller
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLoginDto dto)
         {
-            var (data, error) = _authActions.Login(dto);
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var (data, error) = _authActions.Login(dto, ip);
 
             if (data == null)
                 return Unauthorized(new ActionResponse
@@ -37,7 +38,8 @@ namespace DotFlag.Api.Controller
         [HttpPost("register")]
         public IActionResult Register([FromBody] UserRegisterDto dto)
         {
-            var result = _authActions.Register(dto);
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var result = _authActions.Register(dto, ip);
 
             if (!result.IsSuccess)
                 return BadRequest(result);

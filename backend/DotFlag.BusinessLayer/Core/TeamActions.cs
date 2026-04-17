@@ -84,6 +84,8 @@ namespace DotFlag.BusinessLayer.Core
 
             context.SaveChanges();
 
+            AuditLog.Log(userId, AuditAction.TeamDisbanded, "Team", id, $"name={team.Name}");
+
             return new ActionResponse { IsSuccess = true, Message = "Team disbanded successfully." };
         }
 
@@ -179,7 +181,12 @@ namespace DotFlag.BusinessLayer.Core
                 {
                     var team = context.Teams.FirstOrDefault(t => t.Id == teamId);
                     if (team != null)
+                    {
                         team.IsActive = false;
+                        context.SaveChanges();
+                        AuditLog.Log(userId, AuditAction.TeamDisbanded, "Team", teamId, $"name={team.Name};reason=last-member-left");
+                        return new ActionResponse { IsSuccess = true, Message = "You left the team." };
+                    }
                 }
             }
 

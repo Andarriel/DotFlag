@@ -8,6 +8,7 @@ const UserManagementTable = lazy(() => import('../../components/admin/UserManage
 const ChallengeManagementTable = lazy(() => import('../../components/admin/ChallengeManagementTable'));
 const NotificationBroadcast = lazy(() => import('../../components/admin/NotificationBroadcast'));
 const DockerMonitor = lazy(() => import('../../components/admin/DockerMonitor'));
+const AuditLogsTable = lazy(() => import('../../components/admin/AuditLogsTable'));
 const CtfEventSettings = lazy(() => import('../../components/admin/CtfEventSettings'));
 
 const Spinner = () => (
@@ -32,6 +33,7 @@ function AdminContent() {
                 {activeTab === 'challenges' && <ChallengeManagementTable />}
                 {activeTab === 'notifications' && <NotificationBroadcast />}
                 {activeTab === 'docker' && <DockerMonitor />}
+                {activeTab === 'logs' && <AuditLogsTable />}
                 {activeTab === 'ctf' && <CtfEventSettings />}
               </>
             )}

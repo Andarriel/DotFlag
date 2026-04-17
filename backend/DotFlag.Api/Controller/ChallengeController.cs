@@ -56,9 +56,9 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Create([FromBody] CreateChallengeDto dto)
         {
-            var result = _challengeActions.Create(dto);
+            var result = _challengeActions.Create(dto, User.GetId());
 
-            if (!result.IsSuccess) 
+            if (!result.IsSuccess)
                 return BadRequest(result);
 
             return Ok(result);
@@ -68,9 +68,9 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Update(int id, [FromBody] UpdateChallengeDto dto)
         {
-            var result = _challengeActions.Update(id, dto);
+            var result = _challengeActions.Update(id, dto, User.GetId());
 
-            if (!result.IsSuccess) 
+            if (!result.IsSuccess)
                 return BadRequest(result);
 
             return Ok(result);
@@ -80,9 +80,9 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Delete(int id)
         {
-            var result = _challengeActions.Delete(id);
+            var result = _challengeActions.Delete(id, User.GetId());
 
-            if (!result.IsSuccess) 
+            if (!result.IsSuccess)
                 return BadRequest(result);
 
             return Ok(result);
@@ -92,7 +92,7 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult AddHint(int id,[FromBody] CreateHintDto dto)
         {
-            var result = _challengeActions.AddHint(id, dto);
+            var result = _challengeActions.AddHint(id, dto, User.GetId());
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -104,7 +104,7 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult DeleteHint(int hintId, int id)
         {
-            var result = _challengeActions.RemoveHint(id, hintId);
+            var result = _challengeActions.RemoveHint(id, hintId, User.GetId());
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -119,7 +119,7 @@ namespace DotFlag.Api.Controller
             if (file == null || file.Length == 0)
                 return BadRequest(new ActionResponse { IsSuccess = false, Message = "No file provided." });
 
-            var result = await _challengeActions.AddFile(id, file.FileName, file.OpenReadStream());
+            var result = await _challengeActions.AddFile(id, file.FileName, file.OpenReadStream(), User.GetId());
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -144,7 +144,7 @@ namespace DotFlag.Api.Controller
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult RemoveFile(int id, int fileId)
         {
-            var result = _challengeActions.RemoveFile(id, fileId);
+            var result = _challengeActions.RemoveFile(id, fileId, User.GetId());
 
             if (!result.IsSuccess)
                 return BadRequest(result);

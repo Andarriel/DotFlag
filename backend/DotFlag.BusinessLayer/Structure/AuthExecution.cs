@@ -10,13 +10,13 @@ public class AuthExecution : AuthActions, IAuthActions
 {
     public AuthExecution(IMapper mapper) : base(mapper) {}
 
-    public ActionResponse Register(UserRegisterDto dto)
+    public ActionResponse Register(UserRegisterDto dto, string? ipAddress = null)
     {
-        return RegisterExecution(dto);
+        return RegisterExecution(dto, ipAddress);
     }
 
-    public (LoginResponseDto? Data, string? Error) Login(UserLoginDto dto)
+    public (LoginResponseDto? Data, string? Error) Login(UserLoginDto dto, string? ipAddress = null)
     {
-        return LoginExecution(dto);
+        return LoginExecution(dto, ipAddress);
     }
 }
