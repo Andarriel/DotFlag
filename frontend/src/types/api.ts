@@ -25,6 +25,7 @@ export interface ApiUser {
   role: UserRole;
   isBanned: boolean;
   registeredOn: string;
+  lastLoginAt: string | null;
 }
 
 export interface ApiUserProfile {

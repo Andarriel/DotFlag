@@ -40,6 +40,8 @@ namespace DotFlag.Domain.Entities.User
 
         public DateTime? NotificationsReadAt { get; set; }
 
+        public DateTime? LastLoginAt { get; set; }
+
         [InverseProperty("User")]
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
     }

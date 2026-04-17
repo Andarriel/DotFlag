@@ -1,7 +1,6 @@
-import { ShieldCheck, ShieldOff, Ban, LogOut, UserPlus, Trash2 } from 'lucide-react';
+import { ShieldCheck, ShieldOff, Ban, UserPlus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import StatusBadge from '../common/StatusBadge';
 import Modal from '../common/Modal';
 import { useAdminContext } from '../../context/AdminContext';
 import { useAuth } from '../../context/AuthContext';
@@ -11,7 +10,7 @@ import type { UserRole } from '../../types/api';
 
 const ROLES: UserRole[] = ['Guest', 'User', 'Admin'];
 
-function UserRow({ user, onToggleBan, onKick, onPromote, onDemote, onDelete }: { user: AdminUser; onToggleBan: () => void; onKick: () => void; onPromote?: () => void; onDemote?: () => void; onDelete: () => void }) {
+function UserRow({ user, onToggleBan, onPromote, onDemote, onDelete }: { user: AdminUser; onToggleBan: () => void; onPromote?: () => void; onDemote?: () => void; onDelete: () => void }) {
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
@@ -28,10 +27,9 @@ function UserRow({ user, onToggleBan, onKick, onPromote, onDemote, onDelete }: {
       <td className="px-4 py-3">
         <span className="text-[11px] font-medium text-slate-400 bg-slate-800/50 border border-white/[0.04] px-2 py-0.5 rounded-md">{user.role}</span>
       </td>
-      <td className="px-4 py-3">
-        {user.isBanned ? <StatusBadge status="banned" /> : user.sessionActive ? <StatusBadge status="online" /> : <StatusBadge status="offline" />}
+      <td className="px-4 py-3 text-[11px] text-slate-500 hidden md:table-cell">
+        {user.lastLogin ? formatTimeAgo(user.lastLogin) : <span className="text-slate-700">never</span>}
       </td>
-      <td className="px-4 py-3 text-[11px] text-slate-500 hidden md:table-cell">{formatTimeAgo(user.lastLogin)}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-0.5">
           {user.role === 'User' && onPromote && (
@@ -47,11 +45,6 @@ function UserRow({ user, onToggleBan, onKick, onPromote, onDemote, onDelete }: {
           <button onClick={onToggleBan} title={user.isBanned ? 'Unban' : 'Ban'} className={`p-1.5 rounded-lg transition ${user.isBanned ? 'text-green-400 hover:bg-green-400/10' : 'text-slate-500 hover:text-red-400 hover:bg-red-400/10'}`}>
             <Ban className="w-3.5 h-3.5" />
           </button>
-          {user.sessionActive && (
-            <button onClick={onKick} title="Kick from session" className="p-1.5 text-slate-500 hover:text-yellow-400 hover:bg-yellow-400/10 rounded-lg transition">
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
-          )}
           {user.role !== 'Owner' && (
             <button onClick={onDelete} title="Delete user" className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition">
               <Trash2 className="w-3.5 h-3.5" />
@@ -69,7 +62,7 @@ const selectClass = `${inputClass} appearance-none bg-[url('data:image/svg+xml;c
 export default function UserManagementTable() {
   const { user } = useAuth();
   const isOwner = user?.role === 'Owner';
-  const { users, toggleBan, kickSession, promote, demote, deleteUser, registerUser } = useAdminContext();
+  const { users, toggleBan, promote, demote, deleteUser, registerUser } = useAdminContext();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<{ username: string; email: string; password: string; role: UserRole }>({
     username: '', email: '', password: '', role: 'User',
@@ -96,8 +89,8 @@ export default function UserManagementTable() {
           <table className="w-full">
             <thead className="bg-slate-800/30 border-b border-white/[0.04]">
               <tr>
-                {['User', 'Role', 'Status', 'Last Login', 'Actions'].map((h, i) => (
-                  <th key={h} className={`px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider ${i === 3 ? 'hidden md:table-cell' : ''}`}>{h}</th>
+                {['User', 'Role', 'Last Login', 'Actions'].map((h, i) => (
+                  <th key={h} className={`px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider ${i === 2 ? 'hidden md:table-cell' : ''}`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -105,7 +98,6 @@ export default function UserManagementTable() {
               {users.map(u => (
                 <UserRow key={u.id} user={u}
                   onToggleBan={() => toggleBan(u.id)}
-                  onKick={() => kickSession(u.id)}
                   onPromote={isOwner ? () => promote(u.id) : undefined}
                   onDemote={isOwner ? () => demote(u.id) : undefined}
                   onDelete={() => deleteUser(u.id)}
