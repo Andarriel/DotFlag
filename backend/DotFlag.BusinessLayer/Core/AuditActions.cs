@@ -79,7 +79,7 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse
             {
                 IsSuccess = true,
-                Message = $"Deleted {deleted} audit log entries older than {cutoff:O}."
+                Message = $"Deleted {deleted} audit log {(deleted == 1 ? "entry" : "entries")} older than {cutoff.ToUniversalTime():yyyy-MM-dd HH:mm} UTC."
             };
         }
 

@@ -1,4 +1,4 @@
-import { Users, Flag, Container, Megaphone } from 'lucide-react';
+import { Users, Flag, Container, Megaphone, ScrollText } from 'lucide-react';
 import { useAdminContext } from '../../context/AdminContext';
 import type { AdminTab } from '../../hooks/useAdmin';
 
@@ -7,6 +7,7 @@ const TABS: { id: AdminTab; label: string; icon: typeof Users }[] = [
   { id: 'challenges', label: 'Challenges', icon: Flag },
   { id: 'notifications', label: 'Notifications', icon: Megaphone },
   { id: 'docker', label: 'Docker', icon: Container },
+  { id: 'logs', label: 'Audit Logs', icon: ScrollText },
 ];
 
 export default function AdminSidebar() {

@@ -157,6 +157,56 @@ export interface ApiLeaderboardProgress {
   progress: ApiProgressPoint[];
 }
 
+export enum AuditAction {
+  ChallengeCreated = 'ChallengeCreated',
+  ChallengeUpdated = 'ChallengeUpdated',
+  ChallengeDisabled = 'ChallengeDisabled',
+  ChallengeEnabled = 'ChallengeEnabled',
+  FlagChanged = 'FlagChanged',
+  HintAdded = 'HintAdded',
+  HintRemoved = 'HintRemoved',
+  FileUploaded = 'FileUploaded',
+  FileRemoved = 'FileRemoved',
+  UserBanned = 'UserBanned',
+  UserUnbanned = 'UserUnbanned',
+  UserPromoted = 'UserPromoted',
+  UserDemoted = 'UserDemoted',
+  LoginSuccess = 'LoginSuccess',
+  LoginFailed = 'LoginFailed',
+  PasswordChanged = 'PasswordChanged',
+  UserRegistered = 'UserRegistered',
+  TeamDisbanded = 'TeamDisbanded',
+  SystemCleanup = 'SystemCleanup',
+}
+
+export interface ApiAuditLog {
+  id: number;
+  actorId: number | null;
+  actorUsername: string | null;
+  action: AuditAction;
+  targetType: string | null;
+  targetId: number | null;
+  metadata: string | null;
+  ipAddress: string | null;
+  createdOn: string;
+}
+
+export interface AuditLogFilter {
+  page?: number;
+  pageSize?: number;
+  action?: AuditAction;
+  actorId?: number;
+  from?: string;
+  to?: string;
+}
+
+export interface ApiAuditLogPage {
+  items: ApiAuditLog[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface ApiTeamLeaderboardEntry {
   rank: number;
   teamId: number;
