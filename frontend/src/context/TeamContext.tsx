@@ -10,6 +10,7 @@ import type { Team } from '../types';
 interface TeamContextType {
   team: Team | null;
   loading: boolean;
+  isLeader: boolean;
   refresh: () => void;
   inviteCode: string;
   setInviteCode: (code: string) => void;
@@ -19,13 +20,14 @@ interface TeamContextType {
   createTeam: (name: string) => Promise<void>;
   leaveTeam: () => Promise<void>;
   disbandTeam: () => Promise<void>;
+  regenerateInvite: () => Promise<void>;
 }
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
 
 export const TeamProvider = ({ children }: { children: ReactNode }) => {
   const api = useAxios();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const toast = useToast();
   const [team, setTeam] = useState<Team | null>(USE_MOCK ? MOCK_TEAM : null);
   const [loading, setLoading] = useState(false);
@@ -45,6 +47,7 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
             id: m.id,
             username: m.username,
             role: 'User' as const,
+            teamRole: m.teamRole === 1 ? 'Leader' : 'Member',
             points: m.currentPoints || 0,
             joinedAt: m.registeredOn || '',
           })),
@@ -130,8 +133,27 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const regenerateInvite = async () => {
+    if (!team) return;
+    if (USE_MOCK) { toast.success('Invite code regenerated (mock)'); return; }
+    try {
+      const res = await teamService.regenerateInvite(api, team.id);
+      if (res.isSuccess) {
+        toast.success('Invite code regenerated');
+        fetchTeam();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to regenerate invite code');
+    }
+  };
+
+  const isLeader = !!team && !!user &&
+    team.members.some(m => m.id === user.id && m.teamRole === 'Leader');
+
   return (
-    <TeamContext.Provider value={{ team, loading, refresh: fetchTeam, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam }}>
+    <TeamContext.Provider value={{ team, loading, isLeader, refresh: fetchTeam, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam, regenerateInvite }}>
       {children}
     </TeamContext.Provider>
   );

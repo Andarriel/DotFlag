@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Trophy, Zap, Copy, Check } from 'lucide-react';
+import { Users, Trophy, Zap, Copy, Check, RefreshCw } from 'lucide-react';
 import { useTeamContext } from '../../context/TeamContext';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 
 export default function ProfileTeamTab() {
-  const { team, loading, copied, copyInviteCode, refresh } = useTeamContext();
+  const { team, loading, isLeader, copied, copyInviteCode, regenerateInvite, refresh } = useTeamContext();
 
   useEffect(() => { refresh(); }, []);
 
@@ -59,9 +59,14 @@ export default function ProfileTeamTab() {
         <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2">
           <span className="text-xs text-slate-500">Invite:</span>
           <code className="text-sm text-indigo-400 font-mono flex-1">{team.inviteCode}</code>
-          <button onClick={copyInviteCode} className="p-1 text-slate-400 hover:text-white transition">
+          <button onClick={copyInviteCode} title="Copy invite code" className="p-1 text-slate-400 hover:text-white transition">
             {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
           </button>
+          {isLeader && (
+            <button onClick={regenerateInvite} title="Regenerate invite code" className="p-1 text-slate-400 hover:text-yellow-400 transition">
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 

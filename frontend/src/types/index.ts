@@ -74,6 +74,7 @@ export interface TeamMember {
   id: number;
   username: string;
   role: UserRole;
+  teamRole?: 'Leader' | 'Member';
   points: number;
   joinedAt: string;
 }
