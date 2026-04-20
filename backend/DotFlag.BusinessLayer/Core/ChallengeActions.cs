@@ -1,6 +1,7 @@
 using AutoMapper;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Challenge;
+using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.Challenge;
 using DotFlag.Domain.Models.Responses;
@@ -117,7 +118,28 @@ namespace DotFlag.BusinessLayer.Core
             context.SaveChanges();
 
             if (wasActive && !dto.IsActive)
+            {
                 AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name}");
+
+                var solverIds = context.Submissions
+                    .Where(s => s.ChallengeId == id && s.IsCorrect)
+                    .Select(s => s.UserId)
+                    .Distinct()
+                    .ToList();
+
+                foreach (var uid in solverIds)
+                {
+                    context.Notifications.Add(new NotificationData
+                    {
+                        Title = "Challenge Deactivated",
+                        Message = $"Challenge \"{challenge.Name}\" has been deactivated. Points from this challenge no longer count toward your score.",
+                        Type = "challengeDeactivated",
+                        CreatedOn = DateTime.UtcNow,
+                        UserId = uid
+                    });
+                }
+                if (solverIds.Count > 0) context.SaveChanges();
+            }
             else if (!wasActive && dto.IsActive)
                 AuditLog.Log(actorId, AuditAction.ChallengeEnabled, "Challenge", id, $"name={challenge.Name}");
             else
@@ -187,6 +209,25 @@ namespace DotFlag.BusinessLayer.Core
 
             challenge.IsActive = false;
             context.SaveChanges();
+
+            var solverIds = context.Submissions
+                .Where(s => s.ChallengeId == id && s.IsCorrect)
+                .Select(s => s.UserId)
+                .Distinct()
+                .ToList();
+
+            foreach (var uid in solverIds)
+            {
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "Challenge Removed",
+                    Message = $"Challenge \"{challenge.Name}\" has been removed. Points from this challenge no longer count toward your score.",
+                    Type = "challengeDeactivated",
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = uid
+                });
+            }
+            if (solverIds.Count > 0) context.SaveChanges();
 
             AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name};reason=delete");
 

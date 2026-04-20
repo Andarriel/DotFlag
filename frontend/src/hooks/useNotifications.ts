@@ -8,6 +8,7 @@ const TOAST_FN: Record<string, 'firstBlood' | 'info' | 'warning'> = {
   firstBlood: 'firstBlood',
   announcement: 'info',
   system: 'warning',
+  challengeDeactivated: 'warning',
 };
 
 export function useNotifications() {

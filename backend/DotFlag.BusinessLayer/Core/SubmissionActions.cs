@@ -43,7 +43,7 @@ namespace DotFlag.BusinessLayer.Core
 
             if (isCorrect)
             {
-                SubmissionRateLimiter.Clear(userId, challengeId);
+                //SubmissionRateLimiter.Clear(userId, challengeId);
                 challenge.SolveCount += 1;
                 challenge.CurrentPoints = challenge.CalculateCurrentPoints(
                     challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, challenge.SolveCount);
