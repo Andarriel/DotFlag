@@ -28,6 +28,17 @@ namespace DotFlag.BusinessLayer.Core
             if (challenge.IsActive == false)
                 return new ActionResponse { IsSuccess = false, Message = "Challenge is not active." };
 
+            if (challenge.IsTimeLimited)
+            {
+                var ctfEvent = context.CtfEvents.FirstOrDefault();
+                if (ctfEvent != null)
+                {
+                    var now = DateTime.UtcNow;
+                    if (now < ctfEvent.StartTime || now > ctfEvent.EndTime)
+                        return new ActionResponse { IsSuccess = false, Message = "CTF is not currently running." };
+                }
+            }
+
             bool alreadySolved = context.Submissions.Any(s => s.UserId == userId && s.ChallengeId == challengeId && s.IsCorrect);
 
             if (alreadySolved)

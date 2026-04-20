@@ -36,6 +36,7 @@ export default function ChallengeDetailPage() {
         difficulty: apiChallenge.difficulty as unknown as ChallengeDetail['difficulty'],
         isActive: apiChallenge.isActive,
         isSolved: apiChallenge.isSolved,
+        isTimeLimited: apiChallenge.isTimeLimited ?? false,
         solveCount: apiChallenge.solveCount,
         firstBloodBonus: apiChallenge.firstBloodBonus,
         files,

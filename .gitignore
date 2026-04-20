@@ -28,6 +28,9 @@ uploads/
 **/appsettings.*.json
 !**/appsettings.example.json
 
+# Claude Code
+.claude/
+
 # IDE / editors
 .vs/
 .idea/

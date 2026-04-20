@@ -26,6 +26,8 @@ namespace DotFlag.Domain.Models.Challenge
         public int FirstBloodBonus { get; set; }
 
         public string Flag { get; set; }
+
+        public bool IsTimeLimited { get; set; } = true;
     }
 
 }

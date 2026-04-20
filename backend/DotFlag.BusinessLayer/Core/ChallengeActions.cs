@@ -106,6 +106,7 @@ namespace DotFlag.BusinessLayer.Core
             challenge.MaxPoints = dto.MaxPoints;
             challenge.Difficulty = dto.Difficulty;
             challenge.IsActive = dto.IsActive;
+            challenge.IsTimeLimited = dto.IsTimeLimited;
             challenge.DecayRate = dto.DecayRate;
             challenge.FirstBloodBonus = dto.FirstBloodBonus;
 
