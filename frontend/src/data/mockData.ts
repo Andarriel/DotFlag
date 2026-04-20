@@ -18,21 +18,21 @@ export const MOCK_USER: User = {
 // ── Challenges ──
 
 export const MOCK_CHALLENGES: Challenge[] = [
-  { id: 1, title: "Hello World", description: "Find the flag in this simple web challenge.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isSolved: false, solveCount: 12, firstBloodBonus: 50 },
-  { id: 2, title: "Base64 Madness", description: "Decode the Base64 string to find the flag.", points: 200, category: "Crypto", difficulty: "Medium", isActive: true, isSolved: false, solveCount: 0, firstBloodBonus: 100 },
-  { id: 3, title: "Buffer Overflow 101", description: "Exploit the buffer overflow vulnerability to get the flag.", points: 300, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false, solveCount: 3, firstBloodBonus: 150 },
-  { id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isSolved: true, solveCount: 8, firstBloodBonus: 100 },
-  { id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isSolved: true, solveCount: 20, firstBloodBonus: 50 },
-  { id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isSolved: false, solveCount: 0, firstBloodBonus: 100 },
-  { id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isSolved: false, solveCount: 5, firstBloodBonus: 50 },
-  { id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false, solveCount: 0, firstBloodBonus: 200 },
+  { id: 1, title: "Hello World", description: "Find the flag in this simple web challenge.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isTimeLimited: true, isSolved: false, solveCount: 12, firstBloodBonus: 50 },
+  { id: 2, title: "Base64 Madness", description: "Decode the Base64 string to find the flag.", points: 200, category: "Crypto", difficulty: "Medium", isActive: true, isTimeLimited: true, isSolved: false, solveCount: 0, firstBloodBonus: 100 },
+  { id: 3, title: "Buffer Overflow 101", description: "Exploit the buffer overflow vulnerability to get the flag.", points: 300, category: "Pwn", difficulty: "Hard", isActive: true, isTimeLimited: true, isSolved: false, solveCount: 3, firstBloodBonus: 150 },
+  { id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isTimeLimited: true, isSolved: true, solveCount: 8, firstBloodBonus: 100 },
+  { id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isTimeLimited: true, isSolved: true, solveCount: 20, firstBloodBonus: 50 },
+  { id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isTimeLimited: true, isSolved: false, solveCount: 0, firstBloodBonus: 100 },
+  { id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isTimeLimited: true, isSolved: false, solveCount: 5, firstBloodBonus: 50 },
+  { id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isTimeLimited: true, isSolved: false, solveCount: 0, firstBloodBonus: 200 },
 ];
 
 // ── Challenge Details ──
 
 export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
   {
-    id: 1, title: "Hello World", description: "Find the flag in this simple web challenge. The flag is hidden somewhere in the source code of a basic web application. Inspect the HTML, CSS, and JavaScript to find it.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isSolved: false, firstBloodBonus: 50,
+    id: 1, title: "Hello World", description: "Find the flag in this simple web challenge. The flag is hidden somewhere in the source code of a basic web application. Inspect the HTML, CSS, and JavaScript to find it.", points: 100, category: "Web", difficulty: "Easy", isActive: true, isTimeLimited: true, isSolved: false, firstBloodBonus: 50,
     files: [{ id: 1, fileName: "challenge.zip" }],
     hints: [
       { id: 1, content: "Check the HTML comments in the source code", order: 1 },
@@ -41,7 +41,7 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     solveCount: 42, author: "Pavel_Admin",
   },
   {
-    id: 2, title: "Base64 Madness", description: "Decode the Base64 string to find the flag. But be careful - it's not just one layer of encoding. You'll need to decode multiple layers to reveal the final flag.", points: 200, category: "Crypto", difficulty: "Medium", isActive: true, isSolved: false, firstBloodBonus: 100,
+    id: 2, title: "Base64 Madness", description: "Decode the Base64 string to find the flag. But be careful - it's not just one layer of encoding. You'll need to decode multiple layers to reveal the final flag.", points: 200, category: "Crypto", difficulty: "Medium", isActive: true, isTimeLimited: true, isSolved: false, firstBloodBonus: 100,
     files: [{ id: 2, fileName: "encoded.txt" }, { id: 3, fileName: "hint.pdf" }],
     hints: [
       { id: 3, content: "There are exactly 3 layers of encoding", order: 1 },
@@ -50,7 +50,7 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     solveCount: 28, author: "Pavel_Admin",
   },
   {
-    id: 3, title: "Buffer Overflow 101", description: "Exploit the buffer overflow vulnerability to get the flag. A vulnerable C program is running on the remote server. Connect to it and exploit the buffer overflow to spawn a shell.", points: 300, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false, firstBloodBonus: 150,
+    id: 3, title: "Buffer Overflow 101", description: "Exploit the buffer overflow vulnerability to get the flag. A vulnerable C program is running on the remote server. Connect to it and exploit the buffer overflow to spawn a shell.", points: 300, category: "Pwn", difficulty: "Hard", isActive: true, isTimeLimited: true, isSolved: false, firstBloodBonus: 150,
     files: [{ id: 4, fileName: "vuln.c" }, { id: 5, fileName: "vuln" }],
     dockerImage: { id: 1, challengeId: 3, name: "dotflag/pwn-bof101", status: "running", ip: "10.0.13.37", port: 1337, uptime: "2h 15m", expiresAt: "2026-02-17T18:00:00Z" },
     hints: [
@@ -61,7 +61,7 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     solveCount: 12, author: "h4ck3r_pro",
   },
   {
-    id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques. The login form is vulnerable to classic SQL injection. Can you log in as admin without knowing the password?\n\nThis challenge teaches basic SQLi concepts.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isSolved: true, firstBloodBonus: 100,
+    id: 4, title: "SQL Injection Lab", description: "Bypass authentication using SQL injection techniques. The login form is vulnerable to classic SQL injection. Can you log in as admin without knowing the password?\n\nThis challenge teaches basic SQLi concepts.", points: 250, category: "Web", difficulty: "Medium", isActive: true, isTimeLimited: true, isSolved: true, firstBloodBonus: 100,
     files: [{ id: 6, fileName: "app.py" }],
     hints: [
       { id: 8, content: "Try classic payloads in the username field", order: 1 },
@@ -70,7 +70,7 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     solveCount: 35, author: "Pavel_Admin",
   },
   {
-    id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message. The encrypted text uses a simple shift cipher. Find the right shift value to decode the flag.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isSolved: true, firstBloodBonus: 50,
+    id: 5, title: "Caesar Cipher", description: "Break the Caesar cipher to reveal the hidden message. The encrypted text uses a simple shift cipher. Find the right shift value to decode the flag.", points: 100, category: "Crypto", difficulty: "Easy", isActive: true, isTimeLimited: true, isSolved: true, firstBloodBonus: 50,
     files: [{ id: 7, fileName: "cipher.txt" }],
     hints: [
       { id: 10, content: "The shift value is between 1 and 25", order: 1 },
@@ -78,7 +78,7 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     solveCount: 56, author: "Pavel_Admin",
   },
   {
-    id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary. The flag is embedded somewhere in the executable. Use tools like strings, objdump, or Ghidra to find it.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isSolved: false, firstBloodBonus: 100,
+    id: 6, title: "Hidden Strings", description: "Use reverse engineering tools to find hidden strings in the binary. The flag is embedded somewhere in the executable. Use tools like strings, objdump, or Ghidra to find it.", points: 200, category: "Reverse", difficulty: "Medium", isActive: true, isTimeLimited: true, isSolved: false, firstBloodBonus: 100,
     files: [{ id: 8, fileName: "mystery_bin" }],
     dockerImage: { id: 3, challengeId: 6, name: "dotflag/reverse-strings", status: "running", ip: "10.0.13.39", port: 9090, uptime: "45m", expiresAt: "2026-02-17T16:30:00Z" },
     hints: [
@@ -88,7 +88,7 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     solveCount: 19, author: "h4ck3r_pro",
   },
   {
-    id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials. Someone accidentally sent their password in plain text over HTTP. Find it in the pcap file.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isSolved: false, firstBloodBonus: 50,
+    id: 7, title: "Packet Capture", description: "Analyze the network capture file to find the leaked credentials. Someone accidentally sent their password in plain text over HTTP. Find it in the pcap file.", points: 150, category: "Forensics", difficulty: "Easy", isActive: true, isTimeLimited: true, isSolved: false, firstBloodBonus: 50,
     files: [{ id: 9, fileName: "capture.pcap" }, { id: 10, fileName: "readme.txt" }],
     hints: [
       { id: 13, content: "Filter for HTTP POST requests", order: 1 },
@@ -96,7 +96,7 @@ export const MOCK_CHALLENGE_DETAILS: ChallengeDetail[] = [
     solveCount: 31, author: "Pavel_Admin",
   },
   {
-    id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag. You are dropped into a Docker container with limited privileges. Find a way to escape and read /flag.txt on the host.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isSolved: false, firstBloodBonus: 200,
+    id: 8, title: "Docker Escape", description: "Escape the containerized environment and read the flag. You are dropped into a Docker container with limited privileges. Find a way to escape and read /flag.txt on the host.", points: 400, category: "Pwn", difficulty: "Hard", isActive: true, isTimeLimited: true, isSolved: false, firstBloodBonus: 200,
     files: [],
     dockerImage: { id: 2, challengeId: 8, name: "dotflag/docker-escape", status: "stopped", ip: "10.0.13.38", port: 4444, uptime: "0m", expiresAt: "2026-02-17T20:00:00Z" },
     hints: [
@@ -165,9 +165,9 @@ export const MOCK_TEAM: Team = {
   name: "Cyber Elite",
   inviteCode: "CE-X7K9-M2P4",
   members: [
-    { id: 1, username: "Pavel_Admin", role: "Admin", points: 1337, joinedAt: "2026-01-15T10:00:00Z" },
-    { id: 2, username: "h4ck3r_pro", role: "User", points: 1200, joinedAt: "2026-01-16T14:30:00Z" },
-    { id: 11, username: "silent_storm", role: "User", points: 450, joinedAt: "2026-02-01T09:00:00Z" },
+    { id: 1, username: "Pavel_Admin", role: "Admin", teamRole: "Leader", points: 1337, joinedAt: "2026-01-15T10:00:00Z" },
+    { id: 2, username: "h4ck3r_pro", role: "User", teamRole: "Member", points: 1200, joinedAt: "2026-01-16T14:30:00Z" },
+    { id: 11, username: "silent_storm", role: "User", teamRole: "Member", points: 450, joinedAt: "2026-02-01T09:00:00Z" },
   ],
   totalPoints: 2987,
   createdAt: "2026-01-15T10:00:00Z",

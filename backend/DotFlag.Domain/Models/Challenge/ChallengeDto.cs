@@ -25,6 +25,7 @@ namespace DotFlag.Domain.Models.Challenge
         public int FirstBloodBonus { get; set; }
 
         public bool IsActive { get; set; }
+        public bool IsTimeLimited { get; set; }
         public bool IsSolved { get; set; }
 
         public int SolveCount { get; set; }
