@@ -1,4 +1,4 @@
-import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy, Clock, Infinity } from 'lucide-react';
+import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy } from 'lucide-react';
 import { useState } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
@@ -16,14 +16,7 @@ function ChallengeRow({ challenge, onToggleActive, onDelete, onEdit, onManage, o
   return (
     <tr className="hover:bg-slate-800/20 transition-colors">
       <td className="px-4 py-3">
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold text-white">{challenge.title}</p>
-          {!challenge.isTimeLimited && (
-            <span className="flex items-center gap-0.5 text-[10px] font-semibold text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-1.5 py-0.5 rounded-md">
-              <Infinity className="w-3 h-3" /> Practice
-            </span>
-          )}
-        </div>
+        <p className="text-sm font-semibold text-white">{challenge.title}</p>
         <p className="text-[11px] text-slate-600 line-clamp-1">{challenge.description}</p>
       </td>
       <td className="px-4 py-3 hidden sm:table-cell">
@@ -73,14 +66,12 @@ type FormState = {
   decayRate: string;
   firstBloodBonus: string;
   flag: string;
-  isTimeLimited: boolean;
 };
 
 const INITIAL_FORM: FormState = {
   name: '', description: '', category: 'Web',
   difficulty: 'Easy',
   minPoints: '50', maxPoints: '500', decayRate: '30', firstBloodBonus: '10', flag: '',
-  isTimeLimited: true,
 };
 
 export default function ChallengeManagementTable() {
@@ -117,7 +108,6 @@ export default function ChallengeManagementTable() {
       decayRate: '',
       firstBloodBonus: '',
       flag: '',
-      isTimeLimited: challenge.isTimeLimited,
     });
     setShowModal(true);
     setLoadingEdit(true);
@@ -129,7 +119,6 @@ export default function ChallengeManagementTable() {
         maxPoints: String(full.maxPoints),
         decayRate: String(full.decayRate),
         firstBloodBonus: String(full.firstBloodBonus),
-        isTimeLimited: full.isTimeLimited ?? true,
       }));
     } catch {}
     setLoadingEdit(false);
@@ -231,7 +220,6 @@ export default function ChallengeManagementTable() {
         firstBloodBonus: +form.firstBloodBonus || 0,
         flag: form.flag,
         isActive: challenges.find(c => c.id === editingId)?.isActive ?? true,
-        isTimeLimited: form.isTimeLimited,
       });
     } else {
       if (!form.flag) return;
@@ -245,7 +233,6 @@ export default function ChallengeManagementTable() {
         decayRate: +form.decayRate || 0,
         firstBloodBonus: +form.firstBloodBonus || 0,
         flag: form.flag,
-        isTimeLimited: form.isTimeLimited,
       });
     }
     setForm(INITIAL_FORM);
@@ -338,19 +325,6 @@ export default function ChallengeManagementTable() {
               <label className={labelClass}>First Blood Bonus</label>
               <input type="number" value={form.firstBloodBonus} onChange={e => setForm(f => ({ ...f, firstBloodBonus: e.target.value }))} min={0} className={inputClass} />
             </div>
-          </div>
-          <div className="flex items-center justify-between p-3.5 bg-slate-800/30 border border-white/[0.06] rounded-xl">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-slate-500" />
-              <div>
-                <p className="text-sm font-semibold text-white">Time Limited</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">Restrict submissions to CTF window only</p>
-              </div>
-            </div>
-            <button type="button" onClick={() => setForm(f => ({ ...f, isTimeLimited: !f.isTimeLimited }))}
-              className={`transition ${form.isTimeLimited ? 'text-green-400' : 'text-slate-600'}`}>
-              {form.isTimeLimited ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
-            </button>
           </div>
           <div>
             <label className={labelClass}>Flag {editingId !== null && <span className="text-slate-600 normal-case font-normal">(leave empty to keep current)</span>}</label>

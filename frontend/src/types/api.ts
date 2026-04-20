@@ -95,7 +95,6 @@ export interface ApiChallenge {
   decayRate: number;
   firstBloodBonus: number;
   isActive: boolean;
-  isTimeLimited: boolean;
   isSolved: boolean;
   solveCount: number;
   hints: ApiHint[];
@@ -113,7 +112,6 @@ export interface CreateChallengePayload {
   decayRate: number;
   firstBloodBonus: number;
   flag: string;
-  isTimeLimited: boolean;
 }
 
 export interface UpdateChallengePayload {
@@ -127,7 +125,6 @@ export interface UpdateChallengePayload {
   firstBloodBonus: number;
   flag: string;
   isActive: boolean;
-  isTimeLimited: boolean;
 }
 
 export interface FlagSubmission {

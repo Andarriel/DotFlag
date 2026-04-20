@@ -21,7 +21,6 @@ export interface Challenge {
   category: ChallengeCategory;
   difficulty: ChallengeDifficulty;
   isActive: boolean;
-  isTimeLimited: boolean;
   isSolved?: boolean;
   solveCount: number;
   firstBloodBonus: number;

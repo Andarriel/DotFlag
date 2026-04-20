@@ -58,7 +58,7 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
         let cum = 0;
         for (const s of sorted) {
           cum += s.points;
-          points.push({ t: new Date(s.solvedAt).getTime(), cum, isFirstBlood: s.isFirstBlood ?? false });
+          points.push({ t: new Date(s.solvedAt).getTime(), cum, isFirstBlood: s.isFirstBlood });
         }
         const W = 600, H = 120, PAD = 8;
         const minT = points[0].t, maxT = points[points.length - 1].t;

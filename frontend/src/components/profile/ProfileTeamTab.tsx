@@ -79,12 +79,7 @@ export default function ProfileTeamTab() {
                 <span className="text-white font-bold text-sm">{member.username.charAt(0).toUpperCase()}</span>
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-white group-hover:text-indigo-400 transition">{member.username}</p>
-                  {member.teamRole === 'Leader' && (
-                    <span className="text-[10px] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded-md">Leader</span>
-                  )}
-                </div>
+                <p className="text-sm font-semibold text-white group-hover:text-indigo-400 transition">{member.username}</p>
                 <p className="text-[11px] text-slate-500">Joined {formatTimeAgo(member.joinedAt)}</p>
               </div>
             </div>

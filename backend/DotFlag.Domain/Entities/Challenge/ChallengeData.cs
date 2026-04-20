@@ -42,8 +42,6 @@ namespace DotFlag.Domain.Entities.Challenge
 
         public bool IsActive { get; set; } = true;
 
-        public bool IsTimeLimited { get; set; } = true;
-
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
         [InverseProperty("Challenge")]

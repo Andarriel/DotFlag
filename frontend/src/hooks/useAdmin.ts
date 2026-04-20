@@ -32,7 +32,6 @@ function mapApiChallenge(c: ApiChallenge): Challenge {
     category: CATEGORY_MAP[c.category] ?? 'Misc',
     difficulty: DIFFICULTY_MAP[c.difficulty] ?? 'Medium',
     isActive: c.isActive,
-    isTimeLimited: c.isTimeLimited ?? true,
     solveCount: c.solveCount ?? 0,
     firstBloodBonus: c.firstBloodBonus ?? 0,
   };
@@ -162,7 +161,6 @@ export function useAdmin() {
         firstBloodBonus: full.firstBloodBonus,
         flag: '',
         isActive: !full.isActive,
-        isTimeLimited: full.isTimeLimited ?? true,
       });
       if (res.isSuccess) {
         toast.success(full.isActive ? 'Challenge deactivated' : 'Challenge activated');
