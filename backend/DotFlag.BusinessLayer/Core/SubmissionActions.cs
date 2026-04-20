@@ -33,6 +33,23 @@ namespace DotFlag.BusinessLayer.Core
             if (alreadySolved)
                 return new ActionResponse { IsSuccess = false, Message = "Challenge already solved." };
 
+            const int MaxFailedAttempts = 5;
+            const int WindowMinutes = 10;
+
+            var windowStart = DateTime.UtcNow.AddMinutes(-WindowMinutes);
+            var recentFailureTimes = context.Submissions
+                .Where(s => s.UserId == userId && s.ChallengeId == challengeId && !s.IsCorrect && s.CreatedOn >= windowStart)
+                .OrderBy(s => s.CreatedOn)
+                .Select(s => s.CreatedOn)
+                .ToList();
+
+            if (recentFailureTimes.Count >= MaxFailedAttempts)
+            {
+                var unblockedAt = recentFailureTimes[0].AddMinutes(WindowMinutes);
+                var minutesLeft = (int)Math.Ceiling((unblockedAt - DateTime.UtcNow).TotalMinutes);
+                return new ActionResponse { IsSuccess = false, Message = $"Too many incorrect attempts. Try again in {minutesLeft} minute(s)." };
+            }
+
             var user = context.Users.FirstOrDefault(u => u.Id == userId);
 
             if (user == null)
@@ -43,7 +60,6 @@ namespace DotFlag.BusinessLayer.Core
 
             if (isCorrect)
             {
-                //SubmissionRateLimiter.Clear(userId, challengeId);
                 challenge.SolveCount += 1;
                 challenge.CurrentPoints = challenge.CalculateCurrentPoints(
                     challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, challenge.SolveCount);
