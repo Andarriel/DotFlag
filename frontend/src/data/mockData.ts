@@ -165,9 +165,9 @@ export const MOCK_TEAM: Team = {
   name: "Cyber Elite",
   inviteCode: "CE-X7K9-M2P4",
   members: [
-    { id: 1, username: "Pavel_Admin", role: "Admin", points: 1337, joinedAt: "2026-01-15T10:00:00Z" },
-    { id: 2, username: "h4ck3r_pro", role: "User", points: 1200, joinedAt: "2026-01-16T14:30:00Z" },
-    { id: 11, username: "silent_storm", role: "User", points: 450, joinedAt: "2026-02-01T09:00:00Z" },
+    { id: 1, username: "Pavel_Admin", role: "Admin", teamRole: "Leader", points: 1337, joinedAt: "2026-01-15T10:00:00Z" },
+    { id: 2, username: "h4ck3r_pro", role: "User", teamRole: "Member", points: 1200, joinedAt: "2026-01-16T14:30:00Z" },
+    { id: 11, username: "silent_storm", role: "User", teamRole: "Member", points: 450, joinedAt: "2026-02-01T09:00:00Z" },
   ],
   totalPoints: 2987,
   createdAt: "2026-01-15T10:00:00Z",
