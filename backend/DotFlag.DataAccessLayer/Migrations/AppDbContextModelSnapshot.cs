@@ -103,9 +103,6 @@ namespace DotFlag.DataAccessLayer.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsTimeLimited")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("MaxPoints")
                         .HasColumnType("integer");
 
@@ -203,9 +200,9 @@ namespace DotFlag.DataAccessLayer.Migrations
                         new
                         {
                             Id = 1,
-                            EndTime = new DateTime(2026, 4, 20, 3, 27, 19, 829, DateTimeKind.Utc).AddTicks(5354),
+                            EndTime = new DateTime(2026, 4, 17, 10, 1, 15, 247, DateTimeKind.Utc).AddTicks(2295),
                             Name = "DotFlag CTF",
-                            StartTime = new DateTime(2026, 4, 20, 3, 27, 19, 829, DateTimeKind.Utc).AddTicks(5353)
+                            StartTime = new DateTime(2026, 4, 17, 10, 1, 15, 247, DateTimeKind.Utc).AddTicks(2291)
                         });
                 });
 

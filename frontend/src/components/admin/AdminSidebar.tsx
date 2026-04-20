@@ -11,7 +11,7 @@ const TABS: TabConfig[] = [
   { id: 'notifications', label: 'Notifications', icon: Megaphone },
   { id: 'docker', label: 'Docker', icon: Container },
   { id: 'logs', label: 'Audit Logs', icon: ScrollText },
-  { id: 'ctf', label: 'CTF Event', icon: CalendarClock, ownerOnly: false },
+  { id: 'ctf', label: 'CTF Event', icon: CalendarClock, ownerOnly: true },
 ];
 
 export default function AdminSidebar() {

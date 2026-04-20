@@ -21,6 +21,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost("submit")]
+        [RequireCtfRunning]
         public IActionResult SubmitFlag(int id, [FromBody] SubmitFlagDto dto)
         {
             int userId = User.GetId();

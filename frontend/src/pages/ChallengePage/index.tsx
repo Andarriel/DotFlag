@@ -36,7 +36,7 @@ export default function ChallengePage() {
       const hints = (apiChallenge.hints ?? []).map(h => ({ id: h.id, content: h.content, order: h.order }));
       const files = (apiChallenge.files ?? []).map(f => ({ id: f.id, fileName: f.fileName }));
       const detail = challengeToDetail(
-        { id: apiChallenge.id, title: apiChallenge.name, description: apiChallenge.description, points: apiChallenge.currentPoints, category: (apiChallenge.category as unknown as string) as Challenge['category'], difficulty: (apiChallenge.difficulty as unknown as string) as Challenge['difficulty'], isActive: apiChallenge.isActive, isTimeLimited: apiChallenge.isTimeLimited, isSolved: apiChallenge.isSolved, solveCount: apiChallenge.solveCount, firstBloodBonus: apiChallenge.firstBloodBonus },
+        { id: apiChallenge.id, title: apiChallenge.name, description: apiChallenge.description, points: apiChallenge.currentPoints, category: (apiChallenge.category as unknown as string) as Challenge['category'], difficulty: (apiChallenge.difficulty as unknown as string) as Challenge['difficulty'], isActive: apiChallenge.isActive, isSolved: apiChallenge.isSolved, solveCount: apiChallenge.solveCount, firstBloodBonus: apiChallenge.firstBloodBonus },
         apiChallenge.solveCount,
         hints,
         files,

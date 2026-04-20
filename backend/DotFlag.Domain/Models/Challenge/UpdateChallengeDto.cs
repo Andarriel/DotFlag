@@ -28,7 +28,5 @@ namespace DotFlag.Domain.Models.Challenge
         public string Flag { get; set; }
 
         public bool IsActive { get; set; }
-
-        public bool IsTimeLimited { get; set; }
     }
 }
