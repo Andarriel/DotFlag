@@ -55,4 +55,9 @@ public class TeamExecution : TeamActions, ITeamActions
     {
         return LeaveExecution(teamId, userId);
     }
+
+    public ActionResponse RemoveMember(int teamId, int actorId, int targetMemberId)
+    {
+        return RemoveMemberExecution(teamId, actorId, targetMemberId);
+    }
 }

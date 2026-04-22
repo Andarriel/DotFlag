@@ -20,4 +20,7 @@ export const teamService = {
 
   regenerateInvite: (api: AxiosInstance, teamId: number) =>
     api.post<ActionResponse>(`/teams/${teamId}/regenerate-invite`).then(res => res.data),
+
+  removeMember: (api: AxiosInstance, teamId: number, memberId: number) =>
+    api.delete<ActionResponse>(`/teams/${teamId}/members/${memberId}`).then(res => res.data),
 };

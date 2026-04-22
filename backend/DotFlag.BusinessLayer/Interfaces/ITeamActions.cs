@@ -16,5 +16,6 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse Disband(int id, int userId, UserRole role);
         ActionResponse RegenerateInvite(int teamId, int userId);
         ActionResponse Leave(int teamId, int userId);
+        ActionResponse RemoveMember(int teamId, int actorId, int targetMemberId);
     }
 }

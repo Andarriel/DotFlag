@@ -90,7 +90,7 @@ export function useNotifications() {
   // Poll every 60s
   useEffect(() => {
     pollForNew();
-    const interval = setInterval(pollForNew, 60000);
+    const interval = setInterval(pollForNew, 30000);
     return () => clearInterval(interval);
   }, [pollForNew]);
 

@@ -250,6 +250,34 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Invite code regenerated successfully." };
         }
 
+        protected ActionResponse RemoveMemberExecution(int teamId, int actorId, int targetMemberId)
+        {
+            using var context = new AppDbContext();
+
+            var actor = context.Users.FirstOrDefault(u => u.Id == actorId);
+            if (actor == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (actor.TeamId != teamId || actor.TeamRole != TeamRole.Leader)
+                return new ActionResponse { IsSuccess = false, Message = "Only the team leader can remove members." };
+
+            if (actorId == targetMemberId)
+                return new ActionResponse { IsSuccess = false, Message = "You cannot remove yourself from the team." };
+
+            var target = context.Users.FirstOrDefault(u => u.Id == targetMemberId);
+            if (target == null)
+                return new ActionResponse { IsSuccess = false, Message = "Member not found." };
+
+            if (target.TeamId != teamId)
+                return new ActionResponse { IsSuccess = false, Message = "This user is not in your team." };
+
+            target.TeamId = null;
+            target.TeamRole = null;
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Member removed successfully." };
+        }
+
         protected ActionResponse UpdateExecution(int id, UpdateTeamDto dto)
         {
             using var context = new AppDbContext();
