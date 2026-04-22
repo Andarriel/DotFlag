@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Trophy, Zap, Copy, Check, RefreshCw, Eye, EyeOff, UserMinus } from 'lucide-react';
+import { Users, Trophy, Zap, Copy, Check, RefreshCw, Eye, EyeOff, UserMinus, Lock } from 'lucide-react';
 import { useTeamContext } from '../../context/TeamContext';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../common/Modal';
@@ -64,19 +64,26 @@ export default function ProfileTeamTab() {
 
         <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2">
           <span className="text-xs text-slate-500">Invite:</span>
-          <code className="text-sm text-indigo-400 font-mono flex-1">
-            {showCode ? team.inviteCode : team.inviteCode.slice(0, -4) + '••••'}
-          </code>
-          <button onClick={() => setShowCode(v => !v)} title={showCode ? 'Hide code' : 'Show code'} className="p-1 text-slate-400 hover:text-white transition">
-            {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
-          <button onClick={copyInviteCode} title="Copy invite code" className="p-1 text-slate-400 hover:text-white transition">
-            {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-          </button>
-          {isLeader && (
-            <button onClick={regenerateInvite} title="Regenerate invite code" className="p-1 text-slate-400 hover:text-yellow-400 transition">
-              <RefreshCw className="w-4 h-4" />
-            </button>
+          {isLeader ? (
+            <>
+              <code className="text-sm text-indigo-400 font-mono flex-1">
+                {showCode ? team.inviteCode : team.inviteCode.slice(0, -4) + '••••'}
+              </code>
+              <button onClick={() => setShowCode(v => !v)} title={showCode ? 'Hide code' : 'Show code'} className="p-1 text-slate-400 hover:text-white transition">
+                {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+              <button onClick={copyInviteCode} title="Copy invite code" className="p-1 text-slate-400 hover:text-white transition">
+                {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+              </button>
+              <button onClick={regenerateInvite} title="Regenerate invite code" className="p-1 text-slate-400 hover:text-yellow-400 transition">
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              <code className="text-sm text-indigo-400 font-mono flex-1">{team.inviteCode}••••</code>
+              <Lock className="w-3.5 h-3.5 text-slate-600" />
+            </>
           )}
         </div>
       </div>

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DotFlag.DataAccessLayer.Context;
+using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Entities.Team;
 using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.Responses;
@@ -164,10 +165,26 @@ namespace DotFlag.BusinessLayer.Core
             if (teamToJoin.Members.Count >= 4)
                 return new ActionResponse { IsSuccess = false, Message = "This team is full." };
 
+            var existingMemberIds = teamToJoin.Members.Select(m => m.Id).ToList();
+
             user.TeamId = teamToJoin.Id;
             user.TeamRole = TeamRole.Member;
 
             context.SaveChanges();
+
+            foreach (var memberId in existingMemberIds)
+            {
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "New Team Member",
+                    Message = $"{user.Username} joined your team!",
+                    Type = "teamJoined",
+                    UserId = memberId,
+                    CreatedOn = DateTime.UtcNow
+                });
+            }
+            if (existingMemberIds.Count > 0)
+                context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "You joined the team!" };
         }
@@ -184,6 +201,7 @@ namespace DotFlag.BusinessLayer.Core
             if (user.TeamId != teamId)
                 return new ActionResponse { IsSuccess = false, Message = "You are not in this team." };
 
+            var username = user.Username;
             bool isLeader = user.TeamRole == TeamRole.Leader;
 
             user.TeamId = null;
@@ -216,6 +234,21 @@ namespace DotFlag.BusinessLayer.Core
             }
 
             context.SaveChanges();
+
+            var remaining = context.Users.Where(u => u.TeamId == teamId).ToList();
+            foreach (var member in remaining)
+            {
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "Member Left",
+                    Message = $"{username} left the team.",
+                    Type = "teamLeft",
+                    UserId = member.Id,
+                    CreatedOn = DateTime.UtcNow
+                });
+            }
+            if (remaining.Count > 0)
+                context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "You left the team." };
         }
@@ -271,8 +304,20 @@ namespace DotFlag.BusinessLayer.Core
             if (target.TeamId != teamId)
                 return new ActionResponse { IsSuccess = false, Message = "This user is not in your team." };
 
+            var teamName = context.Teams.Where(t => t.Id == teamId).Select(t => t.Name).FirstOrDefault();
+
             target.TeamId = null;
             target.TeamRole = null;
+            context.SaveChanges();
+
+            context.Notifications.Add(new NotificationData
+            {
+                Title = "Removed from Team",
+                Message = $"You were removed from {teamName ?? "your team"} by the leader.",
+                Type = "teamKicked",
+                UserId = targetMemberId,
+                CreatedOn = DateTime.UtcNow
+            });
             context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "Member removed successfully." };
@@ -311,6 +356,10 @@ namespace DotFlag.BusinessLayer.Core
                 return null;
 
             var dto = _mapper.Map<TeamDetailsDto>(team);
+
+            if (user.TeamRole != TeamRole.Leader)
+                dto.InviteCode = dto.InviteCode.Length > 4 ? dto.InviteCode[..^4] : string.Empty;
+
             PopulateMemberPoints(context, new[] { (TeamDto)dto });
             return dto;
         }

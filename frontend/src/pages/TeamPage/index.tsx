@@ -53,14 +53,18 @@ export default function TeamPage() {
             <TeamInfo team={team} copied={copied} onCopyCode={copyInviteCode} isLeader={isLeader} onRegenerate={regenerateInvite} />
             <MemberList members={team.members} isLeader={isLeader} currentUserId={user?.id} onRemove={removeMember} />
             <div className="mt-6 flex justify-end gap-3">
-              <button onClick={leaveTeam}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
-                <LogOut className="w-4 h-4" /> Leave Team
-              </button>
-              <button onClick={() => setShowDisband(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
-                <Trash2 className="w-4 h-4" /> Disband Team
-              </button>
+              {!isLeader && (
+                <button onClick={leaveTeam}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
+                  <LogOut className="w-4 h-4" /> Leave Team
+                </button>
+              )}
+              {isLeader && (
+                <button onClick={() => setShowDisband(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
+                  <Trash2 className="w-4 h-4" /> Disband Team
+                </button>
+              )}
             </div>
 
             <Modal isOpen={showDisband} onClose={() => setShowDisband(false)} title="Disband Team" onConfirm={async () => { await disbandTeam(); setShowDisband(false); }} confirmLabel="Disband" confirmVariant="danger">

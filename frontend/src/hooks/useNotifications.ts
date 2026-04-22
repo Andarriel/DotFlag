@@ -9,6 +9,9 @@ const TOAST_FN: Record<string, 'firstBlood' | 'info' | 'warning'> = {
   announcement: 'info',
   system: 'warning',
   challengeDeactivated: 'warning',
+  teamJoined: 'info',
+  teamLeft: 'info',
+  teamKicked: 'warning',
 };
 
 export function useNotifications() {
