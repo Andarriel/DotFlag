@@ -47,7 +47,7 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
             id: m.id,
             username: m.username,
             role: 'User' as const,
-            teamRole: m.teamRole === 1 ? 'Leader' : 'Member',
+            teamRole: m.teamRole === 'Leader' ? 'Leader' : 'Member',
             points: m.currentPoints || 0,
             joinedAt: m.registeredOn || '',
           })),

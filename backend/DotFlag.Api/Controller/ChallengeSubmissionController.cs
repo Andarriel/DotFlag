@@ -2,6 +2,7 @@ using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.Domain.Models.Challenge;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using DotFlag.Api.Extensions;
 using DotFlag.Api.Filters;
 
@@ -22,6 +23,7 @@ namespace DotFlag.Api.Controller
 
         [HttpPost("submit")]
         [RequireCtfRunning]
+        [EnableRateLimiting("submit")]
         public IActionResult SubmitFlag(int id, [FromBody] SubmitFlagDto dto)
         {
             int userId = User.GetId();

@@ -4,6 +4,7 @@ using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DotFlag.Api.Controller
 {
@@ -20,6 +21,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting("auth")]
         public IActionResult Login([FromBody] UserLoginDto dto)
         {
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -36,6 +38,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost("register")]
+        [EnableRateLimiting("auth")]
         public IActionResult Register([FromBody] UserRegisterDto dto)
         {
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
