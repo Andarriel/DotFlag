@@ -1,11 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Trophy, Zap, Copy, Check, RefreshCw } from 'lucide-react';
+import { Users, Trophy, Zap, Copy, Check, RefreshCw, Eye, EyeOff, UserMinus, Lock } from 'lucide-react';
 import { useTeamContext } from '../../context/TeamContext';
+import { useAuth } from '../../context/AuthContext';
+import Modal from '../common/Modal';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 
 export default function ProfileTeamTab() {
-  const { team, loading, isLeader, copied, copyInviteCode, regenerateInvite, refresh } = useTeamContext();
+  const { team, loading, isLeader, copied, copyInviteCode, regenerateInvite, removeMember, refresh } = useTeamContext();
+  const { user } = useAuth();
+  const [showCode, setShowCode] = useState(false);
+  const [pendingId, setPendingId] = useState<number | null>(null);
+  const pendingMember = team?.members.find(m => m.id === pendingId);
 
   useEffect(() => { refresh(); }, []);
 
@@ -58,14 +64,26 @@ export default function ProfileTeamTab() {
 
         <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2">
           <span className="text-xs text-slate-500">Invite:</span>
-          <code className="text-sm text-indigo-400 font-mono flex-1">{team.inviteCode}</code>
-          <button onClick={copyInviteCode} title="Copy invite code" className="p-1 text-slate-400 hover:text-white transition">
-            {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-          </button>
-          {isLeader && (
-            <button onClick={regenerateInvite} title="Regenerate invite code" className="p-1 text-slate-400 hover:text-yellow-400 transition">
-              <RefreshCw className="w-4 h-4" />
-            </button>
+          {isLeader ? (
+            <>
+              <code className="text-sm text-indigo-400 font-mono flex-1">
+                {showCode ? team.inviteCode : team.inviteCode.slice(0, -4) + '••••'}
+              </code>
+              <button onClick={() => setShowCode(v => !v)} title={showCode ? 'Hide code' : 'Show code'} className="p-1 text-slate-400 hover:text-white transition">
+                {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+              <button onClick={copyInviteCode} title="Copy invite code" className="p-1 text-slate-400 hover:text-white transition">
+                {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+              </button>
+              <button onClick={regenerateInvite} title="Regenerate invite code" className="p-1 text-slate-400 hover:text-yellow-400 transition">
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              <code className="text-sm text-indigo-400 font-mono flex-1">{team.inviteCode}••••</code>
+              <Lock className="w-3.5 h-3.5 text-slate-600" />
+            </>
           )}
         </div>
       </div>
@@ -79,17 +97,43 @@ export default function ProfileTeamTab() {
                 <span className="text-white font-bold text-sm">{member.username.charAt(0).toUpperCase()}</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white group-hover:text-indigo-400 transition">{member.username}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-white group-hover:text-indigo-400 transition">{member.username}</p>
+                  {member.teamRole === 'Leader' && (
+                    <span className="text-[10px] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded-md shrink-0">Leader</span>
+                  )}
+                </div>
                 <p className="text-[11px] text-slate-500">Joined {formatTimeAgo(member.joinedAt)}</p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <Zap className="w-3.5 h-3.5 text-indigo-400" />
               <span className="text-sm font-bold text-white">{member.points}</span>
+              {isLeader && member.id !== user?.id && (
+                <button
+                  onClick={e => { e.preventDefault(); setPendingId(member.id); }}
+                  title="Remove member"
+                  className="ml-1 p-1 text-slate-600 hover:text-red-400 transition">
+                  <UserMinus className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </Link>
         ))}
       </div>
+
+      <Modal
+        isOpen={pendingId != null}
+        onClose={() => setPendingId(null)}
+        title="Remove Member"
+        onConfirm={() => { if (pendingId != null) removeMember(pendingId); setPendingId(null); }}
+        confirmLabel="Remove"
+        confirmVariant="danger"
+      >
+        <p className="text-sm text-slate-400">
+          Are you sure you want to remove <span className="text-white font-semibold">{pendingMember?.username}</span> from the team?
+        </p>
+      </Modal>
     </div>
   );
 }

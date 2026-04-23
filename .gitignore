@@ -37,6 +37,13 @@ uploads/
 *.njsproj
 *.swp
 
+# Claude Code
+.claude/
+
+docker-compose.yml
+docker-compose.override.yml
+
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini

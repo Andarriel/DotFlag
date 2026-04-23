@@ -6,9 +6,11 @@ import MemberList from '../../components/team/MemberList';
 import JoinTeamPanel from '../../components/team/JoinTeamPanel';
 import Modal from '../../components/common/Modal';
 import { useTeamContext } from '../../context/TeamContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function TeamPage() {
-  const { team, loading, refresh, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam } = useTeamContext();
+  const { team, loading, refresh, isLeader, inviteCode, setInviteCode, copied, copyInviteCode, regenerateInvite, removeMember, joinTeam, createTeam, leaveTeam, disbandTeam } = useTeamContext();
+  const { user } = useAuth();
 
   useEffect(() => { refresh(); }, []);
   const [showCreate, setShowCreate] = useState(false);
@@ -48,17 +50,21 @@ export default function TeamPage() {
       <div className="max-w-4xl mx-auto px-6 py-8">
         {team ? (
           <>
-            <TeamInfo team={team} copied={copied} onCopyCode={copyInviteCode} />
-            <MemberList members={team.members} />
+            <TeamInfo team={team} copied={copied} onCopyCode={copyInviteCode} isLeader={isLeader} onRegenerate={regenerateInvite} />
+            <MemberList members={team.members} isLeader={isLeader} currentUserId={user?.id} onRemove={removeMember} />
             <div className="mt-6 flex justify-end gap-3">
-              <button onClick={leaveTeam}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
-                <LogOut className="w-4 h-4" /> Leave Team
-              </button>
-              <button onClick={() => setShowDisband(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
-                <Trash2 className="w-4 h-4" /> Disband Team
-              </button>
+              {!isLeader && (
+                <button onClick={leaveTeam}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
+                  <LogOut className="w-4 h-4" /> Leave Team
+                </button>
+              )}
+              {isLeader && (
+                <button onClick={() => setShowDisband(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all">
+                  <Trash2 className="w-4 h-4" /> Disband Team
+                </button>
+              )}
             </div>
 
             <Modal isOpen={showDisband} onClose={() => setShowDisband(false)} title="Disband Team" onConfirm={async () => { await disbandTeam(); setShowDisband(false); }} confirmLabel="Disband" confirmVariant="danger">

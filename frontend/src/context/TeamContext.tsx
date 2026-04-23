@@ -21,6 +21,7 @@ interface TeamContextType {
   leaveTeam: () => Promise<void>;
   disbandTeam: () => Promise<void>;
   regenerateInvite: () => Promise<void>;
+  removeMember: (memberId: number) => Promise<void>;
 }
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
@@ -47,7 +48,7 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
             id: m.id,
             username: m.username,
             role: 'User' as const,
-            teamRole: m.teamRole === 1 ? 'Leader' : 'Member',
+            teamRole: m.teamRole === 'Leader' ? 'Leader' : 'Member',
             points: m.currentPoints || 0,
             joinedAt: m.registeredOn || '',
           })),
@@ -152,8 +153,24 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
   const isLeader = !!team && !!user &&
     team.members.some(m => m.id === user.id && m.teamRole === 'Leader');
 
+  const removeMember = async (memberId: number) => {
+    if (!team) return;
+    if (USE_MOCK) { toast.success('Member removed (mock)'); return; }
+    try {
+      const res = await teamService.removeMember(api, team.id, memberId);
+      if (res.isSuccess) {
+        toast.success('Member removed');
+        fetchTeam();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to remove member');
+    }
+  };
+
   return (
-    <TeamContext.Provider value={{ team, loading, isLeader, refresh: fetchTeam, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam, regenerateInvite }}>
+    <TeamContext.Provider value={{ team, loading, isLeader, refresh: fetchTeam, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam, regenerateInvite, removeMember }}>
       {children}
     </TeamContext.Provider>
   );

@@ -113,6 +113,18 @@ namespace DotFlag.Api.Controller
             return Ok(result);
         }
 
+        [HttpDelete("{teamId}/members/{memberId}")]
+        public IActionResult RemoveMember(int teamId, int memberId)
+        {
+            int actorId = User.GetId();
+            var result = _teamActions.RemoveMember(teamId, actorId, memberId);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpDelete("{id}")]
         public IActionResult Disband(int id)
         {

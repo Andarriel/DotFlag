@@ -9,6 +9,9 @@ const TOAST_FN: Record<string, 'firstBlood' | 'info' | 'warning'> = {
   announcement: 'info',
   system: 'warning',
   challengeDeactivated: 'warning',
+  teamJoined: 'info',
+  teamLeft: 'info',
+  teamKicked: 'warning',
 };
 
 export function useNotifications() {
@@ -90,7 +93,7 @@ export function useNotifications() {
   // Poll every 60s
   useEffect(() => {
     pollForNew();
-    const interval = setInterval(pollForNew, 60000);
+    const interval = setInterval(pollForNew, 30000);
     return () => clearInterval(interval);
   }, [pollForNew]);
 
