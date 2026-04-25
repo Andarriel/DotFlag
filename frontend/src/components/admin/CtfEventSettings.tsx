@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save, CalendarClock, Hourglass, Flag, Swords } from 'lucide-react';
+import { Save, CalendarClock, Hourglass, Flag, Swords, Sparkles } from 'lucide-react';
 import { ctfEventService } from '../../services/ctfEventService';
 import { useAxios } from '../../context/AxiosContext';
 import { useToast } from '../../context/ToastContext';
@@ -20,6 +20,8 @@ function STATE_STYLE(state: CtfState) {
       return { color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', Icon: Hourglass, label: 'Upcoming' };
     case 'Ended':
       return { color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20', Icon: Flag, label: 'Ended' };
+    case 'ComingSoon':
+      return { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', Icon: Sparkles, label: 'Coming Soon' };
   }
 }
 
@@ -31,6 +33,7 @@ export default function CtfEventSettings() {
   const [name, setName] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [isComingSoon, setIsComingSoon] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -38,16 +41,18 @@ export default function CtfEventSettings() {
     setName(status.name);
     setStartTime(toLocalInput(status.startTime));
     setEndTime(toLocalInput(status.endTime));
+    setIsComingSoon(status.state === 'ComingSoon');
   }, [status]);
 
   const handleSave = async () => {
-    if (!name.trim() || !startTime || !endTime || saving) return;
+    if (!name.trim() || (!isComingSoon && (!startTime || !endTime)) || saving) return;
     setSaving(true);
     try {
       const res = await ctfEventService.update(api, {
         name,
-        startTime: new Date(startTime).toISOString(),
-        endTime: new Date(endTime).toISOString(),
+        startTime: new Date(startTime || Date.now()).toISOString(),
+        endTime: new Date(endTime || Date.now()).toISOString(),
+        isComingSoon,
       });
       if (res.isSuccess) {
         toast.success('CTF event updated');
@@ -99,7 +104,20 @@ export default function CtfEventSettings() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="flex items-center gap-3 p-3.5 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 cursor-pointer select-none hover:bg-amber-500/10 transition-colors">
+            <input
+              type="checkbox"
+              checked={isComingSoon}
+              onChange={e => setIsComingSoon(e.target.checked)}
+              className="w-4 h-4 accent-amber-400 shrink-0"
+            />
+            <div>
+              <p className="text-sm font-medium text-amber-300">Coming Soon mode</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">No start date — shows a teaser to users and directs them to social media for updates.</p>
+            </div>
+          </label>
+
+          <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 transition-opacity ${isComingSoon ? 'opacity-40 pointer-events-none' : ''}`}>
             <div>
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block flex items-center gap-1.5">
                 <CalendarClock className="w-3.5 h-3.5" />
@@ -132,7 +150,7 @@ export default function CtfEventSettings() {
 
           <button
             onClick={handleSave}
-            disabled={saving || !name.trim() || !startTime || !endTime}
+            disabled={saving || !name.trim() || (!isComingSoon && (!startTime || !endTime))}
             className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />

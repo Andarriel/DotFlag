@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Timer, Calendar, ChevronRight, Flag } from 'lucide-react';
+import { Timer, Calendar, ChevronRight, Flag, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../router/paths';
 import { useCtfStatus } from '../../context/CtfStatusContext';
@@ -127,6 +127,29 @@ export default function StatsSection() {
             >
               Create Account
             </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status.state === 'ComingSoon') {
+    return (
+      <div className="relative border-y border-white/[0.04] bg-slate-950/90 backdrop-blur-sm z-10 overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/10 to-transparent" />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+              </div>
+              <div>
+                <span className="font-mono text-[10px] text-amber-400/70 uppercase tracking-[0.15em]">Coming Soon</span>
+                <p className="text-base font-display font-semibold text-white">{status.name}</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">Follow our social media for the start announcement.</p>
           </div>
         </div>
       </div>

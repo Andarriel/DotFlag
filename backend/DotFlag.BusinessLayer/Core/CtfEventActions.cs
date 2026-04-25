@@ -25,15 +25,21 @@ namespace DotFlag.BusinessLayer.Core
 
             var dto = _mapper.Map<CtfEventDto>(entity);
 
+            if (entity.IsComingSoon)
+            {
+                dto.State = CtfState.ComingSoon;
+                return dto;
+            }
+
             var now = DateTime.UtcNow;
-            
-            if (now < entity.StartTime) 
+
+            if (now < entity.StartTime)
                 dto.State = CtfState.Upcoming;
-            
-            else if (now <= entity.EndTime) 
+
+            else if (now <= entity.EndTime)
                 dto.State = CtfState.Running;
 
-            else 
+            else
                 dto.State = CtfState.Ended;
 
             return dto;
@@ -48,12 +54,17 @@ namespace DotFlag.BusinessLayer.Core
             if(CtfEvent == null)
                 return new ActionResponse() { IsSuccess = false, Message = "There is no CtfEvent inside of Postgre" };
 
-            if (dto.EndTime <= dto.StartTime)
+            if (!dto.IsComingSoon && dto.EndTime <= dto.StartTime)
                 return new ActionResponse { IsSuccess = false, Message = "EndTime must be after StartTime" };
 
             CtfEvent.Name = dto.Name;
-            CtfEvent.StartTime = DateTime.SpecifyKind(dto.StartTime, DateTimeKind.Utc);
-            CtfEvent.EndTime = DateTime.SpecifyKind(dto.EndTime, DateTimeKind.Utc);
+            CtfEvent.IsComingSoon = dto.IsComingSoon;
+
+            if (!dto.IsComingSoon)
+            {
+                CtfEvent.StartTime = DateTime.SpecifyKind(dto.StartTime, DateTimeKind.Utc);
+                CtfEvent.EndTime = DateTime.SpecifyKind(dto.EndTime, DateTimeKind.Utc);
+            }
 
             context.SaveChanges();
 

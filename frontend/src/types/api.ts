@@ -265,7 +265,7 @@ export interface ApiTeamLeaderboardEntry {
   lastSolveAt: string;
 }
 
-export type CtfState = 'Upcoming' | 'Running' | 'Ended';
+export type CtfState = 'Upcoming' | 'Running' | 'Ended' | 'ComingSoon';
 
 export interface ApiCtfStatus {
   id: number;
@@ -279,4 +279,5 @@ export interface UpdateCtfEventPayload {
   name: string;
   startTime: string;
   endTime: string;
+  isComingSoon: boolean;
 }
