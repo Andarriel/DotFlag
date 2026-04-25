@@ -108,6 +108,9 @@ namespace DotFlag.BusinessLayer.Core
             challenge.IsActive = dto.IsActive;
             challenge.DecayRate = dto.DecayRate;
             challenge.FirstBloodBonus = dto.FirstBloodBonus;
+            challenge.HasInstance = dto.HasInstance;
+            challenge.DockerImage = dto.HasInstance ? dto.DockerImage : null;
+            challenge.ContainerPort = dto.HasInstance ? dto.ContainerPort : null;
 
             if (flagChanged)
                 challenge.FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag);
@@ -176,7 +179,10 @@ namespace DotFlag.BusinessLayer.Core
                 FirstBloodBonus = source.FirstBloodBonus,
                 FlagHash = source.FlagHash,
                 IsActive = false,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.UtcNow,
+                HasInstance = source.HasInstance,
+                DockerImage = source.DockerImage,
+                ContainerPort = source.ContainerPort,
             };
 
             context.Challenges.Add(clone);

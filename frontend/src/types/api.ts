@@ -98,6 +98,7 @@ export interface ApiChallenge {
   isSolved: boolean;
   solveCount: number;
   hasInstance: boolean;
+  dockerImage: string | null;
   containerPort: number | null;
   hints: ApiHint[];
   files: ApiChallengeFile[];

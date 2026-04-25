@@ -149,6 +149,7 @@ export default function ChallengeManagementTable() {
         decayRate: String(full.decayRate),
         firstBloodBonus: String(full.firstBloodBonus),
         hasInstance: full.hasInstance ?? false,
+        dockerImage: full.dockerImage ?? '',
         containerPort: full.containerPort != null ? String(full.containerPort) : '',
       }));
     } catch {}
@@ -237,8 +238,15 @@ export default function ChallengeManagementTable() {
     }
   };
 
+  const isFormValid = () => {
+    if (!form.name || !form.description) return false;
+    if (!form.flag) return false;
+    if (form.hasInstance && !form.containerPort) return false;
+    return true;
+  };
+
   const handleSubmit = () => {
-    if (!form.name || !form.description) return;
+    if (!isFormValid()) return;
     if (editingId !== null) {
       updateChallenge(editingId, {
         name: form.name,
@@ -256,7 +264,6 @@ export default function ChallengeManagementTable() {
         containerPort: form.hasInstance && form.containerPort ? +form.containerPort : undefined,
       });
     } else {
-      if (!form.flag) return;
       createChallenge({
         name: form.name,
         description: form.description,
@@ -316,7 +323,7 @@ export default function ChallengeManagementTable() {
       </div>
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingId(null); }} title={editingId !== null ? 'Edit Challenge' : 'Create New Challenge'} onConfirm={handleSubmit} confirmLabel={editingId !== null ? 'Save' : 'Create'}>
+      <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingId(null); }} title={editingId !== null ? 'Edit Challenge' : 'Create New Challenge'} onConfirm={handleSubmit} confirmLabel={editingId !== null ? 'Save' : 'Create'} confirmDisabled={!isFormValid()}>
         <div className="space-y-4">
           <div>
             <label className={labelClass}>Title</label>
@@ -364,8 +371,8 @@ export default function ChallengeManagementTable() {
             </div>
           </div>
           <div>
-            <label className={labelClass}>Flag {editingId !== null && <span className="text-slate-600 normal-case font-normal">(leave empty to keep current)</span>}</label>
-            <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder={editingId !== null ? 'Leave empty to keep current flag' : 'dotflag{your_flag_here}'} />
+            <label className={labelClass}>Flag <span className="text-red-400">*</span></label>
+            <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder="dotflag{your_flag_here}" />
           </div>
           <div className="border-t border-white/[0.06] pt-4">
             <label className="flex items-center gap-3 cursor-pointer">
@@ -418,7 +425,7 @@ export default function ChallengeManagementTable() {
                   )}
                 </div>
                 <div>
-                  <label className={labelClass}>Container Port</label>
+                  <label className={labelClass}>Container Port <span className="text-red-400">*</span></label>
                   <input type="number" value={form.containerPort}
                     onChange={e => setForm(f => ({ ...f, containerPort: e.target.value }))}
                     className={inputClass} placeholder="1337" min={1} max={65535} />

@@ -9,9 +9,10 @@ interface ModalProps {
   onConfirm?: () => void;
   confirmLabel?: string;
   confirmVariant?: 'primary' | 'danger';
+  confirmDisabled?: boolean;
 }
 
-export default function Modal({ isOpen, onClose, title, children, onConfirm, confirmLabel = 'Confirm', confirmVariant = 'primary' }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, onConfirm, confirmLabel = 'Confirm', confirmVariant = 'primary', confirmDisabled = false }: ModalProps) {
   if (!isOpen) return null;
 
   const confirmClass = confirmVariant === 'danger'
@@ -36,7 +37,7 @@ export default function Modal({ isOpen, onClose, title, children, onConfirm, con
             <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition">
               Cancel
             </button>
-            <button onClick={onConfirm} className={`px-4 py-2 text-sm font-medium text-white rounded-xl transition-all shadow-lg active:scale-[0.98] ${confirmClass}`}>
+            <button onClick={onConfirm} disabled={confirmDisabled} className={`px-4 py-2 text-sm font-medium text-white rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 ${confirmClass}`}>
               {confirmLabel}
             </button>
           </div>

@@ -24,6 +24,7 @@ export interface Challenge {
   isSolved?: boolean;
   solveCount: number;
   firstBloodBonus: number;
+  hasInstance?: boolean;
 }
 
 export interface ChallengeFile {
