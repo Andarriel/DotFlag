@@ -4,6 +4,7 @@ using DotFlag.BusinessLayer.Interfaces;
 using DotFlag.BusinessLayer.Mapping;
 using DotFlag.BusinessLayer.Structure;
 using Microsoft.Extensions.Logging;
+using DotFlag.BusinessLayer.Services;
 
 namespace DotFlag.BusinessLayer
 {
@@ -30,5 +31,7 @@ namespace DotFlag.BusinessLayer
         public INotificationActions GetNotificationActions() => new NotificationExecution();
         public IAuditActions GetAuditActions() => new AuditExecution(_mapper);
         public ICtfEventActions GetCtfEventActions() => new CtfEventExecution(_mapper);
+        public IChallengeInstanceActions GetChallengeInstanceActions() => new ChallengeInstanceExecution();
+        public IDockerAdminActions GetDockerAdminActions() => new DockerAdminExecution();
     }
 }
