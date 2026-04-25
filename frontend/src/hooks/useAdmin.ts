@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { MOCK_ADMIN_USERS, MOCK_CHALLENGES, MOCK_DOCKER_IMAGES } from '../data/mockData';
 import { userService } from '../services/userService';
 import { challengeService } from '../services/challengeService';
+import { dockerAdminService } from '../services/dockerAdminService';
 import { useAxios } from '../context/AxiosContext';
 import { useToast } from '../context/ToastContext';
 import { USE_MOCK } from '../config';
-import type { ApiUser, ApiChallenge, CreateChallengePayload, UpdateChallengePayload, UserRole } from '../types/api';
+import type { ApiUser, ApiChallenge, ApiDockerContainer, ApiDockerSettings, CreateChallengePayload, UpdateChallengePayload, UserRole } from '../types/api';
 import type { AdminUser, Challenge, DockerImage, ChallengeCategory, ChallengeDifficulty } from '../types';
 
 export type AdminTab = 'users' | 'challenges' | 'notifications' | 'docker' | 'logs' | 'ctf';
@@ -44,7 +45,15 @@ export function useAdmin() {
   const [users, setUsers] = useState<AdminUser[]>(USE_MOCK ? MOCK_ADMIN_USERS : []);
   const [challenges, setChallenges] = useState<Challenge[]>(USE_MOCK ? MOCK_CHALLENGES : []);
   const [dockerImages] = useState<DockerImage[]>(MOCK_DOCKER_IMAGES);
+  const [dockerContainers, setDockerContainers] = useState<ApiDockerContainer[]>([]);
+  const [dockerSettings, setDockerSettings] = useState<ApiDockerSettings | null>(null);
   const [loading, setLoading] = useState(!USE_MOCK);
+
+  const refreshDocker = useCallback(() => {
+    if (USE_MOCK) return;
+    dockerAdminService.getContainers(api).then(setDockerContainers).catch(() => {});
+    dockerAdminService.getSettings(api).then(setDockerSettings).catch(() => {});
+  }, [api]);
 
   const refresh = useCallback(() => {
     if (USE_MOCK) return;
@@ -56,6 +65,7 @@ export function useAdmin() {
   }, [api]);
 
   useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => { refreshDocker(); }, [refreshDocker]);
 
   const promote = async (userId: number) => {
     const user = users.find(u => u.id === userId);
@@ -244,11 +254,57 @@ export function useAdmin() {
     }
   };
 
+  const killDockerContainer = async (instanceId: number) => {
+    if (USE_MOCK) return;
+    try {
+      const res = await dockerAdminService.killContainer(api, instanceId);
+      if (res.isSuccess) {
+        toast.success('Container removed');
+        setDockerContainers(prev => prev.filter(c => c.instanceId !== instanceId));
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to remove container');
+    }
+  };
+
+  const restartDockerContainer = async (instanceId: number) => {
+    if (USE_MOCK) return;
+    try {
+      const res = await dockerAdminService.restartContainer(api, instanceId);
+      if (res.isSuccess) {
+        toast.success('Container restarted');
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to restart container');
+    }
+  };
+
+  const updateDockerSettings = async (data: { host: string; maxGlobalInstances: number; instanceTimeoutMinutes: number }) => {
+    if (USE_MOCK) { toast.success('Settings saved (mock)'); return; }
+    try {
+      const res = await dockerAdminService.updateSettings(api, data);
+      if (res.isSuccess) {
+        toast.success('Docker settings saved');
+        setDockerSettings(prev => prev ? { ...prev, ...data } : null);
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error('Failed to save settings');
+    }
+  };
+
   return {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
+    dockerContainers, dockerSettings,
     toggleBan, promote, demote, deleteUser,
     createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge, cloneChallenge,
     registerUser, loading, refresh,
+    killDockerContainer, restartDockerContainer, updateDockerSettings, refreshDocker,
   };
 }
