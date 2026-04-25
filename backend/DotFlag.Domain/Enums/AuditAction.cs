@@ -31,6 +31,11 @@ namespace DotFlag.Domain.Enums
         // Team
         TeamDisbanded = 50,
 
+        // Docker
+        DockerInstanceStarted = 60,
+        DockerInstanceStopped = 61,
+        DockerInstanceKilled = 62,
+
         // System
         SystemCleanup = 90
     }
