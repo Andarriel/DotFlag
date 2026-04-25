@@ -10,4 +10,7 @@ export const instanceService = {
 
   stop: (api: AxiosInstance, challengeId: number) =>
     api.delete<ActionResponse>(`/challenges/${challengeId}/instance`).then(res => res.data),
+
+  restart: (api: AxiosInstance, challengeId: number) =>
+    api.post<ActionResponse>(`/challenges/${challengeId}/instance/restart`).then(res => res.data),
 };

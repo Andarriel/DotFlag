@@ -99,6 +99,28 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Instance stopped." };
         }
 
+        protected async Task<ActionResponse> RestartInstanceExecution(int challengeId, int userId)
+        {
+            using var context = new AppDbContext();
+
+            var instance = context.ChallengeInstances
+                .FirstOrDefault(i => i.ChallengeId == challengeId && i.UserId == userId && i.Status == "running");
+
+            if (instance == null)
+                return new ActionResponse { IsSuccess = false, Message = "No active instance found." };
+
+            try
+            {
+                var docker = await DockerService.FromSettings();
+                await docker.RestartContainer(instance.ContainerId);
+                return new ActionResponse { IsSuccess = true, Message = "Instance restarted." };
+            }
+            catch (Exception ex)
+            {
+                return new ActionResponse { IsSuccess = false, Message = $"Failed to restart instance: {ex.Message}" };
+            }
+        }
+
         protected ChallengeInstanceDto? GetInstanceExecution(int challengeId, int userId)
         {
             using var context = new AppDbContext();

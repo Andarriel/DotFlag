@@ -45,5 +45,14 @@ namespace DotFlag.Api.Controller
                 return BadRequest(response);
             return Ok(response);
         }
+
+        [HttpPost("restart")]
+        public async Task<IActionResult> RestartInstance(int challengeId)
+        {
+            var response = await _instanceActions.RestartInstance(challengeId, User.GetId());
+            if (!response.IsSuccess)
+                return BadRequest(response);
+            return Ok(response);
+        }
     }
 }
