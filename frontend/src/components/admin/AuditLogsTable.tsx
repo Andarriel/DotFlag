@@ -27,6 +27,9 @@ const ACTION_LABELS: Record<AuditAction, string> = {
   [AuditAction.UserRegistered]: 'User Registered',
   [AuditAction.TeamDisbanded]: 'Team Disbanded',
   [AuditAction.SystemCleanup]: 'System Cleanup',
+  [AuditAction.DockerInstanceStarted]: 'Docker Instance Started',
+  [AuditAction.DockerInstanceStopped]: 'Docker Instance Stopped',
+  [AuditAction.DockerInstanceKilled]: 'Docker Instance Killed',
 };
 
 const CHALLENGE_ACTIONS = new Set<AuditAction>([

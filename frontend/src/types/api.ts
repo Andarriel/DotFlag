@@ -97,6 +97,8 @@ export interface ApiChallenge {
   isActive: boolean;
   isSolved: boolean;
   solveCount: number;
+  hasInstance: boolean;
+  containerPort: number | null;
   hints: ApiHint[];
   files: ApiChallengeFile[];
   createdOn: string;
@@ -112,6 +114,9 @@ export interface CreateChallengePayload {
   decayRate: number;
   firstBloodBonus: number;
   flag: string;
+  hasInstance?: boolean;
+  dockerImage?: string;
+  containerPort?: number;
 }
 
 export interface UpdateChallengePayload {
@@ -125,6 +130,45 @@ export interface UpdateChallengePayload {
   firstBloodBonus: number;
   flag: string;
   isActive: boolean;
+  hasInstance?: boolean;
+  dockerImage?: string;
+  containerPort?: number;
+}
+
+export interface ApiChallengeInstance {
+  id: number;
+  challengeId: number;
+  host: string;
+  port: number;
+  createdAt: string;
+  expiresAt: string | null;
+  status: string;
+}
+
+export interface ApiDockerContainer {
+  instanceId: number;
+  containerId: string;
+  challengeId: number;
+  challengeName: string;
+  userId: number;
+  username: string;
+  hostPort: number;
+  status: string;
+  createdAt: string;
+  expiresAt: string | null;
+}
+
+export interface ApiDockerSettings {
+  id: number;
+  host: string;
+  maxGlobalInstances: number;
+  instanceTimeoutMinutes: number;
+}
+
+export interface UpdateDockerSettingsPayload {
+  host: string;
+  maxGlobalInstances: number;
+  instanceTimeoutMinutes: number;
 }
 
 export interface FlagSubmission {
@@ -177,6 +221,9 @@ export enum AuditAction {
   PasswordChanged = 'PasswordChanged',
   UserRegistered = 'UserRegistered',
   TeamDisbanded = 'TeamDisbanded',
+  DockerInstanceStarted = 'DockerInstanceStarted',
+  DockerInstanceStopped = 'DockerInstanceStopped',
+  DockerInstanceKilled = 'DockerInstanceKilled',
   SystemCleanup = 'SystemCleanup',
 }
 

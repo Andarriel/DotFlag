@@ -44,6 +44,13 @@ namespace DotFlag.Domain.Entities.Challenge
 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
+        public bool HasInstance { get; set; } = false;
+
+        [StringLength(200)]
+        public string? DockerImage { get; set; }
+
+        public int? ContainerPort { get; set; }
+
         [InverseProperty("Challenge")]
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
 

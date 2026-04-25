@@ -28,5 +28,12 @@ namespace DotFlag.Domain.Models.Challenge
         public string Flag { get; set; }
 
         public bool IsActive { get; set; }
+
+        public bool HasInstance { get; set; }
+
+        [StringLength(200)]
+        public string? DockerImage { get; set; }
+
+        public int? ContainerPort { get; set; }
     }
 }

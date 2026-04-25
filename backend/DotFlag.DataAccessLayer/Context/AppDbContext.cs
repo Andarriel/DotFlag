@@ -1,6 +1,7 @@
 ﻿using DotFlag.Domain.Entities.Audit;
 using DotFlag.Domain.Entities.Challenge;
 using DotFlag.Domain.Entities.CtfEvent;
+using DotFlag.Domain.Entities.Docker;
 using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Entities.Submission;
 using DotFlag.Domain.Entities.Team;
@@ -20,6 +21,8 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<ChallengeFileData> ChallengeFiles { get; set; }
         public DbSet<AuditLogData> AuditLogs { get; set; }
         public DbSet<CtfEventData> CtfEvents { get; set; }
+        public DbSet<ChallengeInstanceData> ChallengeInstances { get; set; }
+        public DbSet<DockerSettingsData> DockerSettings { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -94,6 +97,32 @@ namespace DotFlag.DataAccessLayer.Context
                     Name = "DotFlag CTF",
                     StartTime = DateTime.UtcNow,
                     EndTime = DateTime.UtcNow,
+                });
+
+            // ChallengeInstance -> User
+            modelBuilder.Entity<ChallengeInstanceData>()
+                .HasOne(i => i.User)
+                .WithMany()
+                .HasForeignKey(i => i.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ChallengeInstance -> Challenge
+            modelBuilder.Entity<ChallengeInstanceData>()
+                .HasOne(i => i.Challenge)
+                .WithMany()
+                .HasForeignKey(i => i.ChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // One active instance per user (unique index on UserId where Status = running is enforced in business logic)
+
+            // Docker settings seed
+            modelBuilder.Entity<DockerSettingsData>()
+                .HasData(new DockerSettingsData
+                {
+                    Id = 1,
+                    Host = "tcp://localhost:2375",
+                    MaxGlobalInstances = 20,
+                    InstanceTimeoutMinutes = 60,
                 });
         }
 

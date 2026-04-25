@@ -11,10 +11,14 @@ import FileAttachments from './FileAttachments';
 import DockerInstance from './DockerInstance';
 import type { ChallengeDetail } from '../../types';
 
+interface ChallengeDetailWithDocker extends ChallengeDetail {
+  hasInstance?: boolean;
+}
+
 export default function ChallengeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const api = useAxios();
-  const [challenge, setChallenge] = useState<ChallengeDetail | null>(null);
+  const [challenge, setChallenge] = useState<ChallengeDetailWithDocker | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,6 +42,7 @@ export default function ChallengeDetailPage() {
         isSolved: apiChallenge.isSolved,
         solveCount: apiChallenge.solveCount,
         firstBloodBonus: apiChallenge.firstBloodBonus,
+        hasInstance: apiChallenge.hasInstance,
         files,
         hints,
         author: '',
@@ -75,7 +80,7 @@ export default function ChallengeDetailPage() {
         <div className="space-y-4">
           <ChallengeInfo challenge={challenge} />
           <FileAttachments files={challenge.files} challengeId={challenge.id} />
-          {challenge.dockerImage && <DockerInstance docker={challenge.dockerImage} />}
+          {challenge.hasInstance && <DockerInstance challengeId={challenge.id} />}
         </div>
       </div>
     </div>

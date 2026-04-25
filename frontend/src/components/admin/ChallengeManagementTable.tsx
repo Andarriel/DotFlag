@@ -66,12 +66,16 @@ type FormState = {
   decayRate: string;
   firstBloodBonus: string;
   flag: string;
+  hasInstance: boolean;
+  dockerImage: string;
+  containerPort: string;
 };
 
 const INITIAL_FORM: FormState = {
   name: '', description: '', category: 'Web',
   difficulty: 'Easy',
   minPoints: '50', maxPoints: '500', decayRate: '30', firstBloodBonus: '10', flag: '',
+  hasInstance: false, dockerImage: '', containerPort: '',
 };
 
 export default function ChallengeManagementTable() {
@@ -108,6 +112,9 @@ export default function ChallengeManagementTable() {
       decayRate: '',
       firstBloodBonus: '',
       flag: '',
+      hasInstance: false,
+      dockerImage: '',
+      containerPort: '',
     });
     setShowModal(true);
     setLoadingEdit(true);
@@ -119,6 +126,8 @@ export default function ChallengeManagementTable() {
         maxPoints: String(full.maxPoints),
         decayRate: String(full.decayRate),
         firstBloodBonus: String(full.firstBloodBonus),
+        hasInstance: full.hasInstance ?? false,
+        containerPort: full.containerPort != null ? String(full.containerPort) : '',
       }));
     } catch {}
     setLoadingEdit(false);
@@ -220,6 +229,9 @@ export default function ChallengeManagementTable() {
         firstBloodBonus: +form.firstBloodBonus || 0,
         flag: form.flag,
         isActive: challenges.find(c => c.id === editingId)?.isActive ?? true,
+        hasInstance: form.hasInstance,
+        dockerImage: form.hasInstance ? form.dockerImage : undefined,
+        containerPort: form.hasInstance && form.containerPort ? +form.containerPort : undefined,
       });
     } else {
       if (!form.flag) return;
@@ -233,6 +245,9 @@ export default function ChallengeManagementTable() {
         decayRate: +form.decayRate || 0,
         firstBloodBonus: +form.firstBloodBonus || 0,
         flag: form.flag,
+        hasInstance: form.hasInstance,
+        dockerImage: form.hasInstance ? form.dockerImage : undefined,
+        containerPort: form.hasInstance && form.containerPort ? +form.containerPort : undefined,
       });
     }
     setForm(INITIAL_FORM);
@@ -329,6 +344,29 @@ export default function ChallengeManagementTable() {
           <div>
             <label className={labelClass}>Flag {editingId !== null && <span className="text-slate-600 normal-case font-normal">(leave empty to keep current)</span>}</label>
             <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder={editingId !== null ? 'Leave empty to keep current flag' : 'dotflag{your_flag_here}'} />
+          </div>
+          <div className="border-t border-white/[0.06] pt-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" checked={form.hasInstance} onChange={e => setForm(f => ({ ...f, hasInstance: e.target.checked }))}
+                className="w-4 h-4 rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30 cursor-pointer" />
+              <span className="text-sm font-medium text-slate-300">Has Docker Instance</span>
+            </label>
+            {form.hasInstance && (
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>Docker Image</label>
+                  <input type="text" value={form.dockerImage}
+                    onChange={e => setForm(f => ({ ...f, dockerImage: e.target.value }))}
+                    className={inputClass} placeholder="ubuntu:22.04" />
+                </div>
+                <div>
+                  <label className={labelClass}>Container Port</label>
+                  <input type="number" value={form.containerPort}
+                    onChange={e => setForm(f => ({ ...f, containerPort: e.target.value }))}
+                    className={inputClass} placeholder="1337" min={1} max={65535} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Modal>
