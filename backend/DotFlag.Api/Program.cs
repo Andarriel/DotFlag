@@ -62,6 +62,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
           };
       });
 
+builder.Services.AddSingleton<DotFlag.Api.Services.SystemStatusService>();
+builder.Services.AddHostedService<DotFlag.Api.Services.SystemStatusBackgroundService>();
 builder.Services.AddRateLimitRules();
 
 builder.Services.AddCors(options =>

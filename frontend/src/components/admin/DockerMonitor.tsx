@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { RefreshCw, FileText, Container, Trash2, Settings, Save, X } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { RefreshCw, FileText, Container, Trash2, Settings, Save, X, Loader2 } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
 import Modal from '../common/Modal';
 import { useAdminContext } from '../../context/AdminContext';
@@ -8,7 +8,7 @@ import { dockerAdminService } from '../../services/dockerAdminService';
 import { useAxios } from '../../context/AxiosContext';
 import { useToast } from '../../context/ToastContext';
 import { USE_MOCK } from '../../config';
-import type { ApiDockerContainer } from '../../types/api';
+import type { ApiDockerContainer, ApiDockerPing } from '../../types/api';
 
 function ContainerRow({ container, onKill, onRestart, onLogs }: {
   container: ApiDockerContainer;
@@ -60,6 +60,8 @@ export default function DockerMonitor() {
   const toast = useToast();
   const isOwner = user?.role === 'Owner';
 
+  const [pingResult, setPingResult] = useState<ApiDockerPing | null>(null);
+  const [pinging, setPinging] = useState(false);
   const [pendingKill, setPendingKill] = useState<ApiDockerContainer | null>(null);
   const [logsContainer, setLogsContainer] = useState<ApiDockerContainer | null>(null);
   const [logs, setLogs] = useState('');
@@ -70,6 +72,21 @@ export default function DockerMonitor() {
     maxGlobalInstances: dockerSettings?.maxGlobalInstances ?? 20,
     instanceTimeoutMinutes: dockerSettings?.instanceTimeoutMinutes ?? 60,
   });
+
+  const doPing = useCallback(async () => {
+    if (USE_MOCK) return;
+    setPinging(true);
+    try {
+      const result = await dockerAdminService.ping(api);
+      setPingResult(result);
+    } catch {
+      setPingResult({ reachable: false, latencyMs: null });
+    } finally {
+      setPinging(false);
+    }
+  }, [api]);
+
+  useEffect(() => { doPing(); }, [doPing]);
 
   const containers = USE_MOCK ? [] : dockerContainers;
   const running = containers.filter(c => c.status === 'running').length;
@@ -98,7 +115,7 @@ export default function DockerMonitor() {
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-bold text-white">Docker Monitor</h2>
         <div className="flex gap-2">
-          <button onClick={refreshDocker}
+          <button onClick={() => { refreshDocker(); doPing(); }}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700/50 rounded-lg transition">
             <RefreshCw className="w-3.5 h-3.5" /> Refresh
           </button>
@@ -142,6 +159,15 @@ export default function DockerMonitor() {
               <span className="text-slate-500">Timeout: {dockerSettings.instanceTimeoutMinutes}m</span>
             </>
           )}
+          <span className="text-slate-600">·</span>
+          {pinging ? (
+            <Loader2 className="w-3.5 h-3.5 text-slate-500 animate-spin" />
+          ) : pingResult ? (
+            <span className={`flex items-center gap-1.5 font-mono text-xs ${pingResult.reachable ? 'text-green-400' : 'text-red-400'}`}>
+              <span className={`w-2 h-2 rounded-full shrink-0 ${pingResult.reachable ? 'bg-green-400' : 'bg-red-400 animate-pulse'}`} />
+              {pingResult.reachable ? `${pingResult.latencyMs}ms` : 'Unreachable'}
+            </span>
+          ) : null}
         </div>
       )}
 

@@ -1,4 +1,5 @@
 using DotFlag.Api.Extensions;
+using DotFlag.Api.Filters;
 using DotFlag.BusinessLayer;
 using DotFlag.BusinessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost]
+        [RequireCtfRunning]
         public async Task<IActionResult> StartInstance(int challengeId)
         {
             var (response, dto) = await _instanceActions.StartInstance(challengeId, User.GetId());
@@ -47,6 +49,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost("restart")]
+        [RequireCtfRunning]
         public async Task<IActionResult> RestartInstance(int challengeId)
         {
             var response = await _instanceActions.RestartInstance(challengeId, User.GetId());

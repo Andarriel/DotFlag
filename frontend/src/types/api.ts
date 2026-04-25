@@ -171,6 +171,11 @@ export interface UpdateDockerSettingsPayload {
   instanceTimeoutMinutes: number;
 }
 
+export interface ApiDockerPing {
+  reachable: boolean;
+  latencyMs: number | null;
+}
+
 export interface FlagSubmission {
   flag: string;
 }

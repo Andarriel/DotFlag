@@ -1,11 +1,12 @@
-import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy, Loader2, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
 import { useAdminContext } from '../../context/AdminContext';
 import { challengeService } from '../../services/challengeService';
 import { useAxios } from '../../context/AxiosContext';
 import { useToast } from '../../context/ToastContext';
+import { dockerAdminService } from '../../services/dockerAdminService';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../../types';
 import type { ApiHint, ApiChallengeFile } from '../../types/api';
 
@@ -86,6 +87,9 @@ export default function ChallengeManagementTable() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [dockerImages, setDockerImages] = useState<string[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const [manualImage, setManualImage] = useState(false);
 
   // Manage modal state
   const [manageId, setManageId] = useState<number | null>(null);
@@ -94,13 +98,31 @@ export default function ChallengeManagementTable() {
   const [manageLoading, setManageLoading] = useState(false);
   const [newHintContent, setNewHintContent] = useState('');
 
+  const fetchImages = async () => {
+    setImagesLoading(true);
+    try {
+      const imgs = await dockerAdminService.getImages(api);
+      setDockerImages(imgs);
+    } catch {
+      setDockerImages([]);
+    } finally {
+      setImagesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (form.hasInstance && showModal) fetchImages();
+  }, [form.hasInstance, showModal]);
+
   const openCreate = () => {
     setEditingId(null);
     setForm(INITIAL_FORM);
+    setManualImage(false);
     setShowModal(true);
   };
 
   const openEdit = async (challenge: Challenge) => {
+    setManualImage(false);
     setEditingId(challenge.id);
     setForm({
       name: challenge.title,
@@ -352,18 +374,57 @@ export default function ChallengeManagementTable() {
               <span className="text-sm font-medium text-slate-300">Has Docker Instance</span>
             </label>
             {form.hasInstance && (
-              <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="mt-3 space-y-3">
                 <div>
-                  <label className={labelClass}>Docker Image</label>
-                  <input type="text" value={form.dockerImage}
-                    onChange={e => setForm(f => ({ ...f, dockerImage: e.target.value }))}
-                    className={inputClass} placeholder="ubuntu:22.04" />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className={labelClass} style={{ marginBottom: 0 }}>Docker Image</label>
+                    <div className="flex items-center gap-2">
+                      <button type="button" onClick={fetchImages} disabled={imagesLoading}
+                        className="p-1 text-slate-600 hover:text-slate-300 transition disabled:opacity-40">
+                        <RefreshCw className={`w-3 h-3 ${imagesLoading ? 'animate-spin' : ''}`} />
+                      </button>
+                      <button type="button" onClick={() => setManualImage(m => !m)}
+                        className="text-[10px] text-indigo-400 hover:text-indigo-300 transition uppercase tracking-wider">
+                        {manualImage ? 'Pick from list' : 'Type manually'}
+                      </button>
+                    </div>
+                  </div>
+                  {manualImage ? (
+                    <input type="text" value={form.dockerImage}
+                      onChange={e => setForm(f => ({ ...f, dockerImage: e.target.value }))}
+                      className={inputClass} placeholder="myimage:latest" />
+                  ) : imagesLoading ? (
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-800/50 border border-white/[0.06] rounded-xl">
+                      <Loader2 className="w-4 h-4 text-slate-500 animate-spin" />
+                      <span className="text-sm text-slate-500">Loading images...</span>
+                    </div>
+                  ) : dockerImages.length === 0 ? (
+                    <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-800/50 border border-white/[0.06] rounded-xl">
+                      <span className="text-sm text-slate-500">No images found on Docker host</span>
+                      <button type="button" onClick={() => setManualImage(true)}
+                        className="text-[11px] text-indigo-400 hover:text-indigo-300 transition">
+                        Type manually
+                      </button>
+                    </div>
+                  ) : (
+                    <select value={form.dockerImage}
+                      onChange={e => setForm(f => ({ ...f, dockerImage: e.target.value }))}
+                      className={selectClass} style={{ colorScheme: 'dark' }}>
+                      <option value="">— Select an image —</option>
+                      {dockerImages.map(img => (
+                        <option key={img} value={img}>{img}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div>
                   <label className={labelClass}>Container Port</label>
                   <input type="number" value={form.containerPort}
                     onChange={e => setForm(f => ({ ...f, containerPort: e.target.value }))}
                     className={inputClass} placeholder="1337" min={1} max={65535} />
+                  <p className="text-[10px] text-slate-600 mt-1">
+                    Port the service listens on <em>inside</em> the container (e.g. 1337). Users connect to a mapped host port.
+                  </p>
                 </div>
               </div>
             )}

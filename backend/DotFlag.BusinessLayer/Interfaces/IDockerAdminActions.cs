@@ -11,5 +11,7 @@ namespace DotFlag.BusinessLayer.Interfaces
         Task<(ActionResponse, string)> GetLogs(int instanceId);
         DockerSettingsDto GetSettings();
         ActionResponse UpdateSettings(UpdateDockerSettingsDto dto);
+        Task<List<string>> GetAvailableImages();
+        Task<(bool reachable, int? latencyMs)> PingDocker();
     }
 }

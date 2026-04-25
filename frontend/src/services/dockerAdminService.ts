@@ -2,6 +2,7 @@ import type { AxiosInstance } from 'axios';
 import type {
   ApiDockerContainer,
   ApiDockerSettings,
+  ApiDockerPing,
   UpdateDockerSettingsPayload,
   ActionResponse,
 } from '../types/api';
@@ -24,4 +25,10 @@ export const dockerAdminService = {
 
   updateSettings: (api: AxiosInstance, data: UpdateDockerSettingsPayload) =>
     api.put<ActionResponse>('/admin/docker/settings', data).then(res => res.data),
+
+  ping: (api: AxiosInstance) =>
+    api.get<ApiDockerPing>('/admin/docker/ping').then(res => res.data),
+
+  getImages: (api: AxiosInstance) =>
+    api.get<string[]>('/admin/docker/images').then(res => res.data),
 };

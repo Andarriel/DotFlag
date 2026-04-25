@@ -126,5 +126,32 @@ namespace DotFlag.BusinessLayer.Core
 
             return new ActionResponse { IsSuccess = true, Message = "Settings updated." };
         }
+
+        protected async Task<List<string>> GetAvailableImagesExecution()
+        {
+            try
+            {
+                var docker = await DockerService.FromSettings();
+                return await docker.GetAvailableImages();
+            }
+            catch
+            {
+                return new List<string>();
+            }
+        }
+
+        protected async Task<(bool reachable, int? latencyMs)> PingDockerExecution()
+        {
+            try
+            {
+                var docker = await DockerService.FromSettings();
+                var ms = await docker.Ping();
+                return (true, ms);
+            }
+            catch
+            {
+                return (false, null);
+            }
+        }
     }
 }

@@ -18,5 +18,8 @@ namespace DotFlag.BusinessLayer.Structure
         public DockerSettingsDto GetSettings() => GetSettingsExecution();
 
         public ActionResponse UpdateSettings(UpdateDockerSettingsDto dto) => UpdateSettingsExecution(dto);
+
+        public Task<List<string>> GetAvailableImages() => GetAvailableImagesExecution();
+        public Task<(bool reachable, int? latencyMs)> PingDocker() => PingDockerExecution();
     }
 }
