@@ -9,6 +9,7 @@ import ChallengeCard from '../../components/challenges/ChallengeCard';
 import ChallengeModal from '../../components/challenges/ChallengeModal';
 import { useChallenges } from '../../hooks/useChallenges';
 import { challengeService } from '../../services/challengeService';
+import { instanceService } from '../../services/instanceService';
 import { useAxios } from '../../context/AxiosContext';
 import { USE_MOCK } from '../../config';
 import { MOCK_CHALLENGE_DETAILS } from '../../data/mockData';
@@ -22,7 +23,15 @@ export default function ChallengePage() {
   const api = useAxios();
   const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats, loading, challenges } = useChallenges();
   const [selectedChallenge, setSelectedChallenge] = useState<ChallengeDetail | null>(null);
+  const [runningChallengeId, setRunningChallengeId] = useState<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (USE_MOCK) return;
+    instanceService.getMyInstance(api).then(inst => {
+      setRunningChallengeId(inst?.challengeId ?? null);
+    });
+  }, [api]);
 
   const openChallenge = async (id: number) => {
     if (USE_MOCK) {
@@ -81,7 +90,12 @@ export default function ChallengePage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredChallenges.map(challenge => (
-                <ChallengeCard key={challenge.id} challenge={challenge} onClick={() => openChallenge(challenge.id)} />
+                <ChallengeCard
+                  key={challenge.id}
+                  challenge={challenge}
+                  onClick={() => openChallenge(challenge.id)}
+                  isContainerRunning={challenge.id === runningChallengeId}
+                />
               ))}
             </div>
 
@@ -92,7 +106,12 @@ export default function ChallengePage() {
         )}
       </div>
 
-      <ChallengeModal challenge={selectedChallenge} onClose={() => setSelectedChallenge(null)} />
+      <ChallengeModal
+        challenge={selectedChallenge}
+        onClose={() => setSelectedChallenge(null)}
+        runningChallengeId={runningChallengeId}
+        onRunningChange={setRunningChallengeId}
+      />
     </div>
   );
 }

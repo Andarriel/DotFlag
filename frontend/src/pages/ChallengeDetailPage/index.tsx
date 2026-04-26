@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { MOCK_CHALLENGE_DETAILS } from '../../data/mockData';
 import { challengeService } from '../../services/challengeService';
+import { instanceService } from '../../services/instanceService';
 import { useAxios } from '../../context/AxiosContext';
 import { USE_MOCK } from '../../config';
 import EmptyState from '../../components/common/EmptyState';
@@ -20,6 +21,14 @@ export default function ChallengeDetailPage() {
   const api = useAxios();
   const [challenge, setChallenge] = useState<ChallengeDetailWithDocker | null>(null);
   const [loading, setLoading] = useState(true);
+  const [runningChallengeId, setRunningChallengeId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (USE_MOCK) return;
+    instanceService.getMyInstance(api).then(inst => {
+      setRunningChallengeId(inst?.challengeId ?? null);
+    });
+  }, [api]);
 
   useEffect(() => {
     if (!id) return;
@@ -80,7 +89,13 @@ export default function ChallengeDetailPage() {
         <div className="space-y-4">
           <ChallengeInfo challenge={challenge} />
           <FileAttachments files={challenge.files} challengeId={challenge.id} />
-          {challenge.hasInstance && <DockerInstance challengeId={challenge.id} />}
+          {challenge.hasInstance && (
+            <DockerInstance
+              challengeId={challenge.id}
+              runningChallengeId={runningChallengeId}
+              onInstanceChange={setRunningChallengeId}
+            />
+          )}
         </div>
       </div>
     </div>

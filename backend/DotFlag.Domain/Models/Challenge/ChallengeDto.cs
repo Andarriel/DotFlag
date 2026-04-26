@@ -35,6 +35,8 @@ namespace DotFlag.Domain.Models.Challenge
 
         public int? ContainerPort { get; set; }
 
+        public int? ContainerTimeoutMinutes { get; set; }
+
         public List<HintDto> Hints { get; set; }
 
         public List<ChallengeFileDto> Files { get; set; }

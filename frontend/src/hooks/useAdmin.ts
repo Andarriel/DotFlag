@@ -120,36 +120,41 @@ export function useAdmin() {
     setUsers(prev => prev.filter(u => u.id !== userId));
   };
 
-  const createChallenge = async (data: CreateChallengePayload) => {
+  const createChallenge = async (data: CreateChallengePayload): Promise<boolean> => {
     if (!USE_MOCK) {
       try {
         const res = await challengeService.create(api, data);
-        if (!res.isSuccess) { toast.error(res.message); return; }
+        if (!res.isSuccess) { toast.error(res.message); return false; }
         toast.success('Challenge created');
         refresh();
+        return true;
       } catch {
         toast.error('Failed to create challenge');
+        return false;
       }
-      return;
     }
     toast.success('Challenge created (mock)');
+    return true;
   };
 
-  const updateChallenge = async (challengeId: number, data: UpdateChallengePayload) => {
+  const updateChallenge = async (challengeId: number, data: UpdateChallengePayload): Promise<boolean> => {
     if (USE_MOCK) {
       toast.success('Challenge updated (mock)');
-      return;
+      return true;
     }
     try {
       const res = await challengeService.update(api, challengeId, data);
       if (res.isSuccess) {
         toast.success('Challenge updated');
         refresh();
+        return true;
       } else {
         toast.error(res.message);
+        return false;
       }
     } catch {
       toast.error('Failed to update challenge');
+      return false;
     }
   };
 
@@ -283,18 +288,21 @@ export function useAdmin() {
     }
   };
 
-  const updateDockerSettings = async (data: { host: string; maxGlobalInstances: number; instanceTimeoutMinutes: number }) => {
-    if (USE_MOCK) { toast.success('Settings saved (mock)'); return; }
+  const updateDockerSettings = async (data: { host: string; maxGlobalInstances: number; instanceTimeoutMinutes: number }): Promise<boolean> => {
+    if (USE_MOCK) { toast.success('Settings saved (mock)'); return true; }
     try {
       const res = await dockerAdminService.updateSettings(api, data);
       if (res.isSuccess) {
         toast.success('Docker settings saved');
         setDockerSettings(prev => prev ? { ...prev, ...data } : null);
+        return true;
       } else {
         toast.error(res.message);
+        return false;
       }
     } catch {
       toast.error('Failed to save settings');
+      return false;
     }
   };
 

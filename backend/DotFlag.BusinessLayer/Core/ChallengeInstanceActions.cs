@@ -32,7 +32,9 @@ namespace DotFlag.BusinessLayer.Core
             if (activeCount >= maxGlobal)
                 return (new ActionResponse { IsSuccess = false, Message = "Global instance limit reached. Try again later." }, null);
 
-            var timeoutMinutes = settings?.InstanceTimeoutMinutes ?? 0;
+            var timeoutMinutes = challenge.ContainerTimeoutMinutes
+                ?? settings?.InstanceTimeoutMinutes
+                ?? 0;
             DateTime? expiresAt = timeoutMinutes > 0 ? DateTime.UtcNow.AddMinutes(timeoutMinutes) : null;
 
             var host = DockerService.ExtractHost(settings?.Host ?? "localhost");
@@ -138,6 +140,31 @@ namespace DotFlag.BusinessLayer.Core
             {
                 Id = instance.Id,
                 ChallengeId = challengeId,
+                Host = host,
+                Port = instance.HostPort,
+                CreatedAt = instance.CreatedAt,
+                ExpiresAt = instance.ExpiresAt,
+                Status = instance.Status
+            };
+        }
+
+        protected ChallengeInstanceDto? GetMyInstanceExecution(int userId)
+        {
+            using var context = new AppDbContext();
+
+            var instance = context.ChallengeInstances
+                .FirstOrDefault(i => i.UserId == userId && i.Status == "running");
+
+            if (instance == null)
+                return null;
+
+            var settings = context.DockerSettings.FirstOrDefault(s => s.Id == 1);
+            var host = DockerService.ExtractHost(settings?.Host ?? "localhost");
+
+            return new ChallengeInstanceDto
+            {
+                Id = instance.Id,
+                ChallengeId = instance.ChallengeId,
                 Host = host,
                 Port = instance.HostPort,
                 CreatedAt = instance.CreatedAt,

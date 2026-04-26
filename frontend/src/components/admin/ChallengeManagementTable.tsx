@@ -70,13 +70,14 @@ type FormState = {
   hasInstance: boolean;
   dockerImage: string;
   containerPort: string;
+  containerTtl: string;
 };
 
 const INITIAL_FORM: FormState = {
   name: '', description: '', category: 'Web',
   difficulty: 'Easy',
   minPoints: '50', maxPoints: '500', decayRate: '30', firstBloodBonus: '10', flag: '',
-  hasInstance: false, dockerImage: '', containerPort: '',
+  hasInstance: false, dockerImage: '', containerPort: '', containerTtl: '',
 };
 
 export default function ChallengeManagementTable() {
@@ -87,6 +88,7 @@ export default function ChallengeManagementTable() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [dockerImages, setDockerImages] = useState<string[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   const [manualImage, setManualImage] = useState(false);
@@ -125,19 +127,20 @@ export default function ChallengeManagementTable() {
     setManualImage(false);
     setEditingId(challenge.id);
     setForm({
-      name: challenge.title,
-      description: challenge.description,
-      category: challenge.category,
-      difficulty: challenge.difficulty,
-      minPoints: '',
-      maxPoints: '',
-      decayRate: '',
-      firstBloodBonus: '',
-      flag: '',
-      hasInstance: false,
-      dockerImage: '',
-      containerPort: '',
-    });
+          name: challenge.title,
+          description: challenge.description,
+          category: challenge.category,
+          difficulty: challenge.difficulty,
+          minPoints: '',
+          maxPoints: '',
+          decayRate: '',
+          firstBloodBonus: '',
+          flag: '',
+          hasInstance: false,
+          dockerImage: '',
+          containerPort: '',
+          containerTtl: '',
+        });
     setShowModal(true);
     setLoadingEdit(true);
     try {
@@ -151,6 +154,7 @@ export default function ChallengeManagementTable() {
         hasInstance: full.hasInstance ?? false,
         dockerImage: full.dockerImage ?? '',
         containerPort: full.containerPort != null ? String(full.containerPort) : '',
+        containerTtl: full.containerTimeoutMinutes != null ? String(full.containerTimeoutMinutes) : '',
       }));
     } catch {}
     setLoadingEdit(false);
@@ -245,10 +249,13 @@ export default function ChallengeManagementTable() {
     return true;
   };
 
-  const handleSubmit = () => {
-    if (!isFormValid()) return;
+  const handleSubmit = async () => {
+    if (!isFormValid() || submitting) return;
+    setSubmitting(true);
+    const ttl = form.hasInstance && form.containerTtl ? +form.containerTtl : undefined;
+    let ok: boolean;
     if (editingId !== null) {
-      updateChallenge(editingId, {
+      ok = await updateChallenge(editingId, {
         name: form.name,
         description: form.description,
         category: CATEGORIES.indexOf(form.category),
@@ -262,9 +269,10 @@ export default function ChallengeManagementTable() {
         hasInstance: form.hasInstance,
         dockerImage: form.hasInstance ? form.dockerImage : undefined,
         containerPort: form.hasInstance && form.containerPort ? +form.containerPort : undefined,
+        containerTimeoutMinutes: ttl,
       });
     } else {
-      createChallenge({
+      ok = await createChallenge({
         name: form.name,
         description: form.description,
         category: CATEGORIES.indexOf(form.category),
@@ -277,11 +285,15 @@ export default function ChallengeManagementTable() {
         hasInstance: form.hasInstance,
         dockerImage: form.hasInstance ? form.dockerImage : undefined,
         containerPort: form.hasInstance && form.containerPort ? +form.containerPort : undefined,
+        containerTimeoutMinutes: ttl,
       });
     }
-    setForm(INITIAL_FORM);
-    setEditingId(null);
-    setShowModal(false);
+    setSubmitting(false);
+    if (ok) {
+      setForm(INITIAL_FORM);
+      setEditingId(null);
+      setShowModal(false);
+    }
   };
 
   const headers = [
@@ -323,7 +335,7 @@ export default function ChallengeManagementTable() {
       </div>
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingId(null); }} title={editingId !== null ? 'Edit Challenge' : 'Create New Challenge'} onConfirm={handleSubmit} confirmLabel={editingId !== null ? 'Save' : 'Create'} confirmDisabled={!isFormValid()}>
+      <Modal isOpen={showModal} onClose={() => { if (!submitting) { setShowModal(false); setEditingId(null); } }} title={editingId !== null ? 'Edit Challenge' : 'Create New Challenge'} onConfirm={handleSubmit} confirmLabel={editingId !== null ? 'Save' : 'Create'} confirmDisabled={!isFormValid()} confirmLoading={submitting}>
         <div className="space-y-4">
           <div>
             <label className={labelClass}>Title</label>
@@ -432,6 +444,14 @@ export default function ChallengeManagementTable() {
                   <p className="text-[10px] text-slate-600 mt-1">
                     Port the service listens on <em>inside</em> the container (e.g. 1337). Users connect to a mapped host port.
                   </p>
+                </div>
+                <div>
+                  <label className={labelClass}>TTL (minutes)</label>
+                  <input type="number" value={form.containerTtl}
+                    onChange={e => setForm(f => ({ ...f, containerTtl: e.target.value }))}
+                    className={inputClass} placeholder="60 (global default)" min={1} max={1440} />
+                  <p className="text-[10px] text-slate-600 mt-1">
+                    Leave empty to use the global Docker timeout setting.</p>
                 </div>
               </div>
             )}
