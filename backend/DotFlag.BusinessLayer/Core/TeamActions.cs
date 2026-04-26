@@ -96,10 +96,16 @@ namespace DotFlag.BusinessLayer.Core
             if (ids.Count == 0) return new Dictionary<int, int>();
 
             return context.Submissions
-                .Where(s => s.IsCorrect && s.Challenge.IsActive && ids.Contains(s.UserId))
+                .Where(s => s.IsCorrect && ids.Contains(s.UserId))
+                .Select(s => new
+                {
+                    s.UserId,
+                    ActivePoints = s.Challenge.IsActive ? s.Challenge.CurrentPoints + s.BonusPoints : 0,
+                    s.CompensationPoints
+                })
+                .ToList()
                 .GroupBy(s => s.UserId)
-                .Select(g => new { UserId = g.Key, Score = g.Sum(s => s.Challenge.CurrentPoints + s.BonusPoints) })
-                .ToDictionary(x => x.UserId, x => x.Score);
+                .ToDictionary(g => g.Key, g => g.Sum(s => s.ActivePoints + s.CompensationPoints));
         }
 
         private void PopulateMemberPoints(AppDbContext context, IEnumerable<TeamDto> teams)

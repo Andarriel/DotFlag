@@ -12,7 +12,8 @@ namespace DotFlag.BusinessLayer.Interfaces
         List<ChallengeDto> GetAll(UserRole role, int? userId = null);
         ActionResponse Create(CreateChallengeDto dto, int actorId);
         ActionResponse Update(int id, UpdateChallengeDto dto, int actorId);
-        ActionResponse Delete(int id, int actorId);
+        ActionResponse Deactivate(int id, int actorId, DeactivateChallengeDto dto);
+        ActionResponse Delete(int id, int actorId, DeactivateChallengeDto dto);
         ActionResponse Clone(int id, int actorId);
         ActionResponse AddHint(int challengeId, CreateHintDto dto, int actorId);
         ActionResponse RemoveHint(int challengeId, int hintId, int actorId);

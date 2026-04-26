@@ -32,9 +32,14 @@ public class ChallengeExecution : ChallengeActions, IChallengeActions
         return UpdateExecution(id, dto, actorId);
     }
 
-    public ActionResponse Delete(int id, int actorId)
+    public ActionResponse Deactivate(int id, int actorId, DeactivateChallengeDto dto)
     {
-        return DeleteExecution(id, actorId);
+        return DeactivateExecution(id, actorId, dto);
+    }
+
+    public ActionResponse Delete(int id, int actorId, DeactivateChallengeDto dto)
+    {
+        return DeleteExecution(id, actorId, dto);
     }
 
     public ActionResponse Clone(int id, int actorId)
