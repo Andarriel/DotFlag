@@ -243,11 +243,16 @@ namespace DotFlag.BusinessLayer.Core
             if (challenge == null)
                 return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
 
-            // Re-use full deactivation flow (stops containers, compensation, notifications)
+            // Stop containers + notify solvers (compensation stored on submissions but
+            // will be cascade-deleted along with the challenge record)
             if (challenge.IsActive)
                 RunDeactivationFlow(context, challenge, id, actorId, dto, isDelete: true);
             else
                 AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name};reason=delete");
+
+            // Hard-delete: cascade removes Submissions, Hints, Files, Instances
+            context.Challenges.Remove(challenge);
+            context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };
         }
