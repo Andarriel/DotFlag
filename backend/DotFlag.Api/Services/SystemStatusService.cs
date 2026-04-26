@@ -9,10 +9,10 @@ namespace DotFlag.Api.Services
         public DateTime CheckedAt { get; init; }
     }
 
-    public class SystemStatusService
+    public static class SystemStatusService
     {
-        private volatile SystemHealthSnapshot? _latest;
-        public SystemHealthSnapshot? Latest => _latest;
-        public void Update(SystemHealthSnapshot snapshot) => _latest = snapshot;
+        private static volatile SystemHealthSnapshot? _latest;
+        public static SystemHealthSnapshot? Latest => _latest;
+        public static void Update(SystemHealthSnapshot snapshot) => _latest = snapshot;
     }
 }

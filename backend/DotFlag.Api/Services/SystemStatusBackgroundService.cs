@@ -3,24 +3,24 @@ using DotFlag.DataAccessLayer.Context;
 
 namespace DotFlag.Api.Services
 {
-    public class SystemStatusBackgroundService : BackgroundService
+    public static class SystemStatusBackgroundService
     {
-        private readonly SystemStatusService _status;
         private static readonly TimeSpan Interval = TimeSpan.FromSeconds(30);
 
-        public SystemStatusBackgroundService(SystemStatusService status) => _status = status;
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public static void Start()
         {
-            await RefreshAsync();
-            while (!stoppingToken.IsCancellationRequested)
+            Task.Run(async () =>
             {
-                await Task.Delay(Interval, stoppingToken);
                 await RefreshAsync();
-            }
+                while (true)
+                {
+                    await Task.Delay(Interval);
+                    await RefreshAsync();
+                }
+            });
         }
 
-        private async Task RefreshAsync()
+        private static async Task RefreshAsync()
         {
             bool dbOnline = false;
             int? dbLatencyMs = null;
@@ -36,7 +36,7 @@ namespace DotFlag.Api.Services
 
             var (dockerOnline, dockerLatencyMs) = await new BusinessLogic().GetDockerAdminActions().PingDocker();
 
-            _status.Update(new SystemHealthSnapshot
+            SystemStatusService.Update(new SystemHealthSnapshot
             {
                 DbOnline = dbOnline,
                 DbLatencyMs = dbLatencyMs,

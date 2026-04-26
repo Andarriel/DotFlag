@@ -8,8 +8,6 @@ namespace DotFlag.Api.Controller
     [ApiController]
     public class HealthController : ControllerBase
     {
-        private readonly SystemStatusService _statusService;
-        public HealthController(SystemStatusService statusService) => _statusService = statusService;
         [HttpGet]
         public IActionResult Get()
         {
@@ -35,7 +33,7 @@ namespace DotFlag.Api.Controller
         [HttpGet("status")]
         public IActionResult GetStatus()
         {
-            var s = _statusService.Latest;
+            var s = SystemStatusService.Latest;
             return Ok(new
             {
                 db = new { online = s?.DbOnline ?? false, latencyMs = s?.DbLatencyMs },
