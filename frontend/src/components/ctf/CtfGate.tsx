@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Hourglass, Swords, Flag } from 'lucide-react';
+import { Hourglass, Swords, Flag, Sparkles } from 'lucide-react';
 import { useCtfStatus } from '../../context/CtfStatusContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -54,6 +54,40 @@ export default function CtfGate({ children }: CtfGateProps) {
 
   if (!status) return <>{children}</>;
   if (status.state === 'Running') return <>{children}</>;
+
+  if (status.state === 'ComingSoon' && !isStaff) {
+    return (
+      <div className="min-h-screen bg-slate-950 hero-gradient grid-overlay relative overflow-hidden flex items-center justify-center pt-24 pb-12">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full blur-[140px] pointer-events-none bg-amber-500/[0.07]" />
+        <div className="relative z-10 mx-auto max-w-2xl px-4 sm:px-6 text-center animate-fade-in-up">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center glass gradient-border text-amber-300">
+                <Sparkles className="w-6 h-6 animate-float" />
+              </div>
+              <div className="absolute -inset-4 rounded-2xl blur-xl -z-10 animate-pulse-slow bg-amber-500/10" />
+            </div>
+          </div>
+          <p className="font-mono text-[11px] uppercase tracking-[0.3em] mb-4 text-amber-400/70">
+            Coming Soon
+          </p>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold text-white text-glow mb-3">
+            <span className="text-gradient">{status.name}</span>
+          </h1>
+          <p className="text-sm text-slate-400 mb-8 max-w-md mx-auto">
+            The next challenge is being crafted. No start date is set yet — follow our social media for the announcement when the arena opens.
+          </p>
+          <div className="inline-flex items-center gap-3 glass gradient-border rounded-full px-5 py-2.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-mono text-[11px] text-slate-400 uppercase tracking-[0.2em]">
+              Stay tuned for updates
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isStaff) {
     return (
       <>

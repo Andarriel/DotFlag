@@ -98,7 +98,9 @@ export interface ApiChallenge {
   isSolved: boolean;
   solveCount: number;
   hasInstance: boolean;
+  dockerImage: string | null;
   containerPort: number | null;
+  containerTimeoutMinutes: number | null;
   hints: ApiHint[];
   files: ApiChallengeFile[];
   createdOn: string;
@@ -117,6 +119,7 @@ export interface CreateChallengePayload {
   hasInstance?: boolean;
   dockerImage?: string;
   containerPort?: number;
+  containerTimeoutMinutes?: number;
 }
 
 export interface UpdateChallengePayload {
@@ -133,6 +136,7 @@ export interface UpdateChallengePayload {
   hasInstance?: boolean;
   dockerImage?: string;
   containerPort?: number;
+  containerTimeoutMinutes?: number;
 }
 
 export interface ApiChallengeInstance {
@@ -169,6 +173,18 @@ export interface UpdateDockerSettingsPayload {
   host: string;
   maxGlobalInstances: number;
   instanceTimeoutMinutes: number;
+}
+
+export interface ApiDockerPing {
+  reachable: boolean;
+  latencyMs: number | null;
+}
+
+export type CompensationType = 0 | 1 | 2; // 0=None, 1=Percentage, 2=Fixed
+
+export interface DeactivateChallengePayload {
+  compensationType: CompensationType;
+  compensationValue: number;
 }
 
 export interface FlagSubmission {
@@ -265,7 +281,7 @@ export interface ApiTeamLeaderboardEntry {
   lastSolveAt: string;
 }
 
-export type CtfState = 'Upcoming' | 'Running' | 'Ended';
+export type CtfState = 'Upcoming' | 'Running' | 'Ended' | 'ComingSoon';
 
 export interface ApiCtfStatus {
   id: number;
@@ -279,4 +295,5 @@ export interface UpdateCtfEventPayload {
   name: string;
   startTime: string;
   endTime: string;
+  isComingSoon: boolean;
 }

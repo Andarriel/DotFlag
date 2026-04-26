@@ -6,7 +6,7 @@ import { dockerAdminService } from '../services/dockerAdminService';
 import { useAxios } from '../context/AxiosContext';
 import { useToast } from '../context/ToastContext';
 import { USE_MOCK } from '../config';
-import type { ApiUser, ApiChallenge, ApiDockerContainer, ApiDockerSettings, CreateChallengePayload, UpdateChallengePayload, UserRole } from '../types/api';
+import type { ApiUser, ApiChallenge, ApiDockerContainer, ApiDockerSettings, CreateChallengePayload, UpdateChallengePayload, DeactivateChallengePayload, UserRole } from '../types/api';
 import type { AdminUser, Challenge, DockerImage, ChallengeCategory, ChallengeDifficulty } from '../types';
 
 export type AdminTab = 'users' | 'challenges' | 'notifications' | 'docker' | 'logs' | 'ctf';
@@ -120,42 +120,48 @@ export function useAdmin() {
     setUsers(prev => prev.filter(u => u.id !== userId));
   };
 
-  const createChallenge = async (data: CreateChallengePayload) => {
+  const createChallenge = async (data: CreateChallengePayload): Promise<boolean> => {
     if (!USE_MOCK) {
       try {
         const res = await challengeService.create(api, data);
-        if (!res.isSuccess) { toast.error(res.message); return; }
+        if (!res.isSuccess) { toast.error(res.message); return false; }
         toast.success('Challenge created');
         refresh();
+        return true;
       } catch {
         toast.error('Failed to create challenge');
+        return false;
       }
-      return;
     }
     toast.success('Challenge created (mock)');
+    return true;
   };
 
-  const updateChallenge = async (challengeId: number, data: UpdateChallengePayload) => {
+  const updateChallenge = async (challengeId: number, data: UpdateChallengePayload): Promise<boolean> => {
     if (USE_MOCK) {
       toast.success('Challenge updated (mock)');
-      return;
+      return true;
     }
     try {
       const res = await challengeService.update(api, challengeId, data);
       if (res.isSuccess) {
         toast.success('Challenge updated');
         refresh();
+        return true;
       } else {
         toast.error(res.message);
+        return false;
       }
     } catch {
       toast.error('Failed to update challenge');
+      return false;
     }
   };
 
+  // Re-activate an inactive challenge (no compensation needed)
   const toggleChallengeActive = async (challengeId: number) => {
     if (USE_MOCK) {
-      setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, isActive: !c.isActive } : c));
+      setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, isActive: true } : c));
       return;
     }
     try {
@@ -170,16 +176,39 @@ export function useAdmin() {
         decayRate: full.decayRate,
         firstBloodBonus: full.firstBloodBonus,
         flag: '',
-        isActive: !full.isActive,
+        isActive: true,
       });
       if (res.isSuccess) {
-        toast.success(full.isActive ? 'Challenge deactivated' : 'Challenge activated');
-        setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, isActive: !c.isActive } : c));
+        toast.success('Challenge activated');
+        setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, isActive: true } : c));
       } else {
         toast.error(res.message);
       }
     } catch {
-      toast.error('Failed to toggle challenge');
+      toast.error('Failed to activate challenge');
+    }
+  };
+
+  // Deactivate an active challenge with admin-chosen compensation
+  const deactivateChallenge = async (challengeId: number, payload: DeactivateChallengePayload): Promise<boolean> => {
+    if (USE_MOCK) {
+      setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, isActive: false } : c));
+      toast.success('Challenge deactivated (mock)');
+      return true;
+    }
+    try {
+      const res = await challengeService.deactivate(api, challengeId, payload);
+      if (res.isSuccess) {
+        toast.success('Challenge deactivated');
+        setChallenges(prev => prev.map(c => c.id === challengeId ? { ...c, isActive: false } : c));
+        return true;
+      } else {
+        toast.error(res.message);
+        return false;
+      }
+    } catch {
+      toast.error('Failed to deactivate challenge');
+      return false;
     }
   };
 
@@ -201,17 +230,26 @@ export function useAdmin() {
     }
   };
 
-  const deleteChallenge = async (challengeId: number) => {
-    if (!USE_MOCK) {
-      try {
-        await challengeService.delete(api, challengeId);
-        toast.success('Challenge deleted');
-      } catch {
-        toast.error('Failed to delete challenge');
-        return;
-      }
+  const deleteChallenge = async (challengeId: number, payload: DeactivateChallengePayload): Promise<boolean> => {
+    if (USE_MOCK) {
+      setChallenges(prev => prev.filter(c => c.id !== challengeId));
+      toast.success('Challenge deleted (mock)');
+      return true;
     }
-    setChallenges(prev => prev.filter(c => c.id !== challengeId));
+    try {
+      const res = await challengeService.delete(api, challengeId, payload);
+      if (res.isSuccess) {
+        toast.success('Challenge deleted');
+        setChallenges(prev => prev.filter(c => c.id !== challengeId));
+        return true;
+      } else {
+        toast.error(res.message);
+        return false;
+      }
+    } catch {
+      toast.error('Failed to delete challenge');
+      return false;
+    }
   };
 
   const toggleBan = async (userId: number) => {
@@ -283,18 +321,21 @@ export function useAdmin() {
     }
   };
 
-  const updateDockerSettings = async (data: { host: string; maxGlobalInstances: number; instanceTimeoutMinutes: number }) => {
-    if (USE_MOCK) { toast.success('Settings saved (mock)'); return; }
+  const updateDockerSettings = async (data: { host: string; maxGlobalInstances: number; instanceTimeoutMinutes: number }): Promise<boolean> => {
+    if (USE_MOCK) { toast.success('Settings saved (mock)'); return true; }
     try {
       const res = await dockerAdminService.updateSettings(api, data);
       if (res.isSuccess) {
         toast.success('Docker settings saved');
         setDockerSettings(prev => prev ? { ...prev, ...data } : null);
+        return true;
       } else {
         toast.error(res.message);
+        return false;
       }
     } catch {
       toast.error('Failed to save settings');
+      return false;
     }
   };
 
@@ -305,6 +346,7 @@ export function useAdmin() {
     toggleBan, promote, demote, deleteUser,
     createChallenge, updateChallenge, toggleChallengeActive, deleteChallenge, cloneChallenge,
     registerUser, loading, refresh,
+    deactivateChallenge,
     killDockerContainer, restartDockerContainer, updateDockerSettings, refreshDocker,
   };
 }

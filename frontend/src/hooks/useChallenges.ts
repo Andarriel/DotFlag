@@ -24,6 +24,7 @@ function mapChallenge(api: ApiChallenge): Challenge {
     isSolved: api.isSolved,
     solveCount: api.solveCount,
     firstBloodBonus: api.firstBloodBonus,
+    hasInstance: api.hasInstance,
   };
 }
 

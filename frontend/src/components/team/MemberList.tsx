@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, UserMinus } from 'lucide-react';
+import { Zap, UserMinus, Crown } from 'lucide-react';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 import Modal from '../common/Modal';
 import type { TeamMember } from '../../types';
@@ -10,15 +10,28 @@ interface MemberListProps {
   isLeader?: boolean;
   currentUserId?: number;
   onRemove?: (memberId: number) => void;
+  onTransfer?: (memberId: number) => Promise<boolean>;
 }
 
-export default function MemberList({ members, isLeader, currentUserId, onRemove }: MemberListProps) {
-  const [pendingId, setPendingId] = useState<number | null>(null);
-  const pendingMember = members.find(m => m.id === pendingId);
+export default function MemberList({ members, isLeader, currentUserId, onRemove, onTransfer }: MemberListProps) {
+  const [pendingRemoveId, setPendingRemoveId] = useState<number | null>(null);
+  const pendingRemoveMember = members.find(m => m.id === pendingRemoveId);
 
-  const handleConfirm = () => {
-    if (pendingId != null) onRemove?.(pendingId);
-    setPendingId(null);
+  const [pendingTransferId, setPendingTransferId] = useState<number | null>(null);
+  const pendingTransferMember = members.find(m => m.id === pendingTransferId);
+  const [transferring, setTransferring] = useState(false);
+
+  const handleRemoveConfirm = () => {
+    if (pendingRemoveId != null) onRemove?.(pendingRemoveId);
+    setPendingRemoveId(null);
+  };
+
+  const handleTransferConfirm = async () => {
+    if (!pendingTransferId) return;
+    setTransferring(true);
+    await onTransfer?.(pendingTransferId);
+    setTransferring(false);
+    setPendingTransferId(null);
   };
 
   return (
@@ -36,6 +49,9 @@ export default function MemberList({ members, isLeader, currentUserId, onRemove 
                   {member.teamRole === 'Leader' && (
                     <span className="text-[10px] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded-md shrink-0">Leader</span>
                   )}
+                  {member.id === currentUserId && (
+                    <span className="text-[10px] font-semibold text-slate-500 bg-slate-800/60 border border-white/[0.06] px-1.5 py-0.5 rounded-md shrink-0">You</span>
+                  )}
                 </div>
                 <p className="text-[11px] text-slate-500">Joined {formatTimeAgo(member.joinedAt)}</p>
               </div>
@@ -43,13 +59,25 @@ export default function MemberList({ members, isLeader, currentUserId, onRemove 
             <div className="flex items-center gap-2 shrink-0 ml-3">
               <Zap className="w-3.5 h-3.5 text-indigo-400" />
               <span className="text-sm font-bold text-white">{member.points}</span>
-              {isLeader && member.id !== currentUserId && onRemove && (
-                <button
-                  onClick={() => setPendingId(member.id)}
-                  title="Remove member"
-                  className="ml-1 p-1 text-slate-600 hover:text-red-400 transition">
-                  <UserMinus className="w-4 h-4" />
-                </button>
+              {isLeader && member.id !== currentUserId && (
+                <>
+                  {member.teamRole !== 'Leader' && onTransfer && (
+                    <button
+                      onClick={() => setPendingTransferId(member.id)}
+                      title="Transfer leadership"
+                      className="ml-1 p-1 text-slate-600 hover:text-amber-400 transition">
+                      <Crown className="w-4 h-4" />
+                    </button>
+                  )}
+                  {onRemove && (
+                    <button
+                      onClick={() => setPendingRemoveId(member.id)}
+                      title="Remove member"
+                      className="p-1 text-slate-600 hover:text-red-400 transition">
+                      <UserMinus className="w-4 h-4" />
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -57,15 +85,29 @@ export default function MemberList({ members, isLeader, currentUserId, onRemove 
       </div>
 
       <Modal
-        isOpen={pendingId != null}
-        onClose={() => setPendingId(null)}
+        isOpen={pendingRemoveId != null}
+        onClose={() => setPendingRemoveId(null)}
         title="Remove Member"
-        onConfirm={handleConfirm}
+        onConfirm={handleRemoveConfirm}
         confirmLabel="Remove"
         confirmVariant="danger"
       >
         <p className="text-sm text-slate-400">
-          Are you sure you want to remove <span className="text-white font-semibold">{pendingMember?.username}</span> from the team?
+          Are you sure you want to remove <span className="text-white font-semibold">{pendingRemoveMember?.username}</span> from the team?
+        </p>
+      </Modal>
+
+      <Modal
+        isOpen={pendingTransferId != null}
+        onClose={() => setPendingTransferId(null)}
+        title="Transfer Leadership"
+        onConfirm={handleTransferConfirm}
+        confirmLabel="Transfer"
+        confirmLoading={transferring}
+      >
+        <p className="text-sm text-slate-400">
+          Transfer team leadership to <span className="text-white font-semibold">{pendingTransferMember?.username}</span>?
+          You will become a regular member.
         </p>
       </Modal>
     </>

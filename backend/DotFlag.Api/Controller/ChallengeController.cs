@@ -76,11 +76,23 @@ namespace DotFlag.Api.Controller
             return Ok(result);
         }
 
+        [HttpPost("{id}/deactivate")]
+        [Authorize(Roles = "Admin,Owner")]
+        public IActionResult Deactivate(int id, [FromBody] DeactivateChallengeDto dto)
+        {
+            var result = _challengeActions.Deactivate(id, User.GetId(), dto ?? new DeactivateChallengeDto());
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,Owner")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(int id, [FromBody] DeactivateChallengeDto dto = null)
         {
-            var result = _challengeActions.Delete(id, User.GetId());
+            var result = _challengeActions.Delete(id, User.GetId(), dto ?? new DeactivateChallengeDto());
 
             if (!result.IsSuccess)
                 return BadRequest(result);

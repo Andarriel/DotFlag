@@ -4,6 +4,7 @@
     {
         Upcoming = 0,
         Running = 1,
-        Ended = 2
+        Ended = 2,
+        ComingSoon = 3
     }
 }

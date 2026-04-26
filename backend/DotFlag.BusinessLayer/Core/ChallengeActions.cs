@@ -1,4 +1,5 @@
 using AutoMapper;
+using DotFlag.BusinessLayer.Services;
 using DotFlag.DataAccessLayer.Context;
 using DotFlag.Domain.Entities.Challenge;
 using DotFlag.Domain.Entities.Notification;
@@ -84,6 +85,16 @@ namespace DotFlag.BusinessLayer.Core
 
             AuditLog.Log(actorId, AuditAction.ChallengeCreated, "Challenge", challenge.Id, $"name={challenge.Name}");
 
+            context.Notifications.Add(new NotificationData
+            {
+                Title = "New Challenge Available",
+                Message = $"\"{challenge.Name}\" has been added. Good luck!",
+                Type = "challengeAdded",
+                CreatedOn = DateTime.UtcNow,
+                UserId = null
+            });
+            context.SaveChanges();
+
             return new ActionResponse { IsSuccess = true, Message = "Challenge created successfully." };
         }
 
@@ -98,6 +109,9 @@ namespace DotFlag.BusinessLayer.Core
 
             bool wasActive = challenge.IsActive;
             bool flagChanged = !string.IsNullOrEmpty(dto.Flag);
+            bool pointsChanged = challenge.MaxPoints != dto.MaxPoints
+                || challenge.MinPoints != dto.MinPoints
+                || challenge.DecayRate != dto.DecayRate;
 
             challenge.Name = dto.Name;
             challenge.Description = dto.Description;
@@ -108,6 +122,10 @@ namespace DotFlag.BusinessLayer.Core
             challenge.IsActive = dto.IsActive;
             challenge.DecayRate = dto.DecayRate;
             challenge.FirstBloodBonus = dto.FirstBloodBonus;
+            challenge.HasInstance = dto.HasInstance;
+            challenge.DockerImage = dto.HasInstance ? dto.DockerImage : null;
+            challenge.ContainerPort = dto.HasInstance ? dto.ContainerPort : null;
+            challenge.ContainerTimeoutMinutes = dto.HasInstance ? dto.ContainerTimeoutMinutes : null;
 
             if (flagChanged)
                 challenge.FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag);
@@ -121,29 +139,44 @@ namespace DotFlag.BusinessLayer.Core
             {
                 AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name}");
 
-                var solverIds = context.Submissions
-                    .Where(s => s.ChallengeId == id && s.IsCorrect)
-                    .Select(s => s.UserId)
-                    .Distinct()
-                    .ToList();
-
-                foreach (var uid in solverIds)
+                context.Notifications.Add(new NotificationData
                 {
-                    context.Notifications.Add(new NotificationData
-                    {
-                        Title = "Challenge Deactivated",
-                        Message = $"Challenge \"{challenge.Name}\" has been deactivated. Points from this challenge no longer count toward your score.",
-                        Type = "challengeDeactivated",
-                        CreatedOn = DateTime.UtcNow,
-                        UserId = uid
-                    });
-                }
-                if (solverIds.Count > 0) context.SaveChanges();
+                    Title = "Challenge Deactivated",
+                    Message = $"\"{challenge.Name}\" has been deactivated and is no longer available.",
+                    Type = "challengeDeactivated",
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = null
+                });
+                context.SaveChanges();
             }
             else if (!wasActive && dto.IsActive)
+            {
                 AuditLog.Log(actorId, AuditAction.ChallengeEnabled, "Challenge", id, $"name={challenge.Name}");
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "Challenge Available",
+                    Message = $"\"{challenge.Name}\" is now available. Good luck!",
+                    Type = "challengeAdded",
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = null
+                });
+                context.SaveChanges();
+            }
             else
                 AuditLog.Log(actorId, AuditAction.ChallengeUpdated, "Challenge", id, $"name={challenge.Name}");
+
+            if (pointsChanged && dto.IsActive)
+            {
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "Challenge Points Updated",
+                    Message = $"Scoring for \"{challenge.Name}\" has been adjusted.",
+                    Type = "challengePointsChanged",
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = null
+                });
+                context.SaveChanges();
+            }
 
             if (flagChanged)
                 AuditLog.Log(actorId, AuditAction.FlagChanged, "Challenge", id, $"name={challenge.Name}");
@@ -176,7 +209,11 @@ namespace DotFlag.BusinessLayer.Core
                 FirstBloodBonus = source.FirstBloodBonus,
                 FlagHash = source.FlagHash,
                 IsActive = false,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.UtcNow,
+                HasInstance = source.HasInstance,
+                DockerImage = source.DockerImage,
+                ContainerPort = source.ContainerPort,
+                ContainerTimeoutMinutes = source.ContainerTimeoutMinutes,
             };
 
             context.Challenges.Add(clone);
@@ -198,40 +235,126 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Challenge cloned successfully." };
         }
 
-        protected ActionResponse DeleteExecution(int id, int actorId)
+        protected ActionResponse DeleteExecution(int id, int actorId, DeactivateChallengeDto dto)
         {
             using var context = new AppDbContext();
 
             var challenge = context.Challenges.FirstOrDefault(c => c.Id == id);
-
             if (challenge == null)
                 return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
 
+            // Stop containers + notify solvers (compensation stored on submissions but
+            // will be cascade-deleted along with the challenge record)
+            if (challenge.IsActive)
+                RunDeactivationFlow(context, challenge, id, actorId, dto, isDelete: true);
+            else
+                AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name};reason=delete");
+
+            // Hard-delete: cascade removes Submissions, Hints, Files, Instances
+            context.Challenges.Remove(challenge);
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };
+        }
+
+        protected ActionResponse DeactivateExecution(int id, int actorId, DeactivateChallengeDto dto)
+        {
+            using var context = new AppDbContext();
+
+            var challenge = context.Challenges.FirstOrDefault(c => c.Id == id && c.IsActive);
+            if (challenge == null)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge not found or already inactive." };
+
+            RunDeactivationFlow(context, challenge, id, actorId, dto, isDelete: false);
+
+            return new ActionResponse { IsSuccess = true, Message = "Challenge deactivated successfully." };
+        }
+
+        private void RunDeactivationFlow(AppDbContext context, ChallengeData challenge, int id, int actorId, DeactivateChallengeDto dto, bool isDelete)
+        {
+            // 1. Deactivate
             challenge.IsActive = false;
             context.SaveChanges();
 
-            var solverIds = context.Submissions
-                .Where(s => s.ChallengeId == id && s.IsCorrect)
-                .Select(s => s.UserId)
-                .Distinct()
+            // 2. Stop all running Docker containers for this challenge
+            var instances = context.ChallengeInstances
+                .Where(i => i.ChallengeId == id && i.Status == "running")
                 .ToList();
 
-            foreach (var uid in solverIds)
+            foreach (var inst in instances)
             {
-                context.Notifications.Add(new NotificationData
+                try
                 {
-                    Title = "Challenge Removed",
-                    Message = $"Challenge \"{challenge.Name}\" has been removed. Points from this challenge no longer count toward your score.",
-                    Type = "challengeDeactivated",
-                    CreatedOn = DateTime.UtcNow,
-                    UserId = uid
-                });
+                    var docker = DockerService.FromSettings().GetAwaiter().GetResult();
+                    docker.StopContainer(inst.ContainerId).GetAwaiter().GetResult();
+                }
+                catch { /* best-effort — remove from DB regardless */ }
             }
-            if (solverIds.Count > 0) context.SaveChanges();
 
-            AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name};reason=delete");
+            context.ChallengeInstances.RemoveRange(instances);
+            if (instances.Any()) context.SaveChanges();
 
-            return new ActionResponse { IsSuccess = true, Message = "Challenge deleted successfully." };
+            // 3. Calculate and store per-submission compensation
+            var correctSubmissions = context.Submissions
+                .Where(s => s.ChallengeId == id && s.IsCorrect)
+                .ToList();
+
+            int compensationPoints = dto.CompensationType switch
+            {
+                CompensationType.Percentage => (int)Math.Round(challenge.CurrentPoints * dto.CompensationValue / 100.0),
+                CompensationType.Fixed      => dto.CompensationValue,
+                _                           => 0
+            };
+
+            foreach (var sub in correctSubmissions)
+                sub.CompensationPoints = compensationPoints;
+
+            if (correctSubmissions.Any()) context.SaveChanges();
+
+            // 4. Notifications
+            var solverIds = correctSubmissions.Select(s => s.UserId).Distinct().ToList();
+            string action = isDelete ? "removed" : "deactivated";
+
+            // Global
+            context.Notifications.Add(new NotificationData
+            {
+                Title = isDelete ? "Challenge Removed" : "Challenge Deactivated",
+                Message = $"\"{challenge.Name}\" has been {action} and is no longer available.",
+                Type = "challengeDeactivated",
+                CreatedOn = DateTime.UtcNow,
+                UserId = null
+            });
+
+            // Per-solver
+            if (solverIds.Count > 0)
+            {
+                string scoreMsg = dto.CompensationType switch
+                {
+                    CompensationType.None       => $"Points from \"{challenge.Name}\" no longer count toward your score.",
+                    CompensationType.Percentage => $"Your points from \"{challenge.Name}\" were replaced with a {dto.CompensationValue}% compensation ({compensationPoints} pts).",
+                    CompensationType.Fixed      => $"Your points from \"{challenge.Name}\" were replaced with a fixed compensation of {compensationPoints} pts.",
+                    _                           => $"Points from \"{challenge.Name}\" no longer count toward your score."
+                };
+
+                foreach (var uid in solverIds)
+                {
+                    context.Notifications.Add(new NotificationData
+                    {
+                        Title = compensationPoints > 0 ? "Score Adjusted" : "Score Impact",
+                        Message = scoreMsg,
+                        Type = "challengeDeactivated",
+                        CreatedOn = DateTime.UtcNow,
+                        UserId = uid
+                    });
+                }
+            }
+
+            context.SaveChanges();
+
+            AuditLog.Log(actorId,
+                isDelete ? AuditAction.ChallengeDisabled : AuditAction.ChallengeDisabled,
+                "Challenge", id,
+                $"name={challenge.Name};action={action};compensation={dto.CompensationType};value={dto.CompensationValue};solvers={solverIds.Count};containers={instances.Count}");
         }
 
         protected ActionResponse AddHintExecution(int challengeId, CreateHintDto dto, int actorId)

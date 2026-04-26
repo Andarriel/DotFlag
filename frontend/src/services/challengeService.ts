@@ -3,6 +3,7 @@ import type {
   ApiChallenge,
   CreateChallengePayload,
   UpdateChallengePayload,
+  DeactivateChallengePayload,
   ActionResponse,
 } from '../types/api';
 
@@ -19,8 +20,11 @@ export const challengeService = {
   update: (api: AxiosInstance, id: number, data: UpdateChallengePayload) =>
     api.put<ActionResponse>(`/challenges/${id}`, data).then(res => res.data),
 
-  delete: (api: AxiosInstance, id: number) =>
-    api.delete<ActionResponse>(`/challenges/${id}`).then(res => res.data),
+  deactivate: (api: AxiosInstance, id: number, payload: DeactivateChallengePayload) =>
+    api.post<ActionResponse>(`/challenges/${id}/deactivate`, payload).then(res => res.data),
+
+  delete: (api: AxiosInstance, id: number, payload: DeactivateChallengePayload) =>
+    api.delete<ActionResponse>(`/challenges/${id}`, { data: payload }).then(res => res.data),
 
   clone: (api: AxiosInstance, id: number) =>
     api.post<ActionResponse>(`/challenges/${id}/clone`).then(res => res.data),

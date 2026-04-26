@@ -3,6 +3,7 @@ using System;
 using DotFlag.DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotFlag.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260425182733_AddCtfIsComingSoon")]
+    partial class AddCtfIsComingSoon
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,9 +80,6 @@ namespace DotFlag.DataAccessLayer.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int?>("ContainerPort")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ContainerTimeoutMinutes")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedOn")
@@ -216,10 +216,10 @@ namespace DotFlag.DataAccessLayer.Migrations
                         new
                         {
                             Id = 1,
-                            EndTime = new DateTime(2026, 4, 26, 2, 19, 27, 790, DateTimeKind.Utc).AddTicks(5617),
+                            EndTime = new DateTime(2026, 4, 25, 18, 27, 33, 669, DateTimeKind.Utc).AddTicks(3235),
                             IsComingSoon = false,
                             Name = "DotFlag CTF",
-                            StartTime = new DateTime(2026, 4, 26, 2, 19, 27, 790, DateTimeKind.Utc).AddTicks(5615)
+                            StartTime = new DateTime(2026, 4, 25, 18, 27, 33, 669, DateTimeKind.Utc).AddTicks(3232)
                         });
                 });
 
@@ -343,9 +343,6 @@ namespace DotFlag.DataAccessLayer.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("ChallengeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CompensationPoints")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedOn")

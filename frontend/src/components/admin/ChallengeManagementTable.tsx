@@ -1,13 +1,14 @@
-import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
 import { useAdminContext } from '../../context/AdminContext';
 import { challengeService } from '../../services/challengeService';
 import { useAxios } from '../../context/AxiosContext';
 import { useToast } from '../../context/ToastContext';
+import { dockerAdminService } from '../../services/dockerAdminService';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../../types';
-import type { ApiHint, ApiChallengeFile } from '../../types/api';
+import type { ApiHint, ApiChallengeFile, CompensationType } from '../../types/api';
 
 const CATEGORIES: ChallengeCategory[] = ['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics', 'OSINT'];
 const DIFFICULTIES: ChallengeDifficulty[] = ['Easy', 'Medium', 'Hard', 'Impossible'];
@@ -69,23 +70,62 @@ type FormState = {
   hasInstance: boolean;
   dockerImage: string;
   containerPort: string;
+  containerTtl: string;
 };
 
 const INITIAL_FORM: FormState = {
   name: '', description: '', category: 'Web',
   difficulty: 'Easy',
   minPoints: '50', maxPoints: '500', decayRate: '30', firstBloodBonus: '10', flag: '',
-  hasInstance: false, dockerImage: '', containerPort: '',
+  hasInstance: false, dockerImage: '', containerPort: '', containerTtl: '',
 };
 
 export default function ChallengeManagementTable() {
-  const { challenges, toggleChallengeActive, createChallenge, updateChallenge, deleteChallenge, cloneChallenge } = useAdminContext();
+  const { challenges, toggleChallengeActive, deactivateChallenge, createChallenge, updateChallenge, deleteChallenge, cloneChallenge } = useAdminContext();
   const api = useAxios();
   const toast = useToast();
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [dockerImages, setDockerImages] = useState<string[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const [manualImage, setManualImage] = useState(false);
+
+  // Deactivate / Delete confirmation with compensation
+  type PendingAction = { challenge: Challenge; kind: 'deactivate' | 'delete' };
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [compType, setCompType] = useState<CompensationType>(0);
+  const [compValue, setCompValue] = useState('50');
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const openPending = (challenge: Challenge, kind: 'deactivate' | 'delete') => {
+    setPendingAction({ challenge, kind });
+    setCompType(0);
+    setCompValue('50');
+  };
+
+  const computedCompPts = () => {
+    if (!pendingAction) return 0;
+    if (compType === 1) return Math.round(pendingAction.challenge.points * +compValue / 100);
+    if (compType === 2) return +compValue || 0;
+    return 0;
+  };
+
+  const handlePendingConfirm = async () => {
+    if (!pendingAction) return;
+    setActionLoading(true);
+    const payload = { compensationType: compType, compensationValue: +compValue || 0 };
+    let ok: boolean;
+    if (pendingAction.kind === 'deactivate') {
+      ok = await deactivateChallenge(pendingAction.challenge.id, payload);
+    } else {
+      ok = await deleteChallenge(pendingAction.challenge.id, payload);
+    }
+    setActionLoading(false);
+    if (ok) setPendingAction(null);
+  };
 
   // Manage modal state
   const [manageId, setManageId] = useState<number | null>(null);
@@ -94,28 +134,47 @@ export default function ChallengeManagementTable() {
   const [manageLoading, setManageLoading] = useState(false);
   const [newHintContent, setNewHintContent] = useState('');
 
+  const fetchImages = async () => {
+    setImagesLoading(true);
+    try {
+      const imgs = await dockerAdminService.getImages(api);
+      setDockerImages(imgs);
+    } catch {
+      setDockerImages([]);
+    } finally {
+      setImagesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (form.hasInstance && showModal) fetchImages();
+  }, [form.hasInstance, showModal]);
+
   const openCreate = () => {
     setEditingId(null);
     setForm(INITIAL_FORM);
+    setManualImage(false);
     setShowModal(true);
   };
 
   const openEdit = async (challenge: Challenge) => {
+    setManualImage(false);
     setEditingId(challenge.id);
     setForm({
-      name: challenge.title,
-      description: challenge.description,
-      category: challenge.category,
-      difficulty: challenge.difficulty,
-      minPoints: '',
-      maxPoints: '',
-      decayRate: '',
-      firstBloodBonus: '',
-      flag: '',
-      hasInstance: false,
-      dockerImage: '',
-      containerPort: '',
-    });
+          name: challenge.title,
+          description: challenge.description,
+          category: challenge.category,
+          difficulty: challenge.difficulty,
+          minPoints: '',
+          maxPoints: '',
+          decayRate: '',
+          firstBloodBonus: '',
+          flag: '',
+          hasInstance: false,
+          dockerImage: '',
+          containerPort: '',
+          containerTtl: '',
+        });
     setShowModal(true);
     setLoadingEdit(true);
     try {
@@ -127,7 +186,9 @@ export default function ChallengeManagementTable() {
         decayRate: String(full.decayRate),
         firstBloodBonus: String(full.firstBloodBonus),
         hasInstance: full.hasInstance ?? false,
+        dockerImage: full.dockerImage ?? '',
         containerPort: full.containerPort != null ? String(full.containerPort) : '',
+        containerTtl: full.containerTimeoutMinutes != null ? String(full.containerTimeoutMinutes) : '',
       }));
     } catch {}
     setLoadingEdit(false);
@@ -215,10 +276,20 @@ export default function ChallengeManagementTable() {
     }
   };
 
-  const handleSubmit = () => {
-    if (!form.name || !form.description) return;
+  const isFormValid = () => {
+    if (!form.name || !form.description) return false;
+    if (editingId === null && !form.flag) return false;
+    if (form.hasInstance && !form.containerPort) return false;
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!isFormValid() || submitting) return;
+    setSubmitting(true);
+    const ttl = form.hasInstance && form.containerTtl ? +form.containerTtl : undefined;
+    let ok: boolean;
     if (editingId !== null) {
-      updateChallenge(editingId, {
+      ok = await updateChallenge(editingId, {
         name: form.name,
         description: form.description,
         category: CATEGORIES.indexOf(form.category),
@@ -232,10 +303,10 @@ export default function ChallengeManagementTable() {
         hasInstance: form.hasInstance,
         dockerImage: form.hasInstance ? form.dockerImage : undefined,
         containerPort: form.hasInstance && form.containerPort ? +form.containerPort : undefined,
+        containerTimeoutMinutes: ttl,
       });
     } else {
-      if (!form.flag) return;
-      createChallenge({
+      ok = await createChallenge({
         name: form.name,
         description: form.description,
         category: CATEGORIES.indexOf(form.category),
@@ -248,11 +319,15 @@ export default function ChallengeManagementTable() {
         hasInstance: form.hasInstance,
         dockerImage: form.hasInstance ? form.dockerImage : undefined,
         containerPort: form.hasInstance && form.containerPort ? +form.containerPort : undefined,
+        containerTimeoutMinutes: ttl,
       });
     }
-    setForm(INITIAL_FORM);
-    setEditingId(null);
-    setShowModal(false);
+    setSubmitting(false);
+    if (ok) {
+      setForm(INITIAL_FORM);
+      setEditingId(null);
+      setShowModal(false);
+    }
   };
 
   const headers = [
@@ -286,7 +361,10 @@ export default function ChallengeManagementTable() {
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
               {challenges.map(c => (
-                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => toggleChallengeActive(c.id)} onDelete={() => deleteChallenge(c.id)} onEdit={() => openEdit(c)} onManage={() => openManage(c)} onClone={() => cloneChallenge(c.id)} />
+                <ChallengeRow key={c.id} challenge={c}
+                  onToggleActive={() => c.isActive ? openPending(c, 'deactivate') : toggleChallengeActive(c.id)}
+                  onDelete={() => openPending(c, 'delete')}
+                  onEdit={() => openEdit(c)} onManage={() => openManage(c)} onClone={() => cloneChallenge(c.id)} />
               ))}
             </tbody>
           </table>
@@ -294,7 +372,7 @@ export default function ChallengeManagementTable() {
       </div>
 
       {/* Create/Edit Modal */}
-      <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingId(null); }} title={editingId !== null ? 'Edit Challenge' : 'Create New Challenge'} onConfirm={handleSubmit} confirmLabel={editingId !== null ? 'Save' : 'Create'}>
+      <Modal isOpen={showModal} onClose={() => { if (!submitting) { setShowModal(false); setEditingId(null); } }} title={editingId !== null ? 'Edit Challenge' : 'Create New Challenge'} onConfirm={handleSubmit} confirmLabel={editingId !== null ? 'Save' : 'Create'} confirmDisabled={!isFormValid()} confirmLoading={submitting}>
         <div className="space-y-4">
           <div>
             <label className={labelClass}>Title</label>
@@ -342,8 +420,11 @@ export default function ChallengeManagementTable() {
             </div>
           </div>
           <div>
-            <label className={labelClass}>Flag {editingId !== null && <span className="text-slate-600 normal-case font-normal">(leave empty to keep current)</span>}</label>
-            <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder={editingId !== null ? 'Leave empty to keep current flag' : 'dotflag{your_flag_here}'} />
+            <label className={labelClass}>
+              Flag {editingId === null && <span className="text-red-400">*</span>}
+              {editingId !== null && <span className="text-slate-600 normal-case tracking-normal font-normal ml-1">(leave blank to keep existing)</span>}
+            </label>
+            <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder={editingId !== null ? 'Unchanged' : 'dotflag{your_flag_here}'} />
           </div>
           <div className="border-t border-white/[0.06] pt-4">
             <label className="flex items-center gap-3 cursor-pointer">
@@ -352,18 +433,65 @@ export default function ChallengeManagementTable() {
               <span className="text-sm font-medium text-slate-300">Has Docker Instance</span>
             </label>
             {form.hasInstance && (
-              <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="mt-3 space-y-3">
                 <div>
-                  <label className={labelClass}>Docker Image</label>
-                  <input type="text" value={form.dockerImage}
-                    onChange={e => setForm(f => ({ ...f, dockerImage: e.target.value }))}
-                    className={inputClass} placeholder="ubuntu:22.04" />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className={labelClass} style={{ marginBottom: 0 }}>Docker Image</label>
+                    <div className="flex items-center gap-2">
+                      <button type="button" onClick={fetchImages} disabled={imagesLoading}
+                        className="p-1 text-slate-600 hover:text-slate-300 transition disabled:opacity-40">
+                        <RefreshCw className={`w-3 h-3 ${imagesLoading ? 'animate-spin' : ''}`} />
+                      </button>
+                      <button type="button" onClick={() => setManualImage(m => !m)}
+                        className="text-[10px] text-indigo-400 hover:text-indigo-300 transition uppercase tracking-wider">
+                        {manualImage ? 'Pick from list' : 'Type manually'}
+                      </button>
+                    </div>
+                  </div>
+                  {manualImage ? (
+                    <input type="text" value={form.dockerImage}
+                      onChange={e => setForm(f => ({ ...f, dockerImage: e.target.value }))}
+                      className={inputClass} placeholder="myimage:latest" />
+                  ) : imagesLoading ? (
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-800/50 border border-white/[0.06] rounded-xl">
+                      <Loader2 className="w-4 h-4 text-slate-500 animate-spin" />
+                      <span className="text-sm text-slate-500">Loading images...</span>
+                    </div>
+                  ) : dockerImages.length === 0 ? (
+                    <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-800/50 border border-white/[0.06] rounded-xl">
+                      <span className="text-sm text-slate-500">No images found on Docker host</span>
+                      <button type="button" onClick={() => setManualImage(true)}
+                        className="text-[11px] text-indigo-400 hover:text-indigo-300 transition">
+                        Type manually
+                      </button>
+                    </div>
+                  ) : (
+                    <select value={form.dockerImage}
+                      onChange={e => setForm(f => ({ ...f, dockerImage: e.target.value }))}
+                      className={selectClass} style={{ colorScheme: 'dark' }}>
+                      <option value="">— Select an image —</option>
+                      {dockerImages.map(img => (
+                        <option key={img} value={img}>{img}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div>
-                  <label className={labelClass}>Container Port</label>
+                  <label className={labelClass}>Container Port <span className="text-red-400">*</span></label>
                   <input type="number" value={form.containerPort}
                     onChange={e => setForm(f => ({ ...f, containerPort: e.target.value }))}
                     className={inputClass} placeholder="1337" min={1} max={65535} />
+                  <p className="text-[10px] text-slate-600 mt-1">
+                    Port the service listens on <em>inside</em> the container (e.g. 1337). Users connect to a mapped host port.
+                  </p>
+                </div>
+                <div>
+                  <label className={labelClass}>TTL (minutes)</label>
+                  <input type="number" value={form.containerTtl}
+                    onChange={e => setForm(f => ({ ...f, containerTtl: e.target.value }))}
+                    className={inputClass} placeholder="60 (global default)" min={1} max={1440} />
+                  <p className="text-[10px] text-slate-600 mt-1">
+                    Leave empty to use the global Docker timeout setting.</p>
                 </div>
               </div>
             )}
@@ -450,6 +578,86 @@ export default function ChallengeManagementTable() {
                 <input type="file" className="hidden" onChange={handleUploadFile} />
               </label>
             </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Deactivate / Delete with compensation modal */}
+      <Modal
+        isOpen={pendingAction != null}
+        onClose={() => { if (!actionLoading) setPendingAction(null); }}
+        title={pendingAction?.kind === 'delete' ? 'Delete Challenge' : 'Deactivate Challenge'}
+        onConfirm={handlePendingConfirm}
+        confirmLabel={pendingAction?.kind === 'delete' ? 'Delete' : 'Deactivate'}
+        confirmVariant="danger"
+        confirmLoading={actionLoading}
+      >
+        {pendingAction && (
+          <div className="space-y-4">
+            {/* Summary */}
+            <div className="flex items-start gap-3 p-3 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl">
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-white font-semibold">{pendingAction.challenge.title}</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {pendingAction.challenge.solveCount > 0
+                    ? `${pendingAction.challenge.solveCount} solver${pendingAction.challenge.solveCount !== 1 ? 's' : ''} will be affected`
+                    : 'No solvers yet — no score impact'}
+                </p>
+                {pendingAction.challenge.hasInstance && (
+                  <p className="text-xs text-orange-400 mt-1">All running containers for this challenge will be stopped.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Point handling */}
+            {pendingAction.challenge.solveCount > 0 && (
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Point Handling for Solvers</p>
+                <div className="space-y-2">
+                  {([
+                    { value: 0 as CompensationType, label: 'Remove all points', sublabel: 'Solvers lose all points from this challenge' },
+                    { value: 1 as CompensationType, label: 'Percentage compensation', sublabel: 'Fraction of current challenge value' },
+                    { value: 2 as CompensationType, label: 'Fixed compensation', sublabel: 'Same amount for every solver' },
+                  ] as const).map(opt => (
+                    <label key={opt.value}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
+                        compType === opt.value
+                          ? 'bg-indigo-500/10 border-indigo-500/30'
+                          : 'bg-slate-800/30 border-white/[0.05] hover:border-white/[0.1]'
+                      }`}>
+                      <input type="radio" className="mt-0.5 accent-indigo-500" checked={compType === opt.value}
+                        onChange={() => setCompType(opt.value)} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white">{opt.label}</p>
+                        <p className="text-[11px] text-slate-500">{opt.sublabel}</p>
+                        {compType === opt.value && opt.value !== 0 && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <input
+                              type="number"
+                              value={compValue}
+                              onChange={e => setCompValue(e.target.value)}
+                              min={opt.value === 1 ? 1 : 1}
+                              max={opt.value === 1 ? 100 : undefined}
+                              className="w-24 bg-slate-800/70 border border-white/[0.1] rounded-lg px-2.5 py-1.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                            <span className="text-sm text-slate-400">{opt.value === 1 ? '%' : 'pts'}</span>
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Preview */}
+                <div className="mt-3 flex items-center justify-between px-3 py-2 bg-slate-800/50 rounded-lg">
+                  <span className="text-xs text-slate-500">Each solver receives</span>
+                  <span className={`text-sm font-bold tabular-nums ${computedCompPts() > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {computedCompPts() > 0 ? `+${computedCompPts()} pts` : '0 pts'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Modal>

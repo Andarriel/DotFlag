@@ -62,6 +62,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
           };
       });
 
+
 builder.Services.AddRateLimitRules();
 
 builder.Services.AddCors(options =>
@@ -76,6 +77,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+DotFlag.Api.Services.SystemStatusBackgroundService.Start();
 
 app.UseMiddleware<DotFlag.Api.Extensions.GlobalExceptionMiddleware>();
 app.UseRateLimiter();

@@ -21,6 +21,11 @@ namespace DotFlag.BusinessLayer.Core
             if (!challenge.HasInstance || string.IsNullOrEmpty(challenge.DockerImage) || !challenge.ContainerPort.HasValue)
                 return (new ActionResponse { IsSuccess = false, Message = "This challenge does not support Docker instances." }, null);
 
+            var hasSolved = context.Submissions
+                .Any(s => s.UserId == userId && s.ChallengeId == challengeId && s.IsCorrect);
+            if (hasSolved)
+                return (new ActionResponse { IsSuccess = false, Message = "You have already solved this challenge." }, null);
+
             var existing = context.ChallengeInstances
                 .FirstOrDefault(i => i.UserId == userId && i.Status == "running");
             if (existing != null)
@@ -32,7 +37,9 @@ namespace DotFlag.BusinessLayer.Core
             if (activeCount >= maxGlobal)
                 return (new ActionResponse { IsSuccess = false, Message = "Global instance limit reached. Try again later." }, null);
 
-            var timeoutMinutes = settings?.InstanceTimeoutMinutes ?? 0;
+            var timeoutMinutes = challenge.ContainerTimeoutMinutes
+                ?? settings?.InstanceTimeoutMinutes
+                ?? 0;
             DateTime? expiresAt = timeoutMinutes > 0 ? DateTime.UtcNow.AddMinutes(timeoutMinutes) : null;
 
             var host = DockerService.ExtractHost(settings?.Host ?? "localhost");
@@ -99,6 +106,28 @@ namespace DotFlag.BusinessLayer.Core
             return new ActionResponse { IsSuccess = true, Message = "Instance stopped." };
         }
 
+        protected async Task<ActionResponse> RestartInstanceExecution(int challengeId, int userId)
+        {
+            using var context = new AppDbContext();
+
+            var instance = context.ChallengeInstances
+                .FirstOrDefault(i => i.ChallengeId == challengeId && i.UserId == userId && i.Status == "running");
+
+            if (instance == null)
+                return new ActionResponse { IsSuccess = false, Message = "No active instance found." };
+
+            try
+            {
+                var docker = await DockerService.FromSettings();
+                await docker.RestartContainer(instance.ContainerId);
+                return new ActionResponse { IsSuccess = true, Message = "Instance restarted." };
+            }
+            catch (Exception ex)
+            {
+                return new ActionResponse { IsSuccess = false, Message = $"Failed to restart instance: {ex.Message}" };
+            }
+        }
+
         protected ChallengeInstanceDto? GetInstanceExecution(int challengeId, int userId)
         {
             using var context = new AppDbContext();
@@ -116,6 +145,31 @@ namespace DotFlag.BusinessLayer.Core
             {
                 Id = instance.Id,
                 ChallengeId = challengeId,
+                Host = host,
+                Port = instance.HostPort,
+                CreatedAt = instance.CreatedAt,
+                ExpiresAt = instance.ExpiresAt,
+                Status = instance.Status
+            };
+        }
+
+        protected ChallengeInstanceDto? GetMyInstanceExecution(int userId)
+        {
+            using var context = new AppDbContext();
+
+            var instance = context.ChallengeInstances
+                .FirstOrDefault(i => i.UserId == userId && i.Status == "running");
+
+            if (instance == null)
+                return null;
+
+            var settings = context.DockerSettings.FirstOrDefault(s => s.Id == 1);
+            var host = DockerService.ExtractHost(settings?.Host ?? "localhost");
+
+            return new ChallengeInstanceDto
+            {
+                Id = instance.Id,
+                ChallengeId = instance.ChallengeId,
                 Host = host,
                 Port = instance.HostPort,
                 CreatedAt = instance.CreatedAt,

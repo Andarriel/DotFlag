@@ -9,7 +9,7 @@ import { useTeamContext } from '../../context/TeamContext';
 import { useAuth } from '../../context/AuthContext';
 
 export default function TeamPage() {
-  const { team, loading, refresh, isLeader, inviteCode, setInviteCode, copied, copyInviteCode, regenerateInvite, removeMember, joinTeam, createTeam, leaveTeam, disbandTeam } = useTeamContext();
+  const { team, loading, refresh, isLeader, inviteCode, setInviteCode, copied, copyInviteCode, regenerateInvite, removeMember, renameTeam, transferLeadership, joinTeam, createTeam, leaveTeam, disbandTeam } = useTeamContext();
   const { user } = useAuth();
 
   useEffect(() => { refresh(); }, []);
@@ -44,14 +44,16 @@ export default function TeamPage() {
       <PageHeader
         icon={<Users className="w-6 h-6 text-white" />}
         title="Team"
-        description={team ? `You are part of ${team.name}` : 'Join or create a team to compete together'}
+        description={team
+          ? isLeader ? `You are the leader of ${team.name}` : `You are a member of ${team.name}`
+          : 'Join or create a team to compete together'}
       />
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {team ? (
           <>
-            <TeamInfo team={team} copied={copied} onCopyCode={copyInviteCode} isLeader={isLeader} onRegenerate={regenerateInvite} />
-            <MemberList members={team.members} isLeader={isLeader} currentUserId={user?.id} onRemove={removeMember} />
+            <TeamInfo team={team} copied={copied} onCopyCode={copyInviteCode} isLeader={isLeader} onRegenerate={regenerateInvite} onRename={renameTeam} />
+            <MemberList members={team.members} isLeader={isLeader} currentUserId={user?.id} onRemove={removeMember} onTransfer={transferLeadership} />
             <div className="mt-6 flex justify-end gap-3">
               {!isLeader && (
                 <button onClick={leaveTeam}

@@ -7,6 +7,8 @@ namespace DotFlag.BusinessLayer.Interfaces
     {
         Task<(ActionResponse, ChallengeInstanceDto?)> StartInstance(int challengeId, int userId);
         Task<ActionResponse> StopInstance(int challengeId, int userId);
+        Task<ActionResponse> RestartInstance(int challengeId, int userId);
         ChallengeInstanceDto? GetInstance(int challengeId, int userId);
+        ChallengeInstanceDto? GetMyInstance(int userId);
     }
 }

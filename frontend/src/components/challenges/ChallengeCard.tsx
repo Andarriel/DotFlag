@@ -5,9 +5,10 @@ import type { Challenge } from '../../types';
 interface ChallengeCardProps {
   challenge: Challenge;
   onClick: () => void;
+  isContainerRunning?: boolean;
 }
 
-export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps) {
+export default function ChallengeCard({ challenge, onClick, isContainerRunning = false }: ChallengeCardProps) {
   const Icon = getCategoryIcon(challenge.category);
 
   return (
@@ -25,13 +26,24 @@ export default function ChallengeCard({ challenge, onClick }: ChallengeCardProps
         <div className="w-11 h-11 bg-indigo-600/15 border border-indigo-500/20 rounded-xl flex items-center justify-center group-hover:bg-indigo-600/25 transition-colors">
           <Icon className="w-5 h-5 text-indigo-400" />
         </div>
-        {!challenge.isActive ? (
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md">Hidden</span>
-        ) : challenge.isSolved ? (
-          <CheckCircle className="w-5 h-5 text-green-400" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
-        )}
+        <div className="flex items-center gap-1.5">
+          {isContainerRunning && (
+            <span
+              title="Running Container"
+              className="flex items-center gap-1 text-[10px] font-bold text-green-400 bg-green-500/10 border border-green-500/20 px-1.5 py-0.5 rounded-md"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
+              RC
+            </span>
+          )}
+          {!challenge.isActive ? (
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md">Hidden</span>
+          ) : challenge.isSolved ? (
+            <CheckCircle className="w-5 h-5 text-green-400" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
+          )}
+        </div>
       </div>
 
       <h3 className="text-base font-bold text-white mb-1.5 group-hover:text-indigo-300 transition">{challenge.title}</h3>

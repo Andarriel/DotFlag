@@ -5,41 +5,37 @@ interface SystemInfo {
   name: string;
   icon: typeof Server;
   ping: string;
+  pingLabel: string;
   online: boolean;
 }
 
 export function SystemStatus() {
   const [systems, setSystems] = useState<SystemInfo[]>([
-    { name: 'API Server', icon: Server, ping: '-', online: false },
-    { name: 'Database', icon: Database, ping: '-', online: false },
-    { name: 'Containers', icon: Container, ping: '-', online: false },
+    { name: 'API Server', icon: Server, ping: '-', pingLabel: 'your latency', online: false },
+    { name: 'Database',   icon: Database,  ping: '-', pingLabel: 'server latency', online: false },
+    { name: 'Containers', icon: Container, ping: '-', pingLabel: 'server latency', online: false },
   ]);
 
   useEffect(() => {
     const check = async () => {
-      const results: SystemInfo[] = [];
-
       const apiStart = performance.now();
       try {
-        const res = await fetch('/api/health', { cache: 'no-store' });
-        const apiPing = Math.round(performance.now() - apiStart);
-        results.push({ name: 'API Server', icon: Server, ping: `${apiPing}ms`, online: res.ok });
+        const res = await fetch('/api/health/status', { cache: 'no-store' });
+        const apiLatencyMs = Math.round(performance.now() - apiStart);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setSystems([
+          { name: 'API Server',  icon: Server,    ping: `${apiLatencyMs}ms`, pingLabel: 'your latency',    online: true },
+          { name: 'Database',    icon: Database,  ping: data.db.latencyMs     != null ? `${data.db.latencyMs}ms`     : '-', pingLabel: 'server latency', online: data.db.online },
+          { name: 'Containers',  icon: Container, ping: data.docker.latencyMs != null ? `${data.docker.latencyMs}ms` : '-', pingLabel: 'server latency', online: data.docker.online },
+        ]);
       } catch {
-        results.push({ name: 'API Server', icon: Server, ping: '-', online: false });
+        setSystems([
+          { name: 'API Server',  icon: Server,    ping: '-', pingLabel: 'your latency',    online: false },
+          { name: 'Database',    icon: Database,  ping: '-', pingLabel: 'server latency', online: false },
+          { name: 'Containers',  icon: Container, ping: '-', pingLabel: 'server latency', online: false },
+        ]);
       }
-
-      const dbStart = performance.now();
-      try {
-        const res = await fetch('/api/health/db', { cache: 'no-store' });
-        const dbPing = Math.round(performance.now() - dbStart);
-        results.push({ name: 'Database', icon: Database, ping: `${dbPing}ms`, online: res.ok });
-      } catch {
-        results.push({ name: 'Database', icon: Database, ping: '-', online: false });
-      }
-
-      results.push({ name: 'Containers', icon: Container, ping: '-', online: false });
-
-      setSystems(results);
     };
 
     check();
@@ -62,7 +58,7 @@ export function SystemStatus() {
                 <span className="text-sm text-slate-300 font-medium">{sys.name}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[11px] text-slate-600">{sys.ping}</span>
+                <span className="text-[11px] text-slate-600" title={sys.pingLabel}>{sys.ping}</span>
                 <span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md border ${statusColor}`}>
                   {sys.online ? 'Operational' : 'Offline'}
                 </span>

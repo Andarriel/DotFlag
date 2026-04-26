@@ -37,6 +37,7 @@ namespace DotFlag.BusinessLayer.Services
             {
                 Image = image,
                 Name = containerName,
+                User = "nobody",
                 HostConfig = new HostConfig
                 {
                     PortBindings = new Dictionary<string, IList<PortBinding>>
@@ -47,6 +48,13 @@ namespace DotFlag.BusinessLayer.Services
                         }
                     },
                     AutoRemove = false,
+                    NetworkMode = "ctf_net",
+                    SecurityOpt = new List<string> { "no-new-privileges:true" },
+                    CapDrop = new List<string> { "ALL" },
+                    CapAdd = new List<string> { "CHOWN", "SETGID", "SETUID" },
+                    Memory = 512L * 1024 * 1024,
+                    NanoCPUs = 500_000_000L,
+                    RestartPolicy = new RestartPolicy { Name = RestartPolicyKind.UnlessStopped },
                 },
                 ExposedPorts = new Dictionary<string, EmptyStruct>
                 {
@@ -78,6 +86,28 @@ namespace DotFlag.BusinessLayer.Services
             using var client = CreateClient();
             await client.Containers.RestartContainerAsync(
                 containerId, new ContainerRestartParameters { WaitBeforeKillSeconds = 5 });
+        }
+
+        public async Task<List<string>> GetAvailableImages()
+        {
+            using var client = CreateClient();
+            var images = await client.Images.ListImagesAsync(new ImagesListParameters { All = false });
+            return images
+                .SelectMany(i => i.RepoTags ?? new List<string>())
+                .Where(t => !t.StartsWith("<none>"))
+                .OrderBy(t => t)
+                .ToList();
+        }
+
+        public async Task<int> Ping()
+        {
+            var httpHost = _host.Replace("tcp://", "http://");
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var response = await http.GetAsync($"{httpHost}/_ping");
+            response.EnsureSuccessStatusCode();
+            sw.Stop();
+            return (int)sw.ElapsedMilliseconds;
         }
 
         public async Task<string> GetLogs(string containerId, int tailLines = 200)

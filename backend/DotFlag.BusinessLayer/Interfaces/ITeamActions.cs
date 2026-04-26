@@ -13,6 +13,8 @@ namespace DotFlag.BusinessLayer.Interfaces
         ActionResponse Join(int userId, JoinTeamDto dto);
         ActionResponse Create(int userId, CreateTeamDto dto);
         ActionResponse Update(int id, UpdateTeamDto dto);
+        ActionResponse Rename(int teamId, int userId, string name);
+        ActionResponse TransferLeadership(int teamId, int actorId, int targetMemberId);
         ActionResponse Disband(int id, int userId, UserRole role);
         ActionResponse RegenerateInvite(int teamId, int userId);
         ActionResponse Leave(int teamId, int userId);

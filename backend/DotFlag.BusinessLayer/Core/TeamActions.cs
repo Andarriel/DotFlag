@@ -96,10 +96,16 @@ namespace DotFlag.BusinessLayer.Core
             if (ids.Count == 0) return new Dictionary<int, int>();
 
             return context.Submissions
-                .Where(s => s.IsCorrect && s.Challenge.IsActive && ids.Contains(s.UserId))
+                .Where(s => s.IsCorrect && ids.Contains(s.UserId))
+                .Select(s => new
+                {
+                    s.UserId,
+                    ActivePoints = s.Challenge.IsActive ? s.Challenge.CurrentPoints + s.BonusPoints : 0,
+                    s.CompensationPoints
+                })
+                .ToList()
                 .GroupBy(s => s.UserId)
-                .Select(g => new { UserId = g.Key, Score = g.Sum(s => s.Challenge.CurrentPoints + s.BonusPoints) })
-                .ToDictionary(x => x.UserId, x => x.Score);
+                .ToDictionary(g => g.Key, g => g.Sum(s => s.ActivePoints + s.CompensationPoints));
         }
 
         private void PopulateMemberPoints(AppDbContext context, IEnumerable<TeamDto> teams)
@@ -337,6 +343,70 @@ namespace DotFlag.BusinessLayer.Core
             context.SaveChanges();
 
             return new ActionResponse { IsSuccess = true, Message = "Team updated successfully." };
+        }
+
+        protected ActionResponse RenameExecution(int teamId, int userId, string name)
+        {
+            using var context = new AppDbContext();
+
+            var user = context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (user.TeamId != teamId || user.TeamRole != TeamRole.Leader)
+                return new ActionResponse { IsSuccess = false, Message = "Only the team leader can rename the team." };
+
+            var team = context.Teams.FirstOrDefault(t => t.Id == teamId);
+            if (team == null)
+                return new ActionResponse { IsSuccess = false, Message = "Team not found." };
+
+            if (string.IsNullOrWhiteSpace(name) || name.Length < 3 || name.Length > 25)
+                return new ActionResponse { IsSuccess = false, Message = "Team name must be between 3 and 25 characters." };
+
+            team.Name = name.Trim();
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Team renamed successfully." };
+        }
+
+        protected ActionResponse TransferLeadershipExecution(int teamId, int actorId, int targetMemberId)
+        {
+            using var context = new AppDbContext();
+
+            var actor = context.Users.FirstOrDefault(u => u.Id == actorId);
+            if (actor == null)
+                return new ActionResponse { IsSuccess = false, Message = "User not found." };
+
+            if (actor.TeamId != teamId || actor.TeamRole != TeamRole.Leader)
+                return new ActionResponse { IsSuccess = false, Message = "Only the team leader can transfer leadership." };
+
+            if (actorId == targetMemberId)
+                return new ActionResponse { IsSuccess = false, Message = "You are already the leader." };
+
+            var target = context.Users.FirstOrDefault(u => u.Id == targetMemberId);
+            if (target == null)
+                return new ActionResponse { IsSuccess = false, Message = "Member not found." };
+
+            if (target.TeamId != teamId)
+                return new ActionResponse { IsSuccess = false, Message = "This user is not in your team." };
+
+            actor.TeamRole = TeamRole.Member;
+            target.TeamRole = TeamRole.Leader;
+            context.SaveChanges();
+
+            var teamName = context.Teams.Where(t => t.Id == teamId).Select(t => t.Name).FirstOrDefault();
+
+            context.Notifications.Add(new NotificationData
+            {
+                Title = "You are now Team Leader",
+                Message = $"You have been made the leader of {teamName ?? "your team"}.",
+                Type = "teamJoined",
+                UserId = targetMemberId,
+                CreatedOn = DateTime.UtcNow
+            });
+            context.SaveChanges();
+
+            return new ActionResponse { IsSuccess = true, Message = "Leadership transferred successfully." };
         }
 
         protected TeamDetailsDto GetTeamDetailsExecution(int userId)

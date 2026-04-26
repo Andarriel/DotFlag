@@ -13,9 +13,11 @@ import type { ChallengeDetail, Submission } from '../../types';
 interface ChallengeModalProps {
   challenge: ChallengeDetail | null;
   onClose: () => void;
+  runningChallengeId?: number | null;
+  onRunningChange?: (id: number | null) => void;
 }
 
-export default function ChallengeModal({ challenge, onClose }: ChallengeModalProps) {
+export default function ChallengeModal({ challenge, onClose, runningChallengeId, onRunningChange }: ChallengeModalProps) {
   const api = useAxios();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
@@ -63,7 +65,13 @@ export default function ChallengeModal({ challenge, onClose }: ChallengeModalPro
         <div className="space-y-4 p-5 pt-12 sm:p-6 sm:pt-14">
           <ChallengeInfo challenge={challenge} onSubmit={refetchSubmissions} />
           <FileAttachments files={challenge.files} challengeId={challenge.id} />
-          {challenge.dockerImage && <DockerInstance challengeId={challenge.id} />}
+          {challenge.hasInstance && (
+            <DockerInstance
+              challengeId={challenge.id}
+              runningChallengeId={runningChallengeId}
+              onInstanceChange={onRunningChange}
+            />
+          )}
           <SubmissionHistory submissions={submissions} />
         </div>
       </div>

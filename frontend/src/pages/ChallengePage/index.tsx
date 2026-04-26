@@ -9,6 +9,7 @@ import ChallengeCard from '../../components/challenges/ChallengeCard';
 import ChallengeModal from '../../components/challenges/ChallengeModal';
 import { useChallenges } from '../../hooks/useChallenges';
 import { challengeService } from '../../services/challengeService';
+import { instanceService } from '../../services/instanceService';
 import { useAxios } from '../../context/AxiosContext';
 import { USE_MOCK } from '../../config';
 import { MOCK_CHALLENGE_DETAILS } from '../../data/mockData';
@@ -22,7 +23,15 @@ export default function ChallengePage() {
   const api = useAxios();
   const { selectedCategory, setSelectedCategory, selectedDifficulty, setSelectedDifficulty, filteredChallenges, stats, loading, challenges } = useChallenges();
   const [selectedChallenge, setSelectedChallenge] = useState<ChallengeDetail | null>(null);
+  const [runningChallengeId, setRunningChallengeId] = useState<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (USE_MOCK) return;
+    instanceService.getMyInstance(api).then(inst => {
+      setRunningChallengeId(inst?.challengeId ?? null);
+    });
+  }, [api]);
 
   const openChallenge = async (id: number) => {
     if (USE_MOCK) {
@@ -36,7 +45,7 @@ export default function ChallengePage() {
       const hints = (apiChallenge.hints ?? []).map(h => ({ id: h.id, content: h.content, order: h.order }));
       const files = (apiChallenge.files ?? []).map(f => ({ id: f.id, fileName: f.fileName }));
       const detail = challengeToDetail(
-        { id: apiChallenge.id, title: apiChallenge.name, description: apiChallenge.description, points: apiChallenge.currentPoints, category: (apiChallenge.category as unknown as string) as Challenge['category'], difficulty: (apiChallenge.difficulty as unknown as string) as Challenge['difficulty'], isActive: apiChallenge.isActive, isSolved: apiChallenge.isSolved, solveCount: apiChallenge.solveCount, firstBloodBonus: apiChallenge.firstBloodBonus },
+        { id: apiChallenge.id, title: apiChallenge.name, description: apiChallenge.description, points: apiChallenge.currentPoints, category: (apiChallenge.category as unknown as string) as Challenge['category'], difficulty: (apiChallenge.difficulty as unknown as string) as Challenge['difficulty'], isActive: apiChallenge.isActive, isSolved: apiChallenge.isSolved, solveCount: apiChallenge.solveCount, firstBloodBonus: apiChallenge.firstBloodBonus, hasInstance: apiChallenge.hasInstance },
         apiChallenge.solveCount,
         hints,
         files,
@@ -81,7 +90,12 @@ export default function ChallengePage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredChallenges.map(challenge => (
-                <ChallengeCard key={challenge.id} challenge={challenge} onClick={() => openChallenge(challenge.id)} />
+                <ChallengeCard
+                  key={challenge.id}
+                  challenge={challenge}
+                  onClick={() => openChallenge(challenge.id)}
+                  isContainerRunning={challenge.id === runningChallengeId}
+                />
               ))}
             </div>
 
@@ -92,7 +106,12 @@ export default function ChallengePage() {
         )}
       </div>
 
-      <ChallengeModal challenge={selectedChallenge} onClose={() => setSelectedChallenge(null)} />
+      <ChallengeModal
+        challenge={selectedChallenge}
+        onClose={() => setSelectedChallenge(null)}
+        runningChallengeId={runningChallengeId}
+        onRunningChange={setRunningChallengeId}
+      />
     </div>
   );
 }

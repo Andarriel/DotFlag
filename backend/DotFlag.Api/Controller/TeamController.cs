@@ -101,6 +101,30 @@ namespace DotFlag.Api.Controller
             return Ok(result);
         }
 
+        [HttpPost("{id}/rename")]
+        public IActionResult Rename(int id, [FromBody] UpdateTeamDto dto)
+        {
+            int userId = User.GetId();
+            var result = _teamActions.Rename(id, userId, dto.Name);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/transfer/{memberId}")]
+        public IActionResult TransferLeadership(int id, int memberId)
+        {
+            int userId = User.GetId();
+            var result = _teamActions.TransferLeadership(id, userId, memberId);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Owner")]
         public IActionResult Update(int id, [FromBody] UpdateTeamDto dto)

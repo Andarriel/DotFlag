@@ -9,26 +9,41 @@ namespace DotFlag.BusinessLayer.Core
         {
             using var context = new AppDbContext();
 
-            var entries = context.Submissions
-                .Where(s => s.IsCorrect && s.Challenge.IsActive && !s.User.IsBanned)
+            // Materialise so we can use the conditional score formula safely
+            var raw = context.Submissions
+                .Where(s => s.IsCorrect && !s.User.IsBanned)
+                .Select(s => new
+                {
+                    s.UserId,
+                    Username      = s.User.Username,
+                    ActivePoints  = s.Challenge.IsActive ? s.Challenge.CurrentPoints + s.BonusPoints : 0,
+                    s.CompensationPoints,
+                    IsActiveSolve = s.Challenge.IsActive,
+                    Timestamp     = s.CreatedOn
+                })
+                .ToList();
+
+            var entries = raw
                 .GroupBy(s => s.UserId)
                 .Select(g => new
                 {
-                    UserId = g.Key,
-                    Username = g.First().User.Username,
-                    Score = g.Sum(s => s.Challenge.CurrentPoints + s.BonusPoints),
-                    SolvesCount = g.Count(),
-                    LastSolveAt = g.Max(s => s.CreatedOn)
+                    UserId      = g.Key,
+                    Username    = g.First().Username,
+                    Score       = g.Sum(s => s.ActivePoints + s.CompensationPoints),
+                    SolvesCount = g.Count(s => s.IsActiveSolve),
+                    LastSolveAt = g.Where(s => s.IsActiveSolve).Select(s => (DateTime?)s.Timestamp).Max()
+                                  ?? g.Max(s => s.Timestamp)
                 })
+                .Where(e => e.Score > 0)
                 .OrderByDescending(e => e.Score)
                 .ThenBy(e => e.LastSolveAt)
                 .ToList()
                 .Select((e, i) => new LeaderboardEntryDto
                 {
-                    Rank = i + 1,
-                    UserId = e.UserId,
-                    Username = e.Username,
-                    Score = e.Score,
+                    Rank        = i + 1,
+                    UserId      = e.UserId,
+                    Username    = e.Username,
+                    Score       = e.Score,
                     SolvesCount = e.SolvesCount,
                     LastSolveAt = e.LastSolveAt
                 })
@@ -41,17 +56,18 @@ namespace DotFlag.BusinessLayer.Core
         {
             using var context = new AppDbContext();
 
+            // Progress chart shows only active-challenge solves (compensation has no solve timestamp)
             var submissions = context.Submissions
                 .Where(s => s.IsCorrect && s.Challenge.IsActive && !s.User.IsBanned)
                 .OrderBy(s => s.CreatedOn)
                 .Select(s => new
                 {
                     s.UserId,
-                    Username = s.User.Username,
-                    Points = s.Challenge.CurrentPoints + s.BonusPoints,
-                    ChallengeName = s.Challenge.Name,
+                    Username        = s.User.Username,
+                    Points          = s.Challenge.CurrentPoints + s.BonusPoints,
+                    ChallengeName   = s.Challenge.Name,
                     ChallengePoints = s.Challenge.CurrentPoints + s.BonusPoints,
-                    Timestamp = s.CreatedOn
+                    Timestamp       = s.CreatedOn
                 })
                 .ToList();
 
@@ -65,16 +81,16 @@ namespace DotFlag.BusinessLayer.Core
                         cumulative += s.Points;
                         return new LeaderboardProgressPointDto
                         {
-                            Timestamp = s.Timestamp,
-                            Points = cumulative,
-                            ChallengeName = s.ChallengeName,
+                            Timestamp       = s.Timestamp,
+                            Points          = cumulative,
+                            ChallengeName   = s.ChallengeName,
                             ChallengePoints = s.ChallengePoints
                         };
                     }).ToList();
 
                     return new LeaderboardProgressDto
                     {
-                        UserId = g.Key,
+                        UserId   = g.Key,
                         Username = g.First().Username,
                         Progress = progress
                     };
@@ -93,12 +109,12 @@ namespace DotFlag.BusinessLayer.Core
                 .OrderBy(s => s.CreatedOn)
                 .Select(s => new
                 {
-                    TeamId = s.User.TeamId!.Value,
-                    TeamName = s.User.Team!.Name,
-                    Points = s.Challenge.CurrentPoints + s.BonusPoints,
-                    ChallengeName = s.Challenge.Name,
+                    TeamId          = s.User.TeamId!.Value,
+                    TeamName        = s.User.Team!.Name,
+                    Points          = s.Challenge.CurrentPoints + s.BonusPoints,
+                    ChallengeName   = s.Challenge.Name,
                     ChallengePoints = s.Challenge.CurrentPoints + s.BonusPoints,
-                    Timestamp = s.CreatedOn
+                    Timestamp       = s.CreatedOn
                 })
                 .ToList();
 
@@ -112,16 +128,16 @@ namespace DotFlag.BusinessLayer.Core
                         cumulative += s.Points;
                         return new LeaderboardProgressPointDto
                         {
-                            Timestamp = s.Timestamp,
-                            Points = cumulative,
-                            ChallengeName = s.ChallengeName,
+                            Timestamp       = s.Timestamp,
+                            Points          = cumulative,
+                            ChallengeName   = s.ChallengeName,
                             ChallengePoints = s.ChallengePoints
                         };
                     }).ToList();
 
                     return new LeaderboardProgressDto
                     {
-                        UserId = g.Key,
+                        UserId   = g.Key,
                         Username = g.First().TeamName,
                         Progress = progress
                     };
@@ -135,27 +151,42 @@ namespace DotFlag.BusinessLayer.Core
         {
             using var context = new AppDbContext();
 
-            var entries = context.Submissions
-                .Where(s => s.IsCorrect && s.Challenge.IsActive && !s.User.IsBanned && s.User.TeamId != null)
-                .GroupBy(s => s.User.TeamId!.Value)
+            var raw = context.Submissions
+                .Where(s => s.IsCorrect && !s.User.IsBanned && s.User.TeamId != null)
+                .Select(s => new
+                {
+                    TeamId        = s.User.TeamId!.Value,
+                    TeamName      = s.User.Team!.Name,
+                    s.UserId,
+                    ActivePoints  = s.Challenge.IsActive ? s.Challenge.CurrentPoints + s.BonusPoints : 0,
+                    s.CompensationPoints,
+                    IsActiveSolve = s.Challenge.IsActive,
+                    Timestamp     = s.CreatedOn
+                })
+                .ToList();
+
+            var entries = raw
+                .GroupBy(s => s.TeamId)
                 .Select(g => new
                 {
-                    TeamId = g.Key,
-                    TeamName = g.First().User.Team!.Name,
-                    Score = g.Sum(s => s.Challenge.CurrentPoints + s.BonusPoints),
-                    SolvesCount = g.Count(),
+                    TeamId      = g.Key,
+                    TeamName    = g.First().TeamName,
+                    Score       = g.Sum(s => s.ActivePoints + s.CompensationPoints),
+                    SolvesCount = g.Count(s => s.IsActiveSolve),
                     MemberCount = g.Select(s => s.UserId).Distinct().Count(),
-                    LastSolveAt = g.Max(s => s.CreatedOn)
+                    LastSolveAt = g.Where(s => s.IsActiveSolve).Select(s => (DateTime?)s.Timestamp).Max()
+                                  ?? g.Max(s => s.Timestamp)
                 })
+                .Where(e => e.Score > 0)
                 .OrderByDescending(e => e.Score)
                 .ThenBy(e => e.LastSolveAt)
                 .ToList()
                 .Select((e, i) => new TeamLeaderboardEntryDto
                 {
-                    Rank = i + 1,
-                    TeamId = e.TeamId,
-                    TeamName = e.TeamName,
-                    Score = e.Score,
+                    Rank        = i + 1,
+                    TeamId      = e.TeamId,
+                    TeamName    = e.TeamName,
+                    Score       = e.Score,
                     SolvesCount = e.SolvesCount,
                     MemberCount = e.MemberCount,
                     LastSolveAt = e.LastSolveAt

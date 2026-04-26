@@ -1,4 +1,5 @@
 using DotFlag.Api.Extensions;
+using DotFlag.Api.Filters;
 using DotFlag.BusinessLayer;
 using DotFlag.BusinessLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,15 @@ namespace DotFlag.Api.Controller
             _instanceActions = bl.GetChallengeInstanceActions();
         }
 
+        [HttpGet("~/api/challenges/my-instance")]
+        public IActionResult GetMyInstance()
+        {
+            var result = _instanceActions.GetMyInstance(User.GetId());
+            if (result == null)
+                return NotFound();
+            return Ok(result);
+        }
+
         [HttpGet]
         public IActionResult GetInstance(int challengeId)
         {
@@ -29,6 +39,7 @@ namespace DotFlag.Api.Controller
         }
 
         [HttpPost]
+        [RequireCtfRunning]
         public async Task<IActionResult> StartInstance(int challengeId)
         {
             var (response, dto) = await _instanceActions.StartInstance(challengeId, User.GetId());
@@ -41,6 +52,16 @@ namespace DotFlag.Api.Controller
         public async Task<IActionResult> StopInstance(int challengeId)
         {
             var response = await _instanceActions.StopInstance(challengeId, User.GetId());
+            if (!response.IsSuccess)
+                return BadRequest(response);
+            return Ok(response);
+        }
+
+        [HttpPost("restart")]
+        [RequireCtfRunning]
+        public async Task<IActionResult> RestartInstance(int challengeId)
+        {
+            var response = await _instanceActions.RestartInstance(challengeId, User.GetId());
             if (!response.IsSuccess)
                 return BadRequest(response);
             return Ok(response);

@@ -68,5 +68,19 @@ namespace DotFlag.Api.Controller
                 return BadRequest(result);
             return Ok(result);
         }
+
+        [HttpGet("images")]
+        public async Task<IActionResult> GetImages()
+        {
+            var images = await _dockerAdmin.GetAvailableImages();
+            return Ok(images);
+        }
+
+        [HttpGet("ping")]
+        public async Task<IActionResult> PingDocker()
+        {
+            var (reachable, latencyMs) = await _dockerAdmin.PingDocker();
+            return Ok(new { reachable, latencyMs });
+        }
     }
 }

@@ -13,7 +13,13 @@ namespace DotFlag.BusinessLayer.Structure
         public Task<ActionResponse> StopInstance(int challengeId, int userId) =>
             StopInstanceExecution(challengeId, userId);
 
+        public Task<ActionResponse> RestartInstance(int challengeId, int userId) =>
+            RestartInstanceExecution(challengeId, userId);
+
         public ChallengeInstanceDto? GetInstance(int challengeId, int userId) =>
             GetInstanceExecution(challengeId, userId);
+
+        public ChallengeInstanceDto? GetMyInstance(int userId) =>
+            GetMyInstanceExecution(userId);
     }
 }
