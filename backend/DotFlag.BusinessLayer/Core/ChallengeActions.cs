@@ -84,6 +84,16 @@ namespace DotFlag.BusinessLayer.Core
 
             AuditLog.Log(actorId, AuditAction.ChallengeCreated, "Challenge", challenge.Id, $"name={challenge.Name}");
 
+            context.Notifications.Add(new NotificationData
+            {
+                Title = "New Challenge Available",
+                Message = $"\"{challenge.Name}\" has been added. Good luck!",
+                Type = "challengeAdded",
+                CreatedOn = DateTime.UtcNow,
+                UserId = null
+            });
+            context.SaveChanges();
+
             return new ActionResponse { IsSuccess = true, Message = "Challenge created successfully." };
         }
 
@@ -98,6 +108,9 @@ namespace DotFlag.BusinessLayer.Core
 
             bool wasActive = challenge.IsActive;
             bool flagChanged = !string.IsNullOrEmpty(dto.Flag);
+            bool pointsChanged = challenge.MaxPoints != dto.MaxPoints
+                || challenge.MinPoints != dto.MinPoints
+                || challenge.DecayRate != dto.DecayRate;
 
             challenge.Name = dto.Name;
             challenge.Description = dto.Description;
@@ -111,6 +124,7 @@ namespace DotFlag.BusinessLayer.Core
             challenge.HasInstance = dto.HasInstance;
             challenge.DockerImage = dto.HasInstance ? dto.DockerImage : null;
             challenge.ContainerPort = dto.HasInstance ? dto.ContainerPort : null;
+            challenge.ContainerTimeoutMinutes = dto.HasInstance ? dto.ContainerTimeoutMinutes : null;
 
             if (flagChanged)
                 challenge.FlagHash = BCrypt.Net.BCrypt.HashPassword(dto.Flag);
@@ -124,6 +138,17 @@ namespace DotFlag.BusinessLayer.Core
             {
                 AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name}");
 
+                // Global notification for all users
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "Challenge Deactivated",
+                    Message = $"\"{challenge.Name}\" has been deactivated and is no longer available.",
+                    Type = "challengeDeactivated",
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = null
+                });
+
+                // Per-solver notification explaining score impact
                 var solverIds = context.Submissions
                     .Where(s => s.ChallengeId == id && s.IsCorrect)
                     .Select(s => s.UserId)
@@ -134,19 +159,43 @@ namespace DotFlag.BusinessLayer.Core
                 {
                     context.Notifications.Add(new NotificationData
                     {
-                        Title = "Challenge Deactivated",
-                        Message = $"Challenge \"{challenge.Name}\" has been deactivated. Points from this challenge no longer count toward your score.",
+                        Title = "Score Impact",
+                        Message = $"Points from \"{challenge.Name}\" no longer count toward your score.",
                         Type = "challengeDeactivated",
                         CreatedOn = DateTime.UtcNow,
                         UserId = uid
                     });
                 }
-                if (solverIds.Count > 0) context.SaveChanges();
+                context.SaveChanges();
             }
             else if (!wasActive && dto.IsActive)
+            {
                 AuditLog.Log(actorId, AuditAction.ChallengeEnabled, "Challenge", id, $"name={challenge.Name}");
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "Challenge Available",
+                    Message = $"\"{challenge.Name}\" is now available. Good luck!",
+                    Type = "challengeAdded",
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = null
+                });
+                context.SaveChanges();
+            }
             else
                 AuditLog.Log(actorId, AuditAction.ChallengeUpdated, "Challenge", id, $"name={challenge.Name}");
+
+            if (pointsChanged && dto.IsActive)
+            {
+                context.Notifications.Add(new NotificationData
+                {
+                    Title = "Challenge Points Updated",
+                    Message = $"Scoring for \"{challenge.Name}\" has been adjusted.",
+                    Type = "challengePointsChanged",
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = null
+                });
+                context.SaveChanges();
+            }
 
             if (flagChanged)
                 AuditLog.Log(actorId, AuditAction.FlagChanged, "Challenge", id, $"name={challenge.Name}");
@@ -183,6 +232,7 @@ namespace DotFlag.BusinessLayer.Core
                 HasInstance = source.HasInstance,
                 DockerImage = source.DockerImage,
                 ContainerPort = source.ContainerPort,
+                ContainerTimeoutMinutes = source.ContainerTimeoutMinutes,
             };
 
             context.Challenges.Add(clone);
@@ -216,6 +266,17 @@ namespace DotFlag.BusinessLayer.Core
             challenge.IsActive = false;
             context.SaveChanges();
 
+            // Global notification
+            context.Notifications.Add(new NotificationData
+            {
+                Title = "Challenge Removed",
+                Message = $"\"{challenge.Name}\" has been removed and is no longer available.",
+                Type = "challengeDeactivated",
+                CreatedOn = DateTime.UtcNow,
+                UserId = null
+            });
+
+            // Per-solver score impact notification
             var solverIds = context.Submissions
                 .Where(s => s.ChallengeId == id && s.IsCorrect)
                 .Select(s => s.UserId)
@@ -226,14 +287,14 @@ namespace DotFlag.BusinessLayer.Core
             {
                 context.Notifications.Add(new NotificationData
                 {
-                    Title = "Challenge Removed",
-                    Message = $"Challenge \"{challenge.Name}\" has been removed. Points from this challenge no longer count toward your score.",
+                    Title = "Score Impact",
+                    Message = $"Points from \"{challenge.Name}\" no longer count toward your score.",
                     Type = "challengeDeactivated",
                     CreatedOn = DateTime.UtcNow,
                     UserId = uid
                 });
             }
-            if (solverIds.Count > 0) context.SaveChanges();
+            context.SaveChanges();
 
             AuditLog.Log(actorId, AuditAction.ChallengeDisabled, "Challenge", id, $"name={challenge.Name};reason=delete");
 

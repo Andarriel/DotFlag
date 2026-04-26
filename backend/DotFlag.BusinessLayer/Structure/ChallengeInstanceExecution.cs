@@ -18,5 +18,8 @@ namespace DotFlag.BusinessLayer.Structure
 
         public ChallengeInstanceDto? GetInstance(int challengeId, int userId) =>
             GetInstanceExecution(challengeId, userId);
+
+        public ChallengeInstanceDto? GetMyInstance(int userId) =>
+            GetMyInstanceExecution(userId);
     }
 }

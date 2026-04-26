@@ -20,6 +20,15 @@ namespace DotFlag.Api.Controller
             _instanceActions = bl.GetChallengeInstanceActions();
         }
 
+        [HttpGet("~/api/challenges/my-instance")]
+        public IActionResult GetMyInstance()
+        {
+            var result = _instanceActions.GetMyInstance(User.GetId());
+            if (result == null)
+                return NotFound();
+            return Ok(result);
+        }
+
         [HttpGet]
         public IActionResult GetInstance(int challengeId)
         {

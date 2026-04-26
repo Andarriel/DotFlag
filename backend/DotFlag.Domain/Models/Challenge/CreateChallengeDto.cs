@@ -33,6 +33,8 @@ namespace DotFlag.Domain.Models.Challenge
         public string? DockerImage { get; set; }
 
         public int? ContainerPort { get; set; }
+
+        public int? ContainerTimeoutMinutes { get; set; }
     }
 
 }

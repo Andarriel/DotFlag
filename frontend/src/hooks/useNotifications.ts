@@ -9,6 +9,8 @@ const TOAST_FN: Record<string, 'firstBlood' | 'info' | 'warning'> = {
   announcement: 'info',
   system: 'warning',
   challengeDeactivated: 'warning',
+  challengeAdded: 'info',
+  challengePointsChanged: 'info',
   teamJoined: 'info',
   teamLeft: 'info',
   teamKicked: 'warning',

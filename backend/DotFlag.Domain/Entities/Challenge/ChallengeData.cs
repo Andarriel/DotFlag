@@ -51,6 +51,8 @@ namespace DotFlag.Domain.Entities.Challenge
 
         public int? ContainerPort { get; set; }
 
+        public int? ContainerTimeoutMinutes { get; set; }
+
         [InverseProperty("Challenge")]
         public ICollection<SubmissionData> Submissions { get; set; } = new List<SubmissionData>();
 

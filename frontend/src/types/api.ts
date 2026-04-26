@@ -100,6 +100,7 @@ export interface ApiChallenge {
   hasInstance: boolean;
   dockerImage: string | null;
   containerPort: number | null;
+  containerTimeoutMinutes: number | null;
   hints: ApiHint[];
   files: ApiChallengeFile[];
   createdOn: string;
@@ -118,6 +119,7 @@ export interface CreateChallengePayload {
   hasInstance?: boolean;
   dockerImage?: string;
   containerPort?: number;
+  containerTimeoutMinutes?: number;
 }
 
 export interface UpdateChallengePayload {
@@ -134,6 +136,7 @@ export interface UpdateChallengePayload {
   hasInstance?: boolean;
   dockerImage?: string;
   containerPort?: number;
+  containerTimeoutMinutes?: number;
 }
 
 export interface ApiChallengeInstance {
