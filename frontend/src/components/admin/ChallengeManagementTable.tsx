@@ -244,7 +244,7 @@ export default function ChallengeManagementTable() {
 
   const isFormValid = () => {
     if (!form.name || !form.description) return false;
-    if (!form.flag) return false;
+    if (editingId === null && !form.flag) return false;
     if (form.hasInstance && !form.containerPort) return false;
     return true;
   };
@@ -383,8 +383,11 @@ export default function ChallengeManagementTable() {
             </div>
           </div>
           <div>
-            <label className={labelClass}>Flag <span className="text-red-400">*</span></label>
-            <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder="dotflag{your_flag_here}" />
+            <label className={labelClass}>
+              Flag {editingId === null && <span className="text-red-400">*</span>}
+              {editingId !== null && <span className="text-slate-600 normal-case tracking-normal font-normal ml-1">(leave blank to keep existing)</span>}
+            </label>
+            <input type="text" value={form.flag} onChange={e => setForm(f => ({ ...f, flag: e.target.value }))} className={`${inputClass} font-mono`} placeholder={editingId !== null ? 'Unchanged' : 'dotflag{your_flag_here}'} />
           </div>
           <div className="border-t border-white/[0.06] pt-4">
             <label className="flex items-center gap-3 cursor-pointer">
