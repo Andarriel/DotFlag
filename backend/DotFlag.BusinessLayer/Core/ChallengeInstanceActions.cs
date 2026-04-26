@@ -21,6 +21,11 @@ namespace DotFlag.BusinessLayer.Core
             if (!challenge.HasInstance || string.IsNullOrEmpty(challenge.DockerImage) || !challenge.ContainerPort.HasValue)
                 return (new ActionResponse { IsSuccess = false, Message = "This challenge does not support Docker instances." }, null);
 
+            var hasSolved = context.Submissions
+                .Any(s => s.UserId == userId && s.ChallengeId == challengeId && s.IsCorrect);
+            if (hasSolved)
+                return (new ActionResponse { IsSuccess = false, Message = "You have already solved this challenge." }, null);
+
             var existing = context.ChallengeInstances
                 .FirstOrDefault(i => i.UserId == userId && i.Status == "running");
             if (existing != null)
