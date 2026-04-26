@@ -23,4 +23,10 @@ export const teamService = {
 
   removeMember: (api: AxiosInstance, teamId: number, memberId: number) =>
     api.delete<ActionResponse>(`/teams/${teamId}/members/${memberId}`).then(res => res.data),
+
+  rename: (api: AxiosInstance, teamId: number, name: string) =>
+    api.post<ActionResponse>(`/teams/${teamId}/rename`, { name }).then(res => res.data),
+
+  transferLeadership: (api: AxiosInstance, teamId: number, memberId: number) =>
+    api.post<ActionResponse>(`/teams/${teamId}/transfer/${memberId}`).then(res => res.data),
 };

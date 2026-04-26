@@ -22,6 +22,8 @@ interface TeamContextType {
   disbandTeam: () => Promise<void>;
   regenerateInvite: () => Promise<void>;
   removeMember: (memberId: number) => Promise<void>;
+  renameTeam: (name: string) => Promise<boolean>;
+  transferLeadership: (memberId: number) => Promise<boolean>;
 }
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
@@ -153,6 +155,44 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
   const isLeader = !!team && !!user &&
     team.members.some(m => m.id === user.id && m.teamRole === 'Leader');
 
+  const renameTeam = async (name: string): Promise<boolean> => {
+    if (!team) return false;
+    if (USE_MOCK) { setTeam(prev => prev ? { ...prev, name } : null); toast.success('Team renamed (mock)'); return true; }
+    try {
+      const res = await teamService.rename(api, team.id, name);
+      if (res.isSuccess) {
+        toast.success('Team renamed');
+        setTeam(prev => prev ? { ...prev, name } : null);
+        return true;
+      } else {
+        toast.error(res.message);
+        return false;
+      }
+    } catch {
+      toast.error('Failed to rename team');
+      return false;
+    }
+  };
+
+  const transferLeadership = async (memberId: number): Promise<boolean> => {
+    if (!team) return false;
+    if (USE_MOCK) { toast.success('Leadership transferred (mock)'); return true; }
+    try {
+      const res = await teamService.transferLeadership(api, team.id, memberId);
+      if (res.isSuccess) {
+        toast.success('Leadership transferred');
+        fetchTeam();
+        return true;
+      } else {
+        toast.error(res.message);
+        return false;
+      }
+    } catch {
+      toast.error('Failed to transfer leadership');
+      return false;
+    }
+  };
+
   const removeMember = async (memberId: number) => {
     if (!team) return;
     if (USE_MOCK) { toast.success('Member removed (mock)'); return; }
@@ -170,7 +210,7 @@ export const TeamProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <TeamContext.Provider value={{ team, loading, isLeader, refresh: fetchTeam, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam, regenerateInvite, removeMember }}>
+    <TeamContext.Provider value={{ team, loading, isLeader, refresh: fetchTeam, inviteCode, setInviteCode, copied, copyInviteCode, joinTeam, createTeam, leaveTeam, disbandTeam, regenerateInvite, removeMember, renameTeam, transferLeadership }}>
       {children}
     </TeamContext.Provider>
   );
