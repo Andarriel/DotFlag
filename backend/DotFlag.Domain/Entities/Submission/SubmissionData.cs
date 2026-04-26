@@ -30,5 +30,11 @@ public class SubmissionData
 
     public int BonusPoints { get; set; }
 
+    /// <summary>
+    /// Compensation points granted when the challenge was deactivated/deleted.
+    /// Counted in the user's score even when the challenge is inactive.
+    /// </summary>
+    public int CompensationPoints { get; set; } = 0;
+
     public DateTime CreatedOn { get; set; }
 }
