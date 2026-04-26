@@ -180,6 +180,13 @@ export interface ApiDockerPing {
   latencyMs: number | null;
 }
 
+export type CompensationType = 0 | 1 | 2; // 0=None, 1=Percentage, 2=Fixed
+
+export interface DeactivateChallengePayload {
+  compensationType: CompensationType;
+  compensationValue: number;
+}
+
 export interface FlagSubmission {
   flag: string;
 }

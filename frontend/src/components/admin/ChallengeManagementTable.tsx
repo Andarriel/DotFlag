@@ -1,4 +1,4 @@
-import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy, Loader2, RefreshCw } from 'lucide-react';
+import { Plus, ToggleLeft, ToggleRight, Trash2, Pencil, Settings2, Upload, X, Lightbulb, File, Copy, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getDifficultyColor } from '../../utils/challengeUtils';
 import Modal from '../common/Modal';
@@ -8,7 +8,7 @@ import { useAxios } from '../../context/AxiosContext';
 import { useToast } from '../../context/ToastContext';
 import { dockerAdminService } from '../../services/dockerAdminService';
 import type { Challenge, ChallengeCategory, ChallengeDifficulty } from '../../types';
-import type { ApiHint, ApiChallengeFile } from '../../types/api';
+import type { ApiHint, ApiChallengeFile, CompensationType } from '../../types/api';
 
 const CATEGORIES: ChallengeCategory[] = ['Web', 'Crypto', 'Pwn', 'Reverse', 'Misc', 'Forensics', 'OSINT'];
 const DIFFICULTIES: ChallengeDifficulty[] = ['Easy', 'Medium', 'Hard', 'Impossible'];
@@ -81,7 +81,7 @@ const INITIAL_FORM: FormState = {
 };
 
 export default function ChallengeManagementTable() {
-  const { challenges, toggleChallengeActive, createChallenge, updateChallenge, deleteChallenge, cloneChallenge } = useAdminContext();
+  const { challenges, toggleChallengeActive, deactivateChallenge, createChallenge, updateChallenge, deleteChallenge, cloneChallenge } = useAdminContext();
   const api = useAxios();
   const toast = useToast();
   const [showModal, setShowModal] = useState(false);
@@ -92,6 +92,40 @@ export default function ChallengeManagementTable() {
   const [dockerImages, setDockerImages] = useState<string[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   const [manualImage, setManualImage] = useState(false);
+
+  // Deactivate / Delete confirmation with compensation
+  type PendingAction = { challenge: Challenge; kind: 'deactivate' | 'delete' };
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [compType, setCompType] = useState<CompensationType>(0);
+  const [compValue, setCompValue] = useState('50');
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const openPending = (challenge: Challenge, kind: 'deactivate' | 'delete') => {
+    setPendingAction({ challenge, kind });
+    setCompType(0);
+    setCompValue('50');
+  };
+
+  const computedCompPts = () => {
+    if (!pendingAction) return 0;
+    if (compType === 1) return Math.round(pendingAction.challenge.points * +compValue / 100);
+    if (compType === 2) return +compValue || 0;
+    return 0;
+  };
+
+  const handlePendingConfirm = async () => {
+    if (!pendingAction) return;
+    setActionLoading(true);
+    const payload = { compensationType: compType, compensationValue: +compValue || 0 };
+    let ok: boolean;
+    if (pendingAction.kind === 'deactivate') {
+      ok = await deactivateChallenge(pendingAction.challenge.id, payload);
+    } else {
+      ok = await deleteChallenge(pendingAction.challenge.id, payload);
+    }
+    setActionLoading(false);
+    if (ok) setPendingAction(null);
+  };
 
   // Manage modal state
   const [manageId, setManageId] = useState<number | null>(null);
@@ -327,7 +361,10 @@ export default function ChallengeManagementTable() {
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
               {challenges.map(c => (
-                <ChallengeRow key={c.id} challenge={c} onToggleActive={() => toggleChallengeActive(c.id)} onDelete={() => deleteChallenge(c.id)} onEdit={() => openEdit(c)} onManage={() => openManage(c)} onClone={() => cloneChallenge(c.id)} />
+                <ChallengeRow key={c.id} challenge={c}
+                  onToggleActive={() => c.isActive ? openPending(c, 'deactivate') : toggleChallengeActive(c.id)}
+                  onDelete={() => openPending(c, 'delete')}
+                  onEdit={() => openEdit(c)} onManage={() => openManage(c)} onClone={() => cloneChallenge(c.id)} />
               ))}
             </tbody>
           </table>
@@ -541,6 +578,86 @@ export default function ChallengeManagementTable() {
                 <input type="file" className="hidden" onChange={handleUploadFile} />
               </label>
             </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Deactivate / Delete with compensation modal */}
+      <Modal
+        isOpen={pendingAction != null}
+        onClose={() => { if (!actionLoading) setPendingAction(null); }}
+        title={pendingAction?.kind === 'delete' ? 'Delete Challenge' : 'Deactivate Challenge'}
+        onConfirm={handlePendingConfirm}
+        confirmLabel={pendingAction?.kind === 'delete' ? 'Delete' : 'Deactivate'}
+        confirmVariant="danger"
+        confirmLoading={actionLoading}
+      >
+        {pendingAction && (
+          <div className="space-y-4">
+            {/* Summary */}
+            <div className="flex items-start gap-3 p-3 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl">
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-white font-semibold">{pendingAction.challenge.title}</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {pendingAction.challenge.solveCount > 0
+                    ? `${pendingAction.challenge.solveCount} solver${pendingAction.challenge.solveCount !== 1 ? 's' : ''} will be affected`
+                    : 'No solvers yet — no score impact'}
+                </p>
+                {pendingAction.challenge.hasInstance && (
+                  <p className="text-xs text-orange-400 mt-1">All running containers for this challenge will be stopped.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Point handling */}
+            {pendingAction.challenge.solveCount > 0 && (
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Point Handling for Solvers</p>
+                <div className="space-y-2">
+                  {([
+                    { value: 0 as CompensationType, label: 'Remove all points', sublabel: 'Solvers lose all points from this challenge' },
+                    { value: 1 as CompensationType, label: 'Percentage compensation', sublabel: 'Fraction of current challenge value' },
+                    { value: 2 as CompensationType, label: 'Fixed compensation', sublabel: 'Same amount for every solver' },
+                  ] as const).map(opt => (
+                    <label key={opt.value}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
+                        compType === opt.value
+                          ? 'bg-indigo-500/10 border-indigo-500/30'
+                          : 'bg-slate-800/30 border-white/[0.05] hover:border-white/[0.1]'
+                      }`}>
+                      <input type="radio" className="mt-0.5 accent-indigo-500" checked={compType === opt.value}
+                        onChange={() => setCompType(opt.value)} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white">{opt.label}</p>
+                        <p className="text-[11px] text-slate-500">{opt.sublabel}</p>
+                        {compType === opt.value && opt.value !== 0 && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <input
+                              type="number"
+                              value={compValue}
+                              onChange={e => setCompValue(e.target.value)}
+                              min={opt.value === 1 ? 1 : 1}
+                              max={opt.value === 1 ? 100 : undefined}
+                              className="w-24 bg-slate-800/70 border border-white/[0.1] rounded-lg px-2.5 py-1.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                            <span className="text-sm text-slate-400">{opt.value === 1 ? '%' : 'pts'}</span>
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Preview */}
+                <div className="mt-3 flex items-center justify-between px-3 py-2 bg-slate-800/50 rounded-lg">
+                  <span className="text-xs text-slate-500">Each solver receives</span>
+                  <span className={`text-sm font-bold tabular-nums ${computedCompPts() > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {computedCompPts() > 0 ? `+${computedCompPts()} pts` : '0 pts'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Modal>
