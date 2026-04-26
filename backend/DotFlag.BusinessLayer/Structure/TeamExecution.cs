@@ -41,6 +41,16 @@ public class TeamExecution : TeamActions, ITeamActions
         return UpdateExecution(userId, dto);
     }
 
+    public ActionResponse Rename(int teamId, int userId, string name)
+    {
+        return RenameExecution(teamId, userId, name);
+    }
+
+    public ActionResponse TransferLeadership(int teamId, int actorId, int targetMemberId)
+    {
+        return TransferLeadershipExecution(teamId, actorId, targetMemberId);
+    }
+
     public ActionResponse Disband(int id, int userId, UserRole role)
     {
         return DisbandExecution(id, userId, role);

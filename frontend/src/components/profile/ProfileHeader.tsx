@@ -32,9 +32,17 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-bold text-white truncate">{profile.username}</h1>
-              <span className="text-[11px] font-semibold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-500/20">
-                {profile.role}
-              </span>
+              {profile.role && profile.role !== 'User' && profile.role !== 'Guest' && (
+                <span className={`text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${
+                  profile.role === 'Owner'
+                    ? 'bg-red-500/20 text-red-400 border-red-500/20'
+                    : profile.role === 'Admin'
+                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/20'
+                    : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/20'
+                }`}>
+                  {profile.role}
+                </span>
+              )}
             </div>
             <p className="text-sm text-slate-400 mb-4 line-clamp-2">{profile.bio}</p>
 
