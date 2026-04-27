@@ -1,4 +1,5 @@
 ﻿using DotFlag.Domain.Entities.Audit;
+using DotFlag.Domain.Entities.Badge;
 using DotFlag.Domain.Entities.Challenge;
 using DotFlag.Domain.Entities.CtfEvent;
 using DotFlag.Domain.Entities.Docker;
@@ -23,6 +24,7 @@ namespace DotFlag.DataAccessLayer.Context
         public DbSet<CtfEventData> CtfEvents { get; set; }
         public DbSet<ChallengeInstanceData> ChallengeInstances { get; set; }
         public DbSet<DockerSettingsData> DockerSettings { get; set; }
+        public DbSet<UserBadgeData> UserBadges { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -114,6 +116,21 @@ namespace DotFlag.DataAccessLayer.Context
                 .OnDelete(DeleteBehavior.Cascade);
 
             // One active instance per user (unique index on UserId where Status = running is enforced in business logic)
+
+            modelBuilder.Entity<UserBadgeData>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserBadgeData>()
+                .HasOne(b => b.CtfEvent)
+                .WithMany()
+                .HasForeignKey(b => b.CtfEventId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserBadgeData>()
+                .HasIndex(b => b.UserId);
 
             // Docker settings seed
             modelBuilder.Entity<DockerSettingsData>()

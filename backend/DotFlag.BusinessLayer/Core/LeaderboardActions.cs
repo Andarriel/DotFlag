@@ -1,5 +1,7 @@
 using DotFlag.DataAccessLayer.Context;
+using DotFlag.Domain.Entities.Badge;
 using DotFlag.Domain.Models.Leaderboard;
+using Microsoft.EntityFrameworkCore;
 
 namespace DotFlag.BusinessLayer.Core
 {
@@ -48,6 +50,18 @@ namespace DotFlag.BusinessLayer.Core
                     LastSolveAt = e.LastSolveAt
                 })
                 .ToList();
+
+            // Attach top badge per user
+            var userIds = entries.Select(e => e.UserId).ToList();
+            var badges  = context.UserBadges
+                .Where(b => userIds.Contains(b.UserId))
+                .Include(b => b.CtfEvent)
+                .ToList()
+                .GroupBy(b => b.UserId)
+                .ToDictionary(g => g.Key, g => BadgeActions.GetTopBadge(g.ToList()));
+
+            foreach (var e in entries)
+                e.TopBadge = badges.TryGetValue(e.UserId, out var tb) ? tb : null;
 
             return entries;
         }

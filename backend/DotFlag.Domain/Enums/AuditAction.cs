@@ -36,6 +36,11 @@ namespace DotFlag.Domain.Enums
         DockerInstanceStopped = 61,
         DockerInstanceKilled = 62,
 
+        // Badges
+        BadgeAwarded = 70,
+        BadgeRevoked = 71,
+        CtfFinalized = 72,
+
         // System
         SystemCleanup = 90
     }

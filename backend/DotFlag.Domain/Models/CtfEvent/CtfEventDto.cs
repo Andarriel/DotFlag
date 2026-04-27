@@ -17,5 +17,6 @@ namespace DotFlag.Domain.Models.CtfEvent
         public DateTime EndTime { get; set; }
 
         public CtfState State { get; set; }
+        public bool IsFinalized { get; set; }
     }
 }

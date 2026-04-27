@@ -3,13 +3,14 @@ import { MOCK_ADMIN_USERS, MOCK_CHALLENGES, MOCK_DOCKER_IMAGES } from '../data/m
 import { userService } from '../services/userService';
 import { challengeService } from '../services/challengeService';
 import { dockerAdminService } from '../services/dockerAdminService';
+import { badgeService } from '../services/badgeService';
 import { useAxios } from '../context/AxiosContext';
 import { useToast } from '../context/ToastContext';
 import { USE_MOCK } from '../config';
-import type { ApiUser, ApiChallenge, ApiDockerContainer, ApiDockerSettings, CreateChallengePayload, UpdateChallengePayload, DeactivateChallengePayload, UserRole } from '../types/api';
+import type { ApiUser, ApiChallenge, ApiDockerContainer, ApiDockerSettings, CreateChallengePayload, UpdateChallengePayload, DeactivateChallengePayload, UserRole, ApiBadge, BadgeType } from '../types/api';
 import type { AdminUser, Challenge, DockerImage, ChallengeCategory, ChallengeDifficulty } from '../types';
 
-export type AdminTab = 'users' | 'challenges' | 'notifications' | 'docker' | 'logs' | 'ctf';
+export type AdminTab = 'users' | 'challenges' | 'notifications' | 'docker' | 'logs' | 'ctf' | 'awards';
 
 const CATEGORY_MAP: Record<string, ChallengeCategory> = {
   Web: 'Web', Pwn: 'Pwn', Crypto: 'Crypto', Reverse: 'Reverse',
@@ -339,6 +340,55 @@ export function useAdmin() {
     }
   };
 
+  const awardBadge = async (data: {
+    userId: number;
+    type: BadgeType | string;
+    ctfEventId?: number | null;
+    customName?: string;
+    customColor?: string;
+    customIcon?: string;
+    note?: string;
+    isManuallyAwarded?: boolean;
+  }): Promise<boolean> => {
+    try {
+      const res = await badgeService.award(api, data);
+      if (res.isSuccess) {
+        toast.success('Badge awarded');
+        return true;
+      } else {
+        toast.error(res.message);
+        return false;
+      }
+    } catch {
+      toast.error('Failed to award badge');
+      return false;
+    }
+  };
+
+  const revokeBadge = async (badgeId: number): Promise<boolean> => {
+    try {
+      const res = await badgeService.revoke(api, badgeId);
+      if (res.isSuccess) {
+        toast.success('Badge revoked');
+        return true;
+      } else {
+        toast.error(res.message);
+        return false;
+      }
+    } catch {
+      toast.error('Failed to revoke badge');
+      return false;
+    }
+  };
+
+  const getBadgesForUser = async (userId: number): Promise<ApiBadge[]> => {
+    try {
+      return await badgeService.getForUser(api, userId);
+    } catch {
+      return [];
+    }
+  };
+
   return {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
@@ -348,5 +398,6 @@ export function useAdmin() {
     registerUser, loading, refresh,
     deactivateChallenge,
     killDockerContainer, restartDockerContainer, updateDockerSettings, refreshDocker,
+    awardBadge, revokeBadge, getBadgesForUser,
   };
 }

@@ -297,3 +297,38 @@ export interface UpdateCtfEventPayload {
   endTime: string;
   isComingSoon: boolean;
 }
+
+export type BadgeType =
+  | 'Bronze' | 'Silver' | 'Gold' | 'Platinum'
+  | 'FirstBlood' | 'GeniusPerfectionist'
+  | 'Veteran1' | 'Veteran5' | 'Veteran10'
+  | 'Custom';
+
+export interface ApiFirstBloodBreakdown {
+  ctfEventName: string;
+  count: number;
+}
+
+export interface ApiBadge {
+  id: number;
+  type: BadgeType;
+  ctfEventId: number | null;
+  ctfEventName: string | null;
+  placement: number | null;
+  points: number | null;
+  customName: string | null;
+  customColor: string | null;
+  customIcon: string | null;
+  note: string | null;
+  isManuallyAwarded: boolean;
+  awardedAt: string;
+  firstBloodBreakdown: ApiFirstBloodBreakdown[] | null;
+}
+
+export interface ApiCtfEventSummary {
+  id: number;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isFinalized: boolean;
+}

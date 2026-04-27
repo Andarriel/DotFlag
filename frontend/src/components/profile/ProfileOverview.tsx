@@ -52,9 +52,11 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
       </div>
 
       {solves.length > 1 && (() => {
-        const sorted = [...solves].sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
-        const firstT = new Date(sorted[0].solvedAt).getTime();
-        const points: { t: number; cum: number; isFirstBlood: boolean }[] = [{ t: firstT, cum: 0, isFirstBlood: false }];
+        // Exclude 0-point solves (deactivated challenges) — they cause phantom vertical segments
+        const chartSolves = solves.filter(s => s.points > 0);
+        if (chartSolves.length < 2) return null;
+        const sorted = [...chartSolves].sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
+        const points: { t: number; cum: number; isFirstBlood: boolean }[] = [];
         let cum = 0;
         for (const s of sorted) {
           cum += s.points;
@@ -62,12 +64,15 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
         }
         const W = 600, H = 120, PAD = 8;
         const minT = points[0].t, maxT = points[points.length - 1].t;
-        const maxCum = points[points.length - 1].cum;
+        const maxCum = Math.max(1, points[points.length - 1].cum);
         const tSpan = Math.max(1, maxT - minT);
         const scaleX = (t: number) => PAD + ((t - minT) / tSpan) * (W - PAD * 2);
         const scaleY = (c: number) => H - PAD - (c / maxCum) * (H - PAD * 2);
+        // Line path: only actual solve points, no phantom zero
         const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${scaleX(p.t).toFixed(1)},${scaleY(p.cum).toFixed(1)}`).join(' ');
-        const area = `${path} L${scaleX(maxT).toFixed(1)},${H - PAD} L${scaleX(minT).toFixed(1)},${H - PAD} Z`;
+        // Area: open from bottom-left, follow line, close at bottom-right
+        const bottom = (H - PAD).toFixed(1);
+        const area = `M${scaleX(minT).toFixed(1)},${bottom} ${path.replace('M', 'L')} L${scaleX(maxT).toFixed(1)},${bottom} Z`;
         const sameDay = new Date(minT).toDateString() === new Date(maxT).toDateString();
         const labelOpts: Intl.DateTimeFormatOptions = sameDay
           ? { hour: '2-digit', minute: '2-digit' }
@@ -89,20 +94,17 @@ export default function ProfileOverview({ profile }: { profile: Profile }) {
               </defs>
               <path d={area} fill="url(#solveAreaGradient)" />
               <path d={path} fill="none" stroke="rgb(129 140 248)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
-              {sorted.map((s, i) => {
-                const p = points[i + 1];
-                return (
-                  <circle
-                    key={i}
-                    cx={scaleX(p.t)}
-                    cy={scaleY(p.cum)}
-                    r={p.isFirstBlood ? 3 : 2}
-                    fill={p.isFirstBlood ? 'rgb(248 113 113)' : 'rgb(165 180 252)'}
-                  >
-                    <title>{`+${s.points} · ${s.challengeTitle} · ${new Date(p.t).toLocaleString()}`}</title>
-                  </circle>
-                );
-              })}
+              {points.map((p, i) => (
+                <circle
+                  key={i}
+                  cx={scaleX(p.t)}
+                  cy={scaleY(p.cum)}
+                  r={p.isFirstBlood ? 3 : 2}
+                  fill={p.isFirstBlood ? 'rgb(248 113 113)' : 'rgb(165 180 252)'}
+                >
+                  <title>{`+${sorted[i].points} · ${sorted[i].challengeTitle} · ${new Date(p.t).toLocaleString()}`}</title>
+                </circle>
+              ))}
             </svg>
             <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1">
               <span>{startLabel}</span>
