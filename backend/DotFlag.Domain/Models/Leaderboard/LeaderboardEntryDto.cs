@@ -1,4 +1,5 @@
-﻿
+﻿using DotFlag.Domain.Models.Badge;
+
 namespace DotFlag.Domain.Models.Leaderboard
 {
     public class LeaderboardEntryDto
@@ -9,5 +10,6 @@ namespace DotFlag.Domain.Models.Leaderboard
         public int Score { get; set; }
         public int SolvesCount { get; set; }
         public DateTime LastSolveAt { get; set; }
+        public BadgeDto? TopBadge { get; set; }
     }
 }

@@ -20,5 +20,8 @@ namespace DotFlag.BusinessLayer.Structure
             return UpdateExecution(dto);
         }
 
+        public List<CtfEventDto> GetAll() => GetAllExecution();
+
+        public ActionResponse FinalizeCTF(int ctfEventId, int actorId) => FinalizeCTFExecution(ctfEventId, actorId);
     }
 }

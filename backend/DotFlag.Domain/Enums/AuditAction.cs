@@ -21,6 +21,7 @@ namespace DotFlag.Domain.Enums
         UserUnbanned = 31,
         UserPromoted = 32,
         UserDemoted = 33,
+        SolveDeleted = 34,
 
         // Security
         LoginSuccess = 40,
@@ -35,6 +36,11 @@ namespace DotFlag.Domain.Enums
         DockerInstanceStarted = 60,
         DockerInstanceStopped = 61,
         DockerInstanceKilled = 62,
+
+        // Badges
+        BadgeAwarded = 70,
+        BadgeRevoked = 71,
+        CtfFinalized = 72,
 
         // System
         SystemCleanup = 90

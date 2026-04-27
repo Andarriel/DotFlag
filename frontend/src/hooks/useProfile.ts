@@ -3,10 +3,12 @@ import { MOCK_PROFILES } from '../data/mockData';
 import { userService } from '../services/userService';
 import { submissionService } from '../services/submissionService';
 import { challengeService } from '../services/challengeService';
+import { badgeService } from '../services/badgeService';
 import { useAxios } from '../context/AxiosContext';
 import { useAuth } from '../context/AuthContext';
 import { USE_MOCK } from '../config';
 import type { Profile, FlagEntry } from '../types';
+import type { ApiBadge } from '../types/api';
 
 function authToProfile(user: { id: number; email: string; username: string; role: string; currentPoints?: number }): Profile {
   return {
@@ -21,16 +23,25 @@ function authToProfile(user: { id: number; email: string; username: string; role
   };
 }
 
-export function useProfile(userId: number): { profile: Profile | null; isOwnProfile: boolean; loading: boolean } {
+export function useProfile(userId: number): { profile: Profile | null; isOwnProfile: boolean; loading: boolean; badges: ApiBadge[] } {
   const api = useAxios();
   const { user } = useAuth();
   const isOwnProfile = user?.id === userId;
 
   const [profile, setProfile] = useState<Profile | null>(() => {
     if (USE_MOCK) return MOCK_PROFILES.find(p => p.id === userId) ?? null;
+    // Seed own profile immediately from auth so role/username show without waiting for API
+    if (user && user.id === userId) return authToProfile(user);
     return null;
   });
+  const [badges, setBadges] = useState<ApiBadge[]>([]);
   const [loading, setLoading] = useState(!USE_MOCK);
+
+  // If auth loads after first render, seed own profile immediately
+  useEffect(() => {
+    if (USE_MOCK || !user || user.id !== userId) return;
+    setProfile(prev => prev ?? authToProfile(user));
+  }, [user, userId]);
 
   useEffect(() => {
     if (USE_MOCK) return;
@@ -59,6 +70,9 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
         return [];
       }
     };
+
+    // Fetch badges for any profile (endpoint is public)
+    badgeService.getForUser(api, userId).then(setBadges).catch(() => setBadges([]));
 
     if (isOwnProfile) {
       Promise.all([userService.getMyProfile(api), fetchFlagHistory()])
@@ -112,5 +126,5 @@ export function useProfile(userId: number): { profile: Profile | null; isOwnProf
     }
   }, [api, userId, isOwnProfile]);
 
-  return { profile, isOwnProfile, loading };
+  return { profile, isOwnProfile, loading, badges };
 }

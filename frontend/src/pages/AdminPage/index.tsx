@@ -10,6 +10,7 @@ const NotificationBroadcast = lazy(() => import('../../components/admin/Notifica
 const DockerMonitor = lazy(() => import('../../components/admin/DockerMonitor'));
 const AuditLogsTable = lazy(() => import('../../components/admin/AuditLogsTable'));
 const CtfEventSettings = lazy(() => import('../../components/admin/CtfEventSettings'));
+const AwardsTab = lazy(() => import('../../components/admin/AwardsTab'));
 
 const Spinner = () => (
   <div className="flex justify-center py-20">
@@ -35,6 +36,7 @@ function AdminContent() {
                 {activeTab === 'docker' && <DockerMonitor />}
                 {activeTab === 'logs' && <AuditLogsTable />}
                 {activeTab === 'ctf' && <CtfEventSettings />}
+                {activeTab === 'awards' && <AwardsTab />}
               </>
             )}
           </Suspense>

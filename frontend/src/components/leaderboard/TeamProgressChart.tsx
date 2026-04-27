@@ -102,7 +102,7 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
             <filter id="dot-glow"><feGaussianBlur stdDeviation="4" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
             {teamProgress.map(t => (
               <linearGradient key={t.teamId} id={`area-${t.teamId}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor={t.color} stopOpacity="0.15" /><stop offset="100%" stopColor={t.color} stopOpacity="0.01" />
+                <stop offset="0%" stopColor={t.color} stopOpacity="0.10" /><stop offset="100%" stopColor={t.color} stopOpacity="0" />
               </linearGradient>
             ))}
           </defs>
@@ -114,17 +114,32 @@ export default function TeamProgressChart({ teamProgress, maxPoints }: TeamProgr
 
           {visibleTeams.map(team => {
             const coords = team.progress.map(p => ({ x: xScale(p.timestamp), y: yScale(p.points) }));
-            const curve = smoothCurve(coords);
-            const first = coords[0]; const last = coords[coords.length - 1];
+            const first = coords[0];
             const bottom = HEIGHT - PAD.bottom;
-            const area = curve + ` L ${last.x} ${bottom} L ${first.x} ${bottom} Z`;
+            const chartRight = chartW - PAD.right;
+
+            // Line starts from first real solve (skip synthetic origin) so late-starting
+            // users don't show a flat line crawling along y≈0 for most of the chart.
+            // Area fill still includes the synthetic origin for a proper baseline.
+            const last = coords[coords.length - 1];
+            const areaCurve = smoothCurve(coords);
+            const lineCoords = coords.slice(1);
+            const lineCurve = lineCoords.length >= 2
+              ? smoothCurve(lineCoords)
+              : lineCoords.length === 1
+                ? `M ${lineCoords[0].x.toFixed(1)} ${lineCoords[0].y.toFixed(1)}`
+                : '';
+            const linePath = lineCurve ? `${lineCurve} L ${chartRight} ${last.y.toFixed(1)}` : '';
+            const areaPath = areaCurve + ` L ${chartRight} ${last.y.toFixed(1)} V ${bottom} H ${first.x.toFixed(1)} Z`;
+
             const isHoveredTeam = hoveredPoint?.teamId === team.teamId;
             const isDimmed = hoveredPoint !== null && !isHoveredTeam;
             return (
               <g key={team.teamId} opacity={isDimmed ? 0.2 : 1} style={{ transition: 'opacity 0.25s ease' }}>
-                <path d={area} fill={`url(#area-${team.teamId})`} />
-                <path d={curve} fill="none" stroke={team.color} strokeWidth={isHoveredTeam ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round" />
+                <path d={areaPath} fill={`url(#area-${team.teamId})`} />
+                {linePath && <path d={linePath} fill="none" stroke={team.color} strokeWidth={isHoveredTeam ? 2 : 1.5} strokeLinecap="round" strokeLinejoin="round" />}
                 {team.progress.map((_, i) => {
+                  if (i === 0) return null; // skip synthetic origin — no real solve event
                   const { x: cx, y: cy } = coords[i];
                   const isActive = hoveredPoint?.teamId === team.teamId && hoveredPoint?.index === i;
                   return (

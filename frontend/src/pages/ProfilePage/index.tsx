@@ -21,7 +21,7 @@ interface TabConfig {
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
-  const { profile, isOwnProfile, loading } = useProfile(Number(id));
+  const { profile, isOwnProfile, loading, badges } = useProfile(Number(id));
 
   const TABS: TabConfig[] = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -57,7 +57,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-950 pt-20 sm:pt-24 pb-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <ProfileHeader profile={profile} />
+        <ProfileHeader profile={profile} badges={badges} />
 
         <div className="flex gap-1 mb-6 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
           {visibleTabs.map(tab => {

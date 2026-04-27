@@ -1,6 +1,8 @@
-import { Zap, Users, Calendar, Trophy, Target } from 'lucide-react';
+import { Zap, Users, Calendar, Target } from 'lucide-react';
 import { formatTimeAgo } from '../../utils/leaderboardUtils';
 import type { Profile } from '../../types';
+import type { ApiBadge } from '../../types/api';
+import { BadgeRow } from '../common/BadgeDisplay';
 
 function StatPill({ icon: Icon, color, value, label }: { icon: typeof Zap; color: string; value: string | number; label: string }) {
   return (
@@ -14,7 +16,7 @@ function StatPill({ icon: Icon, color, value, label }: { icon: typeof Zap; color
   );
 }
 
-export default function ProfileHeader({ profile }: { profile: Profile }) {
+export default function ProfileHeader({ profile, badges }: { profile: Profile; badges?: ApiBadge[] }) {
   return (
     <div className="relative overflow-hidden glass rounded-2xl gradient-border noise mb-6">
       <div className="absolute -top-20 -right-20 w-60 h-60 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -30,10 +32,10 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">{profile.username}</h1>
+            <div className="flex items-center gap-2.5 mb-1.5 overflow-hidden">
+              <h1 className="text-xl sm:text-2xl font-bold text-white truncate min-w-0">{profile.username}</h1>
               {profile.role && profile.role !== 'User' && profile.role !== 'Guest' && (
-                <span className={`text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${
+                <span className={`shrink-0 translate-y-0.5 text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${
                   profile.role === 'Owner'
                     ? 'bg-red-500/20 text-red-400 border-red-500/20'
                     : profile.role === 'Admin'
@@ -43,8 +45,9 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
                   {profile.role}
                 </span>
               )}
+              {badges && badges.length > 0 && <div className="shrink-0 translate-y-0.5"><BadgeRow badges={badges} size="sm" /></div>}
             </div>
-            <p className="text-sm text-slate-400 mb-4 line-clamp-2">{profile.bio}</p>
+            <p className="text-sm text-slate-400 mb-2 line-clamp-2">{profile.bio}</p>
 
             <div className="flex flex-wrap gap-2">
               <StatPill icon={Zap} color="text-indigo-400" value={profile.currentPoints} label="Points" />

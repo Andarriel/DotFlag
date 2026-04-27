@@ -20,7 +20,11 @@ function buildProgressChart(progress: ApiLeaderboardProgress[]): TeamProgress[] 
   }).slice(0, 10);
 
   const allTimestamps = progress.flatMap(p => p.progress.map(pt => new Date(pt.timestamp).getTime()));
-  const earliest = allTimestamps.length > 0 ? new Date(Math.min(...allTimestamps) - 60000).toISOString() : new Date().toISOString();
+  const minTs = allTimestamps.length > 0 ? Math.min(...allTimestamps) : Date.now();
+  const maxTs = allTimestamps.length > 0 ? Math.max(...allTimestamps) : Date.now();
+  // Place origin far enough left that the spline has room — 8% of total range, minimum 30 minutes
+  const originOffset = Math.max((maxTs - minTs) * 0.08, 30 * 60 * 1000);
+  const earliest = new Date(minTs - originOffset).toISOString();
 
   return sorted.map((p, i) => {
     const origin = { timestamp: earliest, points: 0, challengeName: undefined, challengePoints: undefined };

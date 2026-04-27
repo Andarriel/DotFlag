@@ -6,7 +6,8 @@ namespace DotFlag.BusinessLayer.Interfaces
     public interface ICtfEventActions
     {
         CtfEventDto Get();
-
         ActionResponse Update(UpdateCtfEventDto dto);
+        List<CtfEventDto> GetAll();
+        ActionResponse FinalizeCTF(int ctfEventId, int actorId);
     }
 }

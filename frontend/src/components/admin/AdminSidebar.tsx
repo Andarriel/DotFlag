@@ -1,4 +1,4 @@
-import { Users, Flag, Container, Megaphone, ScrollText, CalendarClock } from 'lucide-react';
+import { Users, Flag, Container, Megaphone, ScrollText, CalendarClock, Medal } from 'lucide-react';
 import { useAdminContext } from '../../context/AdminContext';
 import { useAuth } from '../../context/AuthContext';
 import type { AdminTab } from '../../hooks/useAdmin';
@@ -12,6 +12,7 @@ const TABS: TabConfig[] = [
   { id: 'docker', label: 'Docker', icon: Container },
   { id: 'logs', label: 'Audit Logs', icon: ScrollText },
   { id: 'ctf', label: 'CTF Event', icon: CalendarClock, ownerOnly: true },
+  { id: 'awards', label: 'Awards', icon: Medal },
 ];
 
 export default function AdminSidebar() {

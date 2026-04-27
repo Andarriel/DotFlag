@@ -9,6 +9,8 @@ export interface ApiSubmission {
   isCorrect: boolean;
   bonusPoints: number;
   timestamp: string;
+  challengeCurrentPoints: number;
+  isChallengeActive: boolean;
 }
 
 export const submissionService = {
@@ -20,4 +22,10 @@ export const submissionService = {
 
   getByUser: (api: AxiosInstance, userId: number) =>
     api.get<ApiSubmission[]>(`/submissions/user/${userId}`).then(res => res.data),
+
+  getAdminSolves: (api: AxiosInstance, userId: number) =>
+    api.get<ApiSubmission[]>(`/submissions/admin/user/${userId}`).then(res => res.data),
+
+  deleteSolve: (api: AxiosInstance, submissionId: number) =>
+    api.delete<{ isSuccess: boolean; message: string }>(`/submissions/admin/${submissionId}`).then(res => res.data),
 };

@@ -19,5 +19,6 @@ namespace DotFlag.Domain.Entities.CtfEvent
         public DateTime EndTime { get; set; }
 
         public bool IsComingSoon { get; set; } = false;
+        public bool IsFinalized { get; set; } = false;
     }
 }

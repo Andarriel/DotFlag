@@ -33,5 +33,6 @@ namespace DotFlag.BusinessLayer
         public ICtfEventActions GetCtfEventActions() => new CtfEventExecution(_mapper);
         public IChallengeInstanceActions GetChallengeInstanceActions() => new ChallengeInstanceExecution();
         public IDockerAdminActions GetDockerAdminActions() => new DockerAdminExecution();
+        public IBadgeActions GetBadgeActions() => new BadgeExecution();
     }
 }

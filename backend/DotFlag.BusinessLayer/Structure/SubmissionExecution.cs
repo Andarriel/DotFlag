@@ -34,4 +34,14 @@ public class SubmissionExecution : SubmissionActions, ISubmissionActions
     {
         return GetByUserIdExecution(userId);
     }
+
+    public List<SubmissionDto> GetAdminSolves(int userId)
+    {
+        return GetAdminSolvesExecution(userId);
+    }
+
+    public ActionResponse DeleteSubmission(int submissionId, int actorId)
+    {
+        return DeleteSubmissionExecution(submissionId, actorId);
+    }
 }
