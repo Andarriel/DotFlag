@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using DotFlag.DataAccessLayer.Context;
+using DotFlag.Domain.Entities.Badge;
 using DotFlag.Domain.Entities.Notification;
 using DotFlag.Domain.Entities.Submission;
+using DotFlag.Domain.Enums;
 using DotFlag.Domain.Models.Responses;
 using DotFlag.Domain.Models.Submission;
 
@@ -62,16 +64,41 @@ namespace DotFlag.BusinessLayer.Core
 
             if (isFirstBlood)
             {
+                var now = DateTime.UtcNow;
+
+                // Global broadcast — everyone sees it
                 context.Notifications.Add(new NotificationData
                 {
-                    Title = "First Blood!",
-                    Message = $"{user.Username} was the first to solve {challenge.Name}!",
-                    Type = "firstBlood",
-                    UserId = null,
-                    CreatedOn = DateTime.UtcNow
+                    Title   = "First Blood!",
+                    Message = $"{user.Username} was the first to solve \"{challenge.Name}\"!",
+                    Type    = "firstBlood",
+                    UserId  = null,
+                    CreatedOn = now
                 });
 
-                user.NotificationsReadAt = DateTime.UtcNow;
+                // Personal notification to the solver
+                context.Notifications.Add(new NotificationData
+                {
+                    Title   = "🔥 First Blood!",
+                    Message = $"You were the first to solve \"{challenge.Name}\"! +{challenge.FirstBloodBonus} bonus points.",
+                    Type    = "firstBlood",
+                    UserId  = userId,
+                    CreatedOn = now
+                });
+
+                // Award FirstBlood badge immediately (find active CTF for context)
+                var activeCTF = context.CtfEvents
+                    .FirstOrDefault(c => c.StartTime <= now && c.EndTime >= now);
+
+                context.UserBadges.Add(new UserBadgeData
+                {
+                    UserId            = userId,
+                    Type              = BadgeType.FirstBlood,
+                    CtfEventId        = activeCTF?.Id,
+                    IsManuallyAwarded = false,
+                    AwardedByUserId   = null,
+                    AwardedAt         = now,
+                });
             }
 
             context.SaveChanges();
@@ -165,6 +192,78 @@ namespace DotFlag.BusinessLayer.Core
                     Timestamp = s.CreatedOn
                 })
                 .ToList();
+        }
+
+        // Admin: all correct solves for a user, including inactive challenges
+        protected List<SubmissionDto> GetAdminSolvesExecution(int userId)
+        {
+            using var context = new AppDbContext();
+
+            return context.Submissions
+                .Where(s => s.UserId == userId && s.IsCorrect)
+                .OrderByDescending(s => s.CreatedOn)
+                .Select(s => new SubmissionDto
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    ChallengeId = s.ChallengeId,
+                    ChallengeName = s.Challenge.Name,
+                    IsCorrect = s.IsCorrect,
+                    BonusPoints = s.BonusPoints,
+                    Timestamp = s.CreatedOn,
+                    ChallengeCurrentPoints = s.Challenge.CurrentPoints,
+                    IsChallengeActive = s.Challenge.IsActive,
+                })
+                .ToList();
+        }
+
+        // Admin: delete a correct submission and fully restore challenge state
+        protected ActionResponse DeleteSubmissionExecution(int submissionId, int actorId)
+        {
+            using var context = new AppDbContext();
+
+            var submission = context.Submissions
+                .FirstOrDefault(s => s.Id == submissionId && s.IsCorrect);
+
+            if (submission == null)
+                return new ActionResponse { IsSuccess = false, Message = "Submission not found." };
+
+            var challenge = context.Challenges.FirstOrDefault(c => c.Id == submission.ChallengeId);
+
+            if (challenge == null)
+                return new ActionResponse { IsSuccess = false, Message = "Challenge not found." };
+
+            bool wasFirstBlood = submission.BonusPoints > 0;
+
+            // Restore solve count and recalculate dynamic points
+            if (challenge.SolveCount > 0)
+            {
+                challenge.SolveCount -= 1;
+                challenge.CurrentPoints = challenge.CalculateCurrentPoints(
+                    challenge.MaxPoints, challenge.MinPoints, challenge.DecayRate, challenge.SolveCount);
+            }
+
+            // Remove the first-blood badge awarded to this solver (earliest one for this user)
+            if (wasFirstBlood)
+            {
+                var badge = context.UserBadges
+                    .Where(b => b.UserId == submission.UserId && b.Type == BadgeType.FirstBlood)
+                    .OrderBy(b => b.AwardedAt)
+                    .FirstOrDefault();
+                if (badge != null)
+                    context.UserBadges.Remove(badge);
+            }
+
+            var challengeName = challenge.Name;
+            var solverUserId = submission.UserId;
+
+            context.Submissions.Remove(submission);
+            context.SaveChanges();
+
+            AuditLog.Log(actorId, AuditAction.SolveDeleted, "Submission", submissionId,
+                $"solver={solverUserId}, challenge={challengeName}, firstBlood={wasFirstBlood}");
+
+            return new ActionResponse { IsSuccess = true, Message = "Solve deleted and points restored." };
         }
 
     }

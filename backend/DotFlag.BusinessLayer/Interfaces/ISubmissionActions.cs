@@ -10,5 +10,7 @@ namespace DotFlag.BusinessLayer.Interfaces
         List<SubmissionDto> GetRecent(int count);
         List<SubmissionDto> GetByUser(int userId);
         List<SubmissionDto> GetByUserId(int userId);
+        List<SubmissionDto> GetAdminSolves(int userId);
+        ActionResponse DeleteSubmission(int submissionId, int actorId);
     }
 }

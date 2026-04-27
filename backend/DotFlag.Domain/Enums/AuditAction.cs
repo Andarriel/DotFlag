@@ -21,6 +21,7 @@ namespace DotFlag.Domain.Enums
         UserUnbanned = 31,
         UserPromoted = 32,
         UserDemoted = 33,
+        SolveDeleted = 34,
 
         // Security
         LoginSuccess = 40,

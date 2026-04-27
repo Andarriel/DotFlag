@@ -49,5 +49,22 @@ namespace DotFlag.Api.Controller
             return Ok(result);
         }
 
+        [HttpGet("admin/user/{userId}")]
+        [Authorize(Roles = "Admin,Owner")]
+        public IActionResult GetAdminSolves(int userId)
+        {
+            var result = _submissionActions.GetAdminSolves(userId);
+            return Ok(result);
+        }
+
+        [HttpDelete("admin/{id}")]
+        [Authorize(Roles = "Admin,Owner")]
+        public IActionResult DeleteSubmission(int id)
+        {
+            int actorId = User.GetId();
+            var result = _submissionActions.DeleteSubmission(id, actorId);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
     }
 }

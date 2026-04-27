@@ -4,6 +4,8 @@ import { userService } from '../services/userService';
 import { challengeService } from '../services/challengeService';
 import { dockerAdminService } from '../services/dockerAdminService';
 import { badgeService } from '../services/badgeService';
+import { submissionService } from '../services/submissionService';
+import type { ApiSubmission } from '../services/submissionService';
 import { useAxios } from '../context/AxiosContext';
 import { useToast } from '../context/ToastContext';
 import { USE_MOCK } from '../config';
@@ -389,6 +391,29 @@ export function useAdmin() {
     }
   };
 
+  const getUserSolves = async (userId: number): Promise<ApiSubmission[]> => {
+    try {
+      return await submissionService.getAdminSolves(api, userId);
+    } catch {
+      return [];
+    }
+  };
+
+  const deleteSolve = async (submissionId: number): Promise<boolean> => {
+    try {
+      const res = await submissionService.deleteSolve(api, submissionId);
+      if (res.isSuccess) {
+        toast.success('Solve deleted and points restored');
+        return true;
+      }
+      toast.error(res.message);
+      return false;
+    } catch {
+      toast.error('Failed to delete solve');
+      return false;
+    }
+  };
+
   return {
     activeTab, setActiveTab,
     users, challenges, dockerImages,
@@ -399,5 +424,6 @@ export function useAdmin() {
     deactivateChallenge,
     killDockerContainer, restartDockerContainer, updateDockerSettings, refreshDocker,
     awardBadge, revokeBadge, getBadgesForUser,
+    getUserSolves, deleteSolve,
   };
 }
